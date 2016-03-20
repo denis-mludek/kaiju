@@ -1,0 +1,30 @@
+{
+	"compilerOptions": {
+		"target": "es5",
+		"noImplicitAny": true
+	},
+	"compileOnSave": false,
+	"atom": {
+		"rewriteTsconfig": true
+	},
+	"filesGlob": [
+		"src/*.ts",
+		"typings/**/*.d.ts"
+	],
+	"files": [
+		"src/action.ts",
+		"src/animation.ts",
+		"src/app.ts",
+		"src/blue.ts",
+		"src/green.ts",
+		"src/gsap.ts",
+		"src/Index.ts",
+		"src/main.ts",
+		"src/red.ts",
+		"src/snabbdom.ts",
+		"src/store.ts",
+		"typings/gsap.d.ts",
+		"typings/snabbdom/h.d.ts",
+		"typings/snabbdom/snabbdom.d.ts"
+	]
+}

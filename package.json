@@ -17,9 +17,9 @@
     "url": "https://github.com/AlexGalays/dompteuse/"
   },
 
-  "dependencies": {
-    "snabbdom": "0.4.0",
-    "fluxx": "0.13.0"
+  "peerDependencies": {
+    "snabbdom": "^0.4.0",
+    "fluxx": "^0.13.0"
   },
 
   "devDependencies": {
@@ -29,6 +29,7 @@
   },
 
   "scripts": {
-    "build": "node node_modules/babel-cli/bin/babel.js src --out-dir lib"
+    "copy-typings": "cp typings/dompteuse.d.ts lib",
+    "build": "npm run copy-typings && node node_modules/babel-cli/bin/babel.js src --out-dir lib"
   }
 }
