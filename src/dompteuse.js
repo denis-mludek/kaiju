@@ -1,17 +1,10 @@
 
-import { Store } from 'fluxx';
-
-import render from './render';
+import Render from './render';
 import component from './component';
 
 
-function startApp({ app, patch, elm, log }) {
-  render.patch = patch;
-
-  if (log) {
-    render.log = true;
-    Store.log = true;
-  }
+function startApp({ app, patch, elm }) {
+  Render.patch = patch;
 
   // Non destructive patching inside the passed element
   const elmToReplace = document.createElement('div');
@@ -21,5 +14,6 @@ function startApp({ app, patch, elm, log }) {
 
 export {
   component,
-  startApp
+  startApp,
+  Render
 };

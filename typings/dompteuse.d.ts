@@ -1,8 +1,13 @@
 
-import { LocalStore } from 'fluxx';
+import { GlobalStore, LocalStore } from 'fluxx';
 
-// TODO
-export var startApp: any;
+
+export function startApp<S>(options: {
+  app: () => any; // TODO: type this as a vnode
+  patch: any; // TODO: Reuse snabbdom's patch type
+  store: GlobalStore<S>;
+  elm: HTMLElement;
+}): any;
 
 
 interface RenderOptions<P, PS, LS, AS> {
@@ -26,3 +31,8 @@ export function component<P, PS, LS, AS>(options: {
   render: (options: RenderOptions<P, PS, LS, AS>) => any; // TODO: type this as a vnode
   hook?: Hooks;
 }): any; // TODO: type this as a vnode
+
+
+export var Render: {
+  log: boolean;
+}

@@ -19,7 +19,7 @@
 
   "peerDependencies": {
     "snabbdom": "^0.4.0",
-    "fluxx": "^0.13.0"
+    "fluxx": "^0.14.1"
   },
 
   "devDependencies": {

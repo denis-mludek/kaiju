@@ -6,9 +6,8 @@ let componentsToRender = [];
 let rendering = false;
 let nextRender;
 
-/* Options set from the main module */
-const options = {};
-export default options;
+const Render = { patch: undefined, log: false };
+export default Render;
 
 
 export function createComponent(component) {
@@ -45,6 +44,8 @@ function renderNow() {
   nextRender = undefined;
   componentsToRender = [];
 
+  if (Render.log) console.log('%cNew rendering frame', 'color: orange');
+
   // Render components in a top-down fashion.
   // This ensures the rendering order is predictive and props & states are consistent.
   components.sort((compA, compB) => compA.depth - compB.depth);
@@ -60,7 +61,8 @@ function renderComponentNow(component) {
   // This can happen if the parent renders first and decide a child component should be removed.
   if (destroyed) return;
 
-  const { patch, log } = options;
+  const { patch, log } = Render;
+
   let beforeRender;
 
   if (log) beforeRender = performance.now();
@@ -73,7 +75,8 @@ function renderComponentNow(component) {
   }
 
   patch(vnode || elm.firstChild, newVnode);
-  if (log) console.log(`Render component '${component.key}'`, (performance.now() - beforeRender) + ' ms');
+  if (log) console.log(`Render component '${component.key}'`,
+    (performance.now() - beforeRender) + ' ms', component);
 
   component.vnode = newVnode;
 }
