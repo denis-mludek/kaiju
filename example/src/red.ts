@@ -1,42 +1,58 @@
 import h = require('snabbdom/h');
+import update from 'immupdate';
+import { LocalStore, Action, NoArgAction } from 'fluxx';
 import { component } from 'dompteuse';
 
 import { contentAnimation } from './animation';
-import store, { State as GlobalState } from './store';
-import { incrementRed } from './action';
 
 
-export default function() {
+export default function(props?: Props) {
   return component({
     key: 'red',
-    store,
-    readState,
+    localStore,
+    props,
     render,
     hook: contentAnimation
   });
 };
 
+// Props passed by our parent
+interface Props {
+  openedByDefault: boolean;
+}
+
+// Our local state
 interface State {
-  count: number
+  opened: number;
 }
 
-function readState(state: GlobalState): State {
-  return {
-    count: state.blue.red.count
+// Actions modifying our local state
+interface Actions {
+  toggle: NoArgAction
+}
+
+function localStore({ openedByDefault }) {
+  const initialState = { opened: openedByDefault };
+
+  const actions = {
+    toggle: Action<number>('toggle')
   };
+
+  const store = LocalStore(initialState, on => {
+    on(actions.toggle, state => update(state, { opened: !state.opened }))
+  });
+
+  return { store, actions };
 }
 
-function render(state: State) {
-  const { count } = state;
+function render(options: { localState: State, actions: Actions }) {
+  const { localState: { opened }, actions } = options;
 
-  return h('div#red', [
-    h('div.increment', [
-      h('span', `Count: ${count}`),
-      h('button', { on: { click: incrementRedBy10 } }, 'Increment')
-    ])
+  return h('div#red', { class: { opened } }, [
+    h('button', { on: { click: onClick(actions) } }, 'Toggle')
   ]);
 }
 
-function incrementRedBy10() {
-  incrementRed(10);
+function onClick(actions: Actions) {
+  return () => actions.toggle()
 }

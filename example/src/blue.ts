@@ -5,35 +5,37 @@ import { component } from 'dompteuse';
 import { contentAnimation } from './animation';
 import green from './green';
 import red from './red';
-import store, { State as GlobalState } from './store';
+import { State as GlobalState } from './store';
 import { incrementBlue } from './action';
 
 
 export default function() {
   return component({
     key: 'blue',
-    store,
-    readState,
+    pullState,
     render,
     hook: contentAnimation
   });
 };
 
 interface State {
-  count: number,
-  route: string,
-  id: string
+  count: number;
+  redCount: number;
+  route: string;
+  id: string;
 }
 
-function readState(state: GlobalState): State {
+function pullState(state: GlobalState): State {
   return {
     count: state.blue.count,
+    redCount: state.blue.red.count,
     route: state.route.fullName,
     id: state.route.params['id']
   };
 }
 
-function render(state: State) {
+function render(options: { state: State }) {
+  const { state } = options;
   const { id, route } = state;
 
   return h('div#blue', [
@@ -44,12 +46,14 @@ function render(state: State) {
       'Count: ' + state.count,
       h('button', { on: { click: incrementBlue } }, 'Increment')
     ]),
-    h('section', getChildren(route))
+    h('section', getChildren(state))
   ]);
 }
 
-function getChildren(route: string) {
+function getChildren(state: State) {
+  const { route, redCount } = state;
+
   if (route === 'app.blue') return [h('span', { hook: contentAnimation }, 'I am blue')];
   if (route === 'app.blue.green') return [green()];
-  if (route === 'app.blue.red') return [red()];
+  if (route === 'app.blue.red') return [red({ openedByDefault: true }), red()];
 }

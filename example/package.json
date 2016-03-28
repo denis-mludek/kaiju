@@ -11,9 +11,10 @@
   "dependencies": {
     "typescript": "beta",
     "snabbdom": "0.4.0",
-    "abyssa": "7.2.6",
+    "abyssa": "7.2.7",
     "fluxx": "0.13.0",
-    "immupdate": "0.2.0"
+    "immupdate": "0.2.0",
+    "gsap": "1.18.2"
   },
 
   "devDependencies": {

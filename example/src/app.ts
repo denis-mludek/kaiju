@@ -2,7 +2,7 @@ import h = require('snabbdom/h');
 import { api as router } from 'abyssa';
 import { component } from 'dompteuse';
 
-import store, { State as GlobalState } from './store';
+import { State as GlobalState } from './store';
 import { incrementBlue } from './action';
 import index from './index';
 import blue from './blue';
@@ -10,8 +10,7 @@ import blue from './blue';
 
 export default component({
   key: 'app',
-  store,
-  readState,
+  pullState,
   render
 });
 
@@ -20,14 +19,16 @@ interface State {
   route: string
 }
 
-function readState(state: GlobalState): State {
+function pullState(state: GlobalState): State {
   return {
     count: state.blue.count,
     route: state.route.fullName
   };
 }
 
-function render(state: State) {
+function render(options: { state: State }) {
+  const { state } = options;
+
   return h('div', [
     h('header', [
       h('a', { attrs: { href: router.link('app.index'), 'data-nav': 'mousedown' } }, 'Index'),

@@ -4,7 +4,7 @@ import { startApp } from 'dompteuse';
 import patch from './snabbdom';
 import app from './app';
 import { routeChanged } from './action';
-
+import './store';
 
 const router = Router({
   app: State('', {}, {

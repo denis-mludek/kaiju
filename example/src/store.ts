@@ -1,8 +1,8 @@
-import { Store, Action } from 'fluxx';
+import { GlobalStore, Action } from 'fluxx';
 import { StateWithParams } from 'abyssa';
 import update from 'immupdate';
 
-import { incrementBlue, incrementRed, routeChanged } from './action';
+import { incrementBlue, routeChanged } from './action';
 
 
 export interface State {
@@ -19,23 +19,12 @@ const initialState = {
   blue: { count: 0, red: { count: 0 } }
 };
 
-function updateStore<P>(state: State, action: Action<P>): State {
+export default GlobalStore(initialState, on => {
+  on(incrementBlue, state =>
+    update(state, { blue: { count: (c: number) => c + 1 } })
+  );
 
-  if (action.is(incrementBlue)) {
-    return update(state, { blue: { count: (c: number) => c + 1 } });
-  }
-
-  if (action.is(incrementRed)) {
-    const { value } = action;
-    return update(state, { blue: { red: { count: (c: number) => c + action.value } } });
-  }
-
-  if (action.is(routeChanged)) {
-    const route = action.value;
-    return update(state, { route });
-  }
-
-  return state;
-}
-
-export default Store(initialState, updateStore);
+  on(routeChanged, (state, route) =>
+    update(state, { route })
+  );
+});

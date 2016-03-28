@@ -2,14 +2,13 @@ import h = require('snabbdom/h');
 import { component } from 'dompteuse';
 
 import { contentAnimation } from './animation';
-import store, { State as GlobalState } from './store';
+import { State as GlobalState } from './store';
 
 
 export default function() {
   return component({
     key: 'green',
-    store,
-    readState,
+    pullState,
     render,
     hook: contentAnimation
   });
@@ -19,13 +18,13 @@ interface State {
   id: string
 }
 
-function readState(state: GlobalState): State {
+function pullState(state: GlobalState): State {
   return {
     id: state.route.params['id']
   };
 }
 
-function render(state: State) {
-  const { id } = state;
+function render(options: { state: State }) {
+  const { state: { id } } = options;
   return h('div#green', `Green (route id = ${id})`);
 }

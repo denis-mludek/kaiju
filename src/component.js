@@ -1,30 +1,58 @@
 import h from 'snabbdom/h';
+import { globalStore } from 'fluxx';
 
 import { createComponent, renderComponent } from './render';
 import shallowEqual from './shallowEqual';
 
 
+const empty = {};
+
 export default function component(options) {
-  const { sel, key, store, readState, render, hook } = options;
+  const { tag, key, props = empty, pullState, localStore, render, hook } = options;
 
   const compProps = {
     key,
     hook: { create, insert, postpatch, remove, destroy },
-    component: { store, readState, render, key, hook, stateful: false }
+    component: { props, pullState, localStoreFn: localStore, render, key, hook }
   };
 
-  return h('div' || sel, compProps);
+  return h('div' || tag, compProps);
 };
 
 function create(_, vnode) {
   const { component } = vnode.data;
-  const { store, readState } = component;
+  const { props, pullState, localStoreFn } = component;
 
-  component.unsubFromStore = store.subscribe(state => onStoreChange(component, state));
-  component.state = readState(store.state);
+  // This component pulls state from the global store
+  if (pullState) {
+    const store = globalStore();
+    component.unsubFromStores = store.subscribe(state => onGlobalStoreChange(component, state));
+    component.state = pullState(store.state);
+  }
+
+  // This component maintains local state
+  if (localStoreFn) {
+    const localStore = localStoreFn(props);
+    const { store, actions } = localStore;
+
+    Object.keys(actions).forEach(name => actions[name]._store = store);
+
+    const unsubFromGlobalStore = component.unsubFromStores;
+    const unsubFromLocalStore = store.subscribe(state => onLocalStoreChange(component, state));
+
+    component.unsubFromStores = () => {
+      unsubFromLocalStore();
+      if (unsubFromGlobalStore) unsubFromGlobalStore();
+    };
+
+    component.actions = actions;
+    component.localState = store.state;
+  }
+
   component.elm = vnode.elm;
 
-  // Create the component while it's still out of the DOM tree
+  // Create and insert the component's content
+  // while its parent is still unattached for better perfs.
   createComponent(component);
 
   const hook =
@@ -40,19 +68,17 @@ function insert(vnode) {
   vnode.data.component.depth = vnode.elm.__depth__ = getDepth(vnode.elm);
 }
 
-// Called on every re-render, this is where the props passed by the component's parents may have changed.
+// Called on every re-render, this is where the props passed by the component's parent may have changed.
 function postpatch(oldVnode, vnode) {
   const oldData = oldVnode.data;
   const newData = vnode.data;
 
-  // Pass on the component instance for the entirety of its lifecycle,
-  // But update any property that can change over time.
+  // Pass on the component instance everytime a new Vnode instance is created,
+  // but update any important property that can change over time.
   const component = oldData.component;
   component.props = newData.component.props;
   component.render = newData.component.render;
   newData.component = component;
-
-  if (!component.stateful) return;
 
   // if the props changed, schedule a re-render
   if (!shallowEqual(newData.props, oldData.props))
@@ -70,7 +96,7 @@ function remove(vnode, removeCb) {
 
 function destroy(vnode) {
   const comp = vnode.data.component;
-  comp.unsubFromStore();
+  comp.unsubFromStores();
   destroyVnode(comp.vnode);
   comp.destroyed = true;
 }
@@ -85,9 +111,9 @@ function destroyVnode(vnode) {
   if (data.vnode) destroyVnode(data.vnode);
 }
 
-function onStoreChange(component, newState) {
+function onGlobalStoreChange(component, newState) {
   const oldStateSlice = component.state;
-  const newStateSlice = component.readState(newState);
+  const newStateSlice = component.pullState(newState);
 
   component.state = newStateSlice;
 
@@ -95,8 +121,13 @@ function onStoreChange(component, newState) {
     renderComponent(component);
 }
 
-function getDepth(self) {
-  let parent = self.parentElement;
+function onLocalStoreChange(component, newState) {
+  component.localState = newState;
+  renderComponent(component);
+}
+
+function getDepth(elm) {
+  let parent = elm.parentElement;
 
   while (parent) {
     if (parent.__depth__ !== undefined) return parent.__depth__ + 1;

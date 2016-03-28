@@ -6,13 +6,14 @@ let componentsToRender = [];
 let rendering = false;
 let nextRender;
 
+/* Options set from the main module */
 const options = {};
 export default options;
 
 
 export function createComponent(component) {
   // Typically, when a parent is getting created/patched
-  // and introduces new child components, were are in the middle of a rendering.
+  // and introduces new child components, we are in the middle of a rendering.
   if (rendering)
     renderComponentNow(component);
   else
@@ -44,7 +45,8 @@ function renderNow() {
   nextRender = undefined;
   componentsToRender = [];
 
-  // Render components in a top-down fashion
+  // Render components in a top-down fashion.
+  // This ensures the rendering order is predictive and props & states are consistent.
   components.sort((compA, compB) => compA.depth - compB.depth);
   components.forEach(renderComponentNow);
 
@@ -52,17 +54,17 @@ function renderNow() {
 }
 
 function renderComponentNow(component) {
-  const { id, props, state, elm, render, vnode, destroyed } = component;
+  const { id, localState, actions, props, state, elm, render, vnode, destroyed } = component;
 
   // Bail if the component is already destroyed.
-  // This can happen if the parent renders first and decide its child component should be destroyed.
+  // This can happen if the parent renders first and decide a child component should be removed.
   if (destroyed) return;
 
   const { patch, log } = options;
   let beforeRender;
 
   if (log) beforeRender = performance.now();
-  const newVnode = render(state);
+  const newVnode = render({ props, state, localState, actions });
 
   // First render
   if (!vnode) {
