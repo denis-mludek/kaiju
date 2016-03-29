@@ -13,8 +13,7 @@ export default function() {
   return component({
     key: 'blue',
     pullState,
-    render,
-    hook: contentAnimation
+    render
   });
 };
 
@@ -38,7 +37,7 @@ function render(options: { state: State }) {
   const { state } = options;
   const { id, route } = state;
 
-  return h('div#blue', [
+  return h('div#blue', { hook: contentAnimation }, [
     h('h1', 'Blue screen'),
     h('a', { attrs: { href: router.link('app.blue.green', { id }), 'data-nav': 'mousedown' } }, 'Green'),
     h('a', { attrs: { href: router.link('app.blue.red', { id }), 'data-nav': 'mousedown' } }, 'Red'),

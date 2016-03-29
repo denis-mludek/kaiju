@@ -1,22 +1,22 @@
 import h from 'snabbdom/h';
 import { globalStore } from 'fluxx';
 
-import { createComponent, renderComponent } from './render';
+import { renderComponentNow, renderComponent } from './render';
 import shallowEqual from './shallowEqual';
 
 
 const empty = {};
 
 export default function component(options) {
-  const { tag, key, props = empty, pullState, localStore, render, hook } = options;
+  const { key, props = empty, pullState, localStore, render, hook } = options;
 
   const compProps = {
     key,
-    hook: { create, insert, postpatch, remove, destroy },
-    component: { props, pullState, localStoreFn: localStore, render, key, hook }
+    hook: { create, insert, postpatch, destroy },
+    component: { props, pullState, localStoreFn: localStore, render, key }
   };
 
-  return h('div' || tag, compProps);
+  return h('div', compProps);
 };
 
 function create(_, vnode) {
@@ -50,16 +50,15 @@ function create(_, vnode) {
   }
 
   component.elm = vnode.elm;
+  component.onRender = onRender;
+  component.placeholder = vnode;
 
   // Create and insert the component's content
   // while its parent is still unattached for better perfs.
-  createComponent(component);
+  renderComponentNow(component);
 
-  const hook =
-    vnode.data.component.hook &&
-    vnode.data.component.hook.create;
-
-  if (hook) hook(_, vnode);
+  // Swap the fake/cheap div placeholder's elm with the proper elm that has just been created.
+  component.placeholder.elm = component.vnode.elm;
 }
 
 // Store the component depth once it's attached to the DOM so we can render
@@ -78,6 +77,7 @@ function postpatch(oldVnode, vnode) {
   const component = oldData.component;
   component.props = newData.component.props;
   component.render = newData.component.render;
+  component.placeholder = vnode;
   newData.component = component;
 
   // if the props changed, schedule a re-render
@@ -85,13 +85,16 @@ function postpatch(oldVnode, vnode) {
     renderComponent(component);
 }
 
-function remove(vnode, removeCb) {
-  const hook =
-    vnode.data.component.hook &&
-    vnode.data.component.hook.remove;
+function onRender(component, newVnode) {
+  let i;
 
-  if (hook) hook(vnode, removeCb);
-  else removeCb();
+  // Store the new vnode inside the component so we can diff it next render
+  component.vnode = newVnode;
+
+  // Lift any 'remove' hook to our placeholder vnode for it to be called
+  // as the placeholder is all our parent vnode knows about.
+  if ((i = newVnode.data.hook) && (i = i.remove))
+    component.placeholder.data.hook.remove = i;
 }
 
 function destroy(vnode) {

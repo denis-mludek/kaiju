@@ -8,8 +8,9 @@ function startApp({ app, patch, elm }) {
 
   // Non destructive patching inside the passed element
   const elmToReplace = document.createElement('div');
-  elm.appendChild(elmToReplace);
-  patch(elmToReplace, app);
+  const newVnode = patch(elmToReplace, app);
+
+  elm.appendChild(newVnode.elm);
 }
 
 export {

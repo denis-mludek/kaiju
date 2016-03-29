@@ -11,8 +11,7 @@ export default function(props?: Props) {
     key: 'red',
     localStore,
     props,
-    render,
-    hook: contentAnimation
+    render
   });
 };
 
@@ -48,7 +47,7 @@ function localStore({ openedByDefault }) {
 function render(options: { localState: State, actions: Actions }) {
   const { localState: { opened }, actions } = options;
 
-  return h('div#red', { class: { opened } }, [
+  return h('div.red', { hook: contentAnimation, class: { opened } }, [
     h('button', { on: { click: onClick(actions) } }, 'Toggle')
   ]);
 }

@@ -10,15 +10,6 @@ const Render = { patch: undefined, log: false };
 export default Render;
 
 
-export function createComponent(component) {
-  // Typically, when a parent is getting created/patched
-  // and introduces new child components, we are in the middle of a rendering.
-  if (rendering)
-    renderComponentNow(component);
-  else
-    renderComponent(component);
-};
-
 export function renderComponent(component) {
   if (rendering) {
     console.warn('A component tried to re-render while a rendering was already ongoing', component.elm);
@@ -36,6 +27,28 @@ export function renderComponent(component) {
     nextRender = requestAnimationFrame(renderNow);
 };
 
+export function renderComponentNow(component) {
+  const { id, localState, actions, props, state, elm, render, vnode, destroyed } = component;
+
+  // Bail if the component is already destroyed.
+  // This can happen if the parent renders first and decide a child component should be removed.
+  if (destroyed) return;
+
+  const { patch, log } = Render;
+
+  let beforeRender;
+
+  if (log) beforeRender = performance.now();
+  const newVnode = render({ props, state, localState, actions });
+
+  patch(vnode || elm, newVnode);
+
+  if (log) console.log(`Render component '${component.key}'`,
+    (performance.now() - beforeRender) + ' ms', component);
+
+  component.onRender(component, newVnode);
+}
+
 function renderNow() {
   rendering = true;
 
@@ -52,31 +65,4 @@ function renderNow() {
   components.forEach(renderComponentNow);
 
   rendering = false;
-}
-
-function renderComponentNow(component) {
-  const { id, localState, actions, props, state, elm, render, vnode, destroyed } = component;
-
-  // Bail if the component is already destroyed.
-  // This can happen if the parent renders first and decide a child component should be removed.
-  if (destroyed) return;
-
-  const { patch, log } = Render;
-
-  let beforeRender;
-
-  if (log) beforeRender = performance.now();
-  const newVnode = render({ props, state, localState, actions });
-
-  // First render
-  if (!vnode) {
-    const placeholder = document.createElement('div');
-    elm.appendChild(placeholder);
-  }
-
-  patch(vnode || elm.firstChild, newVnode);
-  if (log) console.log(`Render component '${component.key}'`,
-    (performance.now() - beforeRender) + ' ms', component);
-
-  component.vnode = newVnode;
 }

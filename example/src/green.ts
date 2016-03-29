@@ -9,8 +9,7 @@ export default function() {
   return component({
     key: 'green',
     pullState,
-    render,
-    hook: contentAnimation
+    render
   });
 };
 
@@ -26,5 +25,5 @@ function pullState(state: GlobalState): State {
 
 function render(options: { state: State }) {
   const { state: { id } } = options;
-  return h('div#green', `Green (route id = ${id})`);
+  return h('div#green', { hook: contentAnimation }, `Green (route id = ${id})`);
 }
