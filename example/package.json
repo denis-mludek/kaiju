@@ -9,10 +9,11 @@
   },
 
   "dependencies": {
-    "typescript": "beta",
-    "snabbdom": "0.4.0",
+    "typescript": "1.8.7",
+    "dompteuse": "0.0.2",
+    "snabbdom": "git://github.com/AlexGalays/snabbdom.git",
     "abyssa": "7.2.7",
-    "fluxx": "0.13.0",
+    "fluxx": "0.14.1",
     "immupdate": "0.2.0",
     "gsap": "1.18.2"
   },
