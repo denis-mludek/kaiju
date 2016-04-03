@@ -1,4 +1,4 @@
-import h = require('snabbdom/h');
+import { h } from 'dompteuse';
 
 import { contentAnimation } from './animation';
 

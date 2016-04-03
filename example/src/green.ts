@@ -1,5 +1,4 @@
-import h = require('snabbdom/h');
-import { component } from 'dompteuse';
+import { component, h } from 'dompteuse';
 
 import { contentAnimation } from './animation';
 import { State as GlobalState } from './store';

@@ -3,7 +3,6 @@ import './logger';
 import { Router, State } from 'abyssa';
 import { startApp } from 'dompteuse';
 
-import patch from './snabbdom';
 import app from './app';
 import { routeChanged } from './action';
 import store from './store';
@@ -22,4 +21,4 @@ const router = Router({
 .configure({ urlSync: 'hash' })
 .init();
 
-startApp({ app, store, patch, elm: document.body });
+startApp({ app, store, elm: document.body });

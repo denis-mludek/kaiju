@@ -1,6 +1,6 @@
 {
   "name": "dompteuse",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "main": "lib/dompteuse",
   "typings": "lib/dompteuse.d.ts",
   "description": "Virtual dom and model management",

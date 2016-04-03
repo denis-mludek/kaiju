@@ -1,7 +1,6 @@
-import h = require('snabbdom/h');
 import update from 'immupdate';
 import { LocalStore, Action, NoArgAction } from 'fluxx';
-import { component } from 'dompteuse';
+import { component, h } from 'dompteuse';
 
 import { contentAnimation } from './animation';
 

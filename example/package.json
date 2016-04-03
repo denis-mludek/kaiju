@@ -10,8 +10,7 @@
 
   "dependencies": {
     "typescript": "1.8.7",
-    "dompteuse": "0.0.2",
-    "snabbdom": "git://github.com/AlexGalays/snabbdom.git",
+    "dompteuse": "0.0.3",
     "abyssa": "7.2.7",
     "fluxx": "0.14.1",
     "immupdate": "0.2.0",

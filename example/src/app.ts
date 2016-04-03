@@ -1,6 +1,5 @@
-import h = require('snabbdom/h');
 import { api as router } from 'abyssa';
-import { component } from 'dompteuse';
+import { component, h } from 'dompteuse';
 
 import { State as GlobalState } from './store';
 import { incrementBlue } from './action';
