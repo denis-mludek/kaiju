@@ -8,7 +8,11 @@ import shallowEqual from './shallowEqual';
 const empty = {};
 
 export default function component(options) {
-  const { key, props = empty, pullState, localStore, render, hook } = options;
+  const { key, props = empty, defaultProps, pullState, localStore, render, hook } = options;
+
+  if (defaultProps)
+    Object.keys(defaultProps).forEach(key => {
+      if (props[key] === undefined) props[key] = defaultProps[key]});
 
   const compProps = {
     key,

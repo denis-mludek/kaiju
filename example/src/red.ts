@@ -10,6 +10,7 @@ export default function(props?: Props) {
     key: 'red',
     localStore,
     props,
+    defaultProps,
     render
   });
 };
@@ -18,6 +19,10 @@ export default function(props?: Props) {
 interface Props {
   openedByDefault: boolean;
 }
+
+const defaultProps = {
+  openedByDefault: false
+};
 
 // Our local state
 interface State {

@@ -16,9 +16,10 @@ interface RenderOptions<P, PS, LS, AS> {
   actions?: AS;
 }
 
-export function component<P, PS, LS, AS>(options: {
+export function component<P extends DP, DP, PS, LS, AS>(options: {
   key: string;
   props?: P;
+  defaultProps?: DP;
   localStore?: (props: P) => { store: LocalStore<LS>, actions: AS };
   pullState?: <S>(state: S) => PS;
   render: (options: RenderOptions<P, PS, LS, AS>) => Vnode;
