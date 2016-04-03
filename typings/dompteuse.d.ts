@@ -6,7 +6,7 @@ export function startApp<S>(options: {
   app: Vnode;
   store: GlobalStore<S>;
   elm: HTMLElement;
-}): any;
+}): void;
 
 
 interface RenderOptions<P, PS, LS, AS> {
