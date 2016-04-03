@@ -1,9 +1,10 @@
 import { TweenLite } from './gsap';
 import { api as router } from 'abyssa';
+import { Vnode } from 'dompteuse';
 
 
 export const contentAnimation = {
-  create: (_: any, vnode: any) => {
+  create: (_: any, vnode: Vnode) => {
     if (!vnode.elm || router.isFirstTransition()) return;
 
     vnode.elm.style.display = 'none';
@@ -14,7 +15,7 @@ export const contentAnimation = {
     ).eventCallback('onStart', (): any => vnode.elm.style.removeProperty('display'))
   },
 
-  remove: (vnode: any, cb: any) => {
+  remove: (vnode: Vnode, cb: any) => {
     if (!vnode.elm) cb();
 
     TweenLite.fromTo(vnode.elm, 0.2,
