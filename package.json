@@ -1,10 +1,10 @@
 {
   "name": "dompteuse",
-  "version": "0.0.3",
+  "version": "0.1.0",
   "main": "lib/dompteuse",
   "typings": "lib/dompteuse.d.ts",
-  "description": "Virtual dom and model management",
-  "keywords": ["virtual dom", "vdom", "model"],
+  "description": "Virtual dom, streams and isolated components",
+  "keywords": ["virtual dom", "vdom", "model", "stream", "component"],
   "homepage": "https://github.com/AlexGalays/dompteuse/",
 
   "author": {
@@ -17,19 +17,20 @@
     "url": "https://github.com/AlexGalays/dompteuse/"
   },
 
-  "peerDependencies": {
-    "snabbdom": "^0.4.0",
-    "fluxx": "^0.14.1"
+  "dependencies": {
+    "snabbdom": "0.4.2",
+    "kefir": "3.2.1"
   },
 
   "devDependencies": {
+    "typescript": "1.8.7",
     "babel-cli": "6.4.5",
     "babel-preset-es2015-loose": "7.0.0",
     "babel-preset-stage-2": "6.3.13"
   },
 
   "scripts": {
-    "copy-typings": "cp typings/dompteuse.d.ts lib",
+    "copy-typings": "cp typings/dompteuse.d.ts lib && cp typings/kefir.d.ts lib",
     "build": "npm run copy-typings && node node_modules/babel-cli/bin/babel.js src --out-dir lib"
   }
 }

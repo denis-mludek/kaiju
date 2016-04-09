@@ -1,12 +1,12 @@
 
 import h from 'snabbdom/h';
-
+import log from './log';
 
 let componentsToRender = [];
 let rendering = false;
 let nextRender;
 
-const Render = { patch: undefined, log: false };
+const Render = { patch: undefined };
 export default Render;
 
 
@@ -28,22 +28,22 @@ export function renderComponent(component) {
 };
 
 export function renderComponentNow(component) {
-  const { id, localState, actions, props, state, elm, render, vnode, destroyed } = component;
+  const { state, elm, render, vnode, destroyed } = component;
 
   // Bail if the component is already destroyed.
   // This can happen if the parent renders first and decide a child component should be removed.
   if (destroyed) return;
 
-  const { patch, log } = Render;
+  const { patch } = Render;
 
   let beforeRender;
 
-  if (log) beforeRender = performance.now();
-  const newVnode = render({ props, state, localState, actions });
+  if (log.render) beforeRender = performance.now();
+  const newVnode = render(state);
 
   patch(vnode || elm, newVnode);
 
-  if (log) console.log(`Render component '${component.key}'`,
+  if (log.render) console.log(`Render component '${component.key}'`,
     (performance.now() - beforeRender) + ' ms', component);
 
   component.onRender(component, newVnode);
@@ -57,7 +57,7 @@ function renderNow() {
   nextRender = undefined;
   componentsToRender = [];
 
-  if (Render.log) console.log('%cNew rendering frame', 'color: orange');
+  if (log.render) console.log('%cNew rendering frame', 'color: orange');
 
   // Render components in a top-down fashion.
   // This ensures the rendering order is predictive and props & states are consistent.

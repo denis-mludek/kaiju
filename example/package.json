@@ -10,9 +10,8 @@
 
   "dependencies": {
     "typescript": "1.8.7",
-    "dompteuse": "0.0.3",
+    "dompteuse": "0.1.0",
     "abyssa": "7.2.7",
-    "fluxx": "0.14.1",
     "immupdate": "0.2.0",
     "gsap": "1.18.2"
   },

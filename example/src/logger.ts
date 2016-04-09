@@ -1,5 +1,3 @@
-import { Render } from 'dompteuse';
-import { Store } from 'fluxx';
+import { log } from 'dompteuse';
 
-Store.log = true;
-Render.log = true;
+log.render = log.stream = true;

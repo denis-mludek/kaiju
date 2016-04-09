@@ -1,16 +1,16 @@
 import update from 'immupdate';
-import { LocalStore, Action, NoArgAction } from 'fluxx';
-import { component, h } from 'dompteuse';
+import { Component, h, Property, StateApi } from 'dompteuse';
 
 import { contentAnimation } from './animation';
+import appState, { incrementBlue } from './appState';
+import { extend } from './util';
 
 
 export default function(props?: Props) {
-  return component({
+  return Component({
     key: 'red',
-    localStore,
     props,
-    defaultProps,
+    state,
     render
   });
 };
@@ -26,36 +26,21 @@ const defaultProps = {
 
 // Our local state
 interface State {
-  opened: number;
+  opened: boolean;
 }
 
-// Actions modifying our local state
-interface Actions {
-  toggle: NoArgAction
+function state(dom: StateApi, props: Property<Props>) {
+  return props.map(p => extend(defaultProps, p)).flatMapFirst(p =>
+    dom.onEvent('button', 'click')
+      .scan((opened, evt) => !opened, p.openedByDefault)
+      .map(opened => ({ opened }))
+  ).toProperty();
 }
 
-function localStore({ openedByDefault }) {
-  const initialState = { opened: openedByDefault };
-
-  const actions = {
-    toggle: Action<number>('toggle')
-  };
-
-  const store = LocalStore(initialState, on => {
-    on(actions.toggle, state => update(state, { opened: !state.opened }))
-  });
-
-  return { store, actions };
-}
-
-function render(options: { localState: State, actions: Actions }) {
-  const { localState: { opened }, actions } = options;
+function render(state: State) {
+  const { opened } = state;
 
   return h('div.red', { hook: contentAnimation, class: { opened } }, [
-    h('button', { on: { click: onClick(actions) } }, 'Toggle')
+    h('button', 'Toggle')
   ]);
-}
-
-function onClick(actions: Actions) {
-  return () => actions.toggle()
 }

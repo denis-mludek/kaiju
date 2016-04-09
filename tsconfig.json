@@ -1,0 +1,16 @@
+{
+	"compilerOptions": {
+		"noEmit": true
+	},
+	"compileOnSave": false,
+	"atom": {
+		"rewriteTsconfig": true
+	},
+	"filesGlob": [
+		"typings/**/*.d.ts"
+	],
+	"files": [
+		"typings/dompteuse.d.ts",
+		"typings/kefir.d.ts"
+	]
+}

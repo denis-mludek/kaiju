@@ -12,9 +12,9 @@
 		"typings/**/*.d.ts"
 	],
 	"files": [
-		"src/action.ts",
 		"src/animation.ts",
 		"src/app.ts",
+		"src/appState.ts",
 		"src/blue.ts",
 		"src/green.ts",
 		"src/gsap.ts",
@@ -22,7 +22,7 @@
 		"src/logger.ts",
 		"src/main.ts",
 		"src/red.ts",
-		"src/store.ts",
+		"src/util.ts",
 		"typings/gsap.d.ts"
 	]
 }

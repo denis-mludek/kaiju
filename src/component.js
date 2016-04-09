@@ -1,68 +1,76 @@
 import h from 'snabbdom/h';
-import { globalStore } from 'fluxx';
+import kefir from 'kefir';
 
 import { renderComponentNow, renderComponent } from './render';
 import shallowEqual from './shallowEqual';
+import DomAPi from './domApi';
 
 
 const empty = {};
 
-export default function component(options) {
-  const { key, props = empty, defaultProps, pullState, localStore, render, hook } = options;
-
-  if (defaultProps)
-    Object.keys(defaultProps).forEach(key => {
-      if (props[key] === undefined) props[key] = defaultProps[key]});
+export default function Component(options) {
+  const { key, props = empty, state, render } = options;
 
   const compProps = {
     key,
     hook: { create, insert, postpatch, destroy },
-    component: { props, pullState, localStoreFn: localStore, render, key }
+    component: { props, stateFn: state, render, key }
   };
 
   return h('div', compProps);
 };
 
+// Called when the component is created but isn't yet attached to the DOM
 function create(_, vnode) {
   const { component } = vnode.data;
-  const { props, pullState, localStoreFn } = component;
+  const { props, stateFn } = component;
 
-  // This component pulls state from the global store
-  if (pullState) {
-    const store = globalStore();
-    component.unsubFromStores = store.subscribe(state => onGlobalStoreChange(component, state));
-    component.state = pullState(store.state);
-  }
+  component.lifecycle = {};
 
-  // This component maintains local state
-  if (localStoreFn) {
-    const localStore = localStoreFn(props);
-    const { store, actions } = localStore;
+  // A stream which only produces one value at component destruction time
+  const componentDestruction = kefir.stream(emitter => {
+    component.lifecycle.destroyed = () => {
+      emitter.emit();
+      emitter.end();
+    }
+  });
 
-    Object.keys(actions).forEach(name => actions[name]._store = store);
+  // The stream of changing props given by the component's parent
+  const propStream = kefir.stream(emitter => {
+    component.lifecycle.propsChanged = newProps => emitter.emit(newProps)
+  }).toProperty(() => props);
 
-    const unsubFromGlobalStore = component.unsubFromStores;
-    const unsubFromLocalStore = store.subscribe(state => onLocalStoreChange(component, state));
+  const domApi = new DomAPi(componentDestruction);
 
-    component.unsubFromStores = () => {
-      unsubFromLocalStore();
-      if (unsubFromGlobalStore) unsubFromGlobalStore();
-    };
-
-    component.actions = actions;
-    component.localState = store.state;
-  }
+  const state = stateFn(domApi, propStream).takeUntilBy(componentDestruction);
+  let stateCalled = false;
 
   component.elm = vnode.elm;
   component.onRender = onRender;
   component.placeholder = vnode;
 
-  // Create and insert the component's content
-  // while its parent is still unattached for better perfs.
-  renderComponentNow(component);
+  state.onValue(state => {
+    stateCalled = true;
 
-  // Swap the fake/cheap div placeholder's elm with the proper elm that has just been created.
-  component.placeholder.elm = component.vnode.elm;
+    const oldState = component.state;
+    component.state = state;
+
+    // First render:
+    // Create and insert the component's content
+    // while its parent is still unattached for better perfs.
+    if (oldState === undefined) {
+      renderComponentNow(component);
+      component.placeholder.elm = component.vnode.elm;
+      domApi._activate(component.vnode.elm);
+    }
+
+    else if (!shallowEqual(oldState, state))
+      renderComponent(component);
+  });
+
+  if (!stateCalled)
+    console.error('state() returned a Property without an initial value for component',
+      component.elm, component.key);
 }
 
 // Store the component depth once it's attached to the DOM so we can render
@@ -84,9 +92,8 @@ function postpatch(oldVnode, vnode) {
   component.placeholder = vnode;
   newData.component = component;
 
-  // if the props changed, schedule a re-render
   if (!shallowEqual(newData.props, oldData.props))
-    renderComponent(component);
+    component.lifecycle.propsChanged(newData.props);
 }
 
 function onRender(component, newVnode) {
@@ -103,11 +110,12 @@ function onRender(component, newVnode) {
 
 function destroy(vnode) {
   const comp = vnode.data.component;
-  comp.unsubFromStores();
   destroyVnode(comp.vnode);
   comp.destroyed = true;
+  comp.lifecycle.destroyed();
 }
 
+// Destroy our vnode recursively
 function destroyVnode(vnode) {
   const data = vnode.data;
 
@@ -116,21 +124,6 @@ function destroyVnode(vnode) {
   // Can't invoke modules' destroy hook as they're hidden in snabbdom's closure
   if (vnode.children) vnode.children.forEach(destroyVnode);
   if (data.vnode) destroyVnode(data.vnode);
-}
-
-function onGlobalStoreChange(component, newState) {
-  const oldStateSlice = component.state;
-  const newStateSlice = component.pullState(newState);
-
-  component.state = newStateSlice;
-
-  if (!shallowEqual(newStateSlice, oldStateSlice))
-    renderComponent(component);
-}
-
-function onLocalStoreChange(component, newState) {
-  component.localState = newState;
-  renderComponent(component);
 }
 
 function getDepth(elm) {

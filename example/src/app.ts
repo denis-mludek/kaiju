@@ -1,15 +1,14 @@
 import { api as router } from 'abyssa';
-import { component, h } from 'dompteuse';
+import { Component, h } from 'dompteuse';
 
-import { State as GlobalState } from './store';
-import { incrementBlue } from './action';
+import appState, { incrementBlue } from './appState';
 import index from './index';
 import blue from './blue';
 
 
-export default component({
+export default Component({
   key: 'app',
-  pullState,
+  state,
   render
 });
 
@@ -18,16 +17,14 @@ interface State {
   route: string
 }
 
-function pullState(state: GlobalState): State {
-  return {
-    count: state.blue.count,
-    route: state.route.fullName
-  };
+function state(dom: any) {
+  return appState.map(s => ({
+    count: s.blue.count,
+    route: s.route.fullName
+  }));
 }
 
-function render(options: { state: State }) {
-  const { state } = options;
-
+function render(state: State) {
   return h('div', [
     h('header', [
       h('a', { attrs: { href: router.link('app.index'), 'data-nav': 'mousedown' } }, 'Index'),
