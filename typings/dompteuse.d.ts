@@ -3,6 +3,7 @@
 
 export function startApp<S>(options: {
   app: Vnode;
+  patch: PatchFunction;
   elm: HTMLElement;
 }): void;
 
@@ -33,6 +34,12 @@ export var kefir: typeof Kefir;
 
 // snabbdom
 
+interface PatchFunction {
+  _isPatchFunction: any;
+}
+
+export var snabbdom: { init: (modules: any[]) => PatchFunction }
+
 export interface Vnode {
   sel: string;
   data: VnodeData;
@@ -62,18 +69,17 @@ interface Hooks {
 type VnodeData = { key?: string } & (
   { class: {} } |
   { attrs: {} } |
-  { on: {} } |
   { props: {} } |
   { style: {} } |
   { hook: Hooks } |
-  { liveProps: {} }
+  { forceProps: {} }
 );
 
 export function h(sel: string): Vnode;
 export function h(sel: string, dataOrChildren: VnodeData | Array<Node> | string): Vnode;
 export function h(sel: string, data: VnodeData, children: Array<Node> | string): Vnode;
 
-// Actions & PushStream
+// Actions & ActionStream
 
 interface OnAction<S> {
   (action: NoArgAction, handler: (state: S) => S): void;

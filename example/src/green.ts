@@ -49,7 +49,7 @@ function input(name: string, value: string) {
     name,
     h('input', {
       props: { name },
-      liveProps: { value }
+      forceProps: { value }
     })
   ]);
 }

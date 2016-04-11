@@ -1,9 +1,9 @@
 
-// Update the element properties even if the vnode value did not change
+// Update the element properties even if the vnode value did not change (but the Element's value did)
 
 function updateProps(oldVnode, vnode) {
   let key, cur, old, elm = vnode.elm,
-      props = vnode.data.liveProps || {};
+      props = vnode.data.forceProps || {};
 
   for (key in props) {
     cur = props[key];
