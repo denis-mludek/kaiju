@@ -34,7 +34,7 @@ function state(dom: StateApi) {
 function render(state: State) {
   const { id, route } = state;
 
-  return h('div#blue', { hook: contentAnimation }, [
+  return h('div#blue', [
     h('h1', 'Blue screen'),
     h('a', { attrs: { href: router.link('app.blue.green', { id }), 'data-nav': 'mousedown' } }, 'Green'),
     h('a', { attrs: { href: router.link('app.blue.red', { id }), 'data-nav': 'mousedown' } }, 'Red'),
@@ -42,14 +42,14 @@ function render(state: State) {
       'Count: ' + state.count,
       h('button', 'Increment')
     ]),
-    h('section', getChildren(state))
+    contentAnimation('section', getChildren(state))
   ]);
 }
 
 function getChildren(state: State) {
   const { route } = state;
 
-  if (route === 'app.blue') return [h('span', { hook: contentAnimation }, 'I am blue')];
+  if (route === 'app.blue') return [h('span', 'I am blue')];
   if (route === 'app.blue.green') return [green()];
   if (route === 'app.blue.red') return [red({ openedByDefault: true }), red()];
 }

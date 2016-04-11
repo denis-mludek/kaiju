@@ -1,7 +1,6 @@
 import { Component, h, StateApi, Property, kefir } from 'dompteuse';
 import update from 'immupdate';
 
-import { contentAnimation } from './animation';
 import appState from './appState';
 
 
@@ -35,7 +34,7 @@ function render(state: State) {
   const { id, inputs } = state;
   const { firstName, lastName } = inputs;
 
-  return h('div#green', { hook: contentAnimation }, [
+  return h('div#green', [
     `Green (route id = ${id})`,
     h('form', [
       input('firstName', firstName),

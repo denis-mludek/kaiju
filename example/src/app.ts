@@ -2,6 +2,7 @@ import { api as router } from 'abyssa';
 import { Component, h } from 'dompteuse';
 
 import appState, { incrementBlue } from './appState';
+import { contentAnimation } from './animation';
 import index from './index';
 import blue from './blue';
 
@@ -31,7 +32,7 @@ function render(state: State) {
       h('a', { attrs: { href: router.link('app.blue', { id: 33 }), 'data-nav': 'mousedown' } }, 'Blue'),
       String(state.count)
     ]),
-    h('main', getChildren(state.route))
+    contentAnimation('main', getChildren(state.route))
   ]);
 }
 
@@ -40,4 +41,4 @@ function getChildren(route: string) {
   if (route.indexOf('app.blue') === 0) return [blue()];
 }
 
-setInterval(incrementBlue, 2500);
+//setInterval(incrementBlue, 2500);

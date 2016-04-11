@@ -1,7 +1,6 @@
 import update from 'immupdate';
 import { Component, h, Property, StateApi } from 'dompteuse';
 
-import { contentAnimation } from './animation';
 import appState, { incrementBlue } from './appState';
 import { extend } from './util';
 
@@ -40,7 +39,7 @@ function state(dom: StateApi, props: Property<Props>) {
 function render(state: State) {
   const { opened } = state;
 
-  return h('div.red', { hook: contentAnimation, class: { opened } }, [
+  return h('div.red', { class: { opened } }, [
     h('button', 'Toggle')
   ]);
 }

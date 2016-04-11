@@ -42,7 +42,7 @@ export var snabbdom: { init: (modules: any[]) => PatchFunction }
 
 export interface Vnode {
   sel: string;
-  data: VnodeData;
+  data: any;
   children?: Array<Vnode>;
   text?: string;
   elm?: HTMLElement;
@@ -64,20 +64,9 @@ interface Hooks {
   post?: () => void;
 }
 
-// This weird union type is here to differentiate from the Array children type.
-// If an empty object was allowed, [vnode, wrongValue] could be assigned to it as it's a valid object.
-type VnodeData = { key?: string } & (
-  { class: {} } |
-  { attrs: {} } |
-  { props: {} } |
-  { style: {} } |
-  { hook: Hooks } |
-  { forceProps: {} }
-);
-
 export function h(sel: string): Vnode;
-export function h(sel: string, dataOrChildren: VnodeData | Array<Node> | string): Vnode;
-export function h(sel: string, data: VnodeData, children: Array<Node> | string): Vnode;
+export function h(sel: string, dataOrChildren: any): Vnode;
+export function h(sel: string, data: any, children: Array<Node> | string): Vnode;
 
 // Actions & ActionStream
 
