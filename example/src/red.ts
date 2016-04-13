@@ -1,45 +1,46 @@
-import update from 'immupdate';
-import { Component, h, Property, StateApi } from 'dompteuse';
+import update from 'immupdate'
+import { Component, h, Property, DomApi } from 'dompteuse'
 
-import appState, { incrementBlue } from './appState';
-import { extend } from './util';
+import appState, { incrementBlue } from './appState'
+import { extend } from './util'
 
 
 export default function(props?: Props) {
   return Component({
     key: 'red',
     props,
-    state,
+    connect,
     render
-  });
-};
+  })
+}
 
 // Props passed by our parent
 interface Props {
-  openedByDefault: boolean;
+  openedByDefault: boolean
 }
 
 const defaultProps = {
   openedByDefault: false
-};
+}
 
 // Our local state
 interface State {
-  opened: boolean;
+  opened: boolean
 }
 
-function state(dom: StateApi, props: Property<Props>) {
+function connect(dom: DomApi, props: Property<Props>) {
   return props.map(p => extend(defaultProps, p)).flatMapFirst(p =>
     dom.onEvent('button', 'click')
       .scan((opened, evt) => !opened, p.openedByDefault)
       .map(opened => ({ opened }))
-  ).toProperty();
+  )
+  .toProperty()
 }
 
 function render(state: State) {
-  const { opened } = state;
+  const { opened } = state
 
   return h('div.red', { class: { opened } }, [
     h('button', 'Toggle')
-  ]);
+  ])
 }

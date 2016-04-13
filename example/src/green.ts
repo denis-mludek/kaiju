@@ -1,38 +1,35 @@
-import { Component, h, StateApi, Property, kefir } from 'dompteuse';
-import update from 'immupdate';
+import { Component, h, DomApi, Property, kefir } from 'dompteuse'
+import update from 'immupdate'
 
-import appState from './appState';
+import appState from './appState'
 
 
 export default function() {
   return Component({
     key: 'green',
-    state,
+    connect,
     render
-  });
-};
-
-interface State {
-  id: string;
-  inputs: any;
+  })
 }
 
-function state(dom: StateApi) {
-  const inputs = dom.onEvent('input', 'input')
-    .map(evt => {
-      const { name, value } = evt.target as HTMLInputElement;
-      return { [name]: value.substr(0, 4) };
-    })
-    .scan((inputs, diff) => update(inputs, diff), {});
+interface State {
+  id: string
+  form: any
+}
 
-  const routeId = appState.map(state => state.route.params['id']);
+function connect(dom: DomApi) {
+  const form = getFormState(dom)
+  const id = appState.map(state => state.route.params['id'])
 
-  return inputs.combine(routeId, (inputs, id) => ({ inputs, id })).toProperty();
+  return kefir.combine(
+    [form, id],
+    (form, id) => ({ form, id })
+  ).toProperty()
 }
 
 function render(state: State) {
-  const { id, inputs } = state;
-  const { firstName, lastName } = inputs;
+  const { id, form } = state
+  const { firstName, lastName } = form
 
   return h('div#green', [
     `Green (route id = ${id})`,
@@ -40,7 +37,16 @@ function render(state: State) {
       input('firstName', firstName),
       input('lastName', lastName)
     ])
-  ]);
+  ])
+}
+
+function getFormState(dom: DomApi) {
+  return dom.onEvent('input', 'input')
+    .map(evt => {
+      const { name, value } = evt.target as HTMLInputElement
+      return { [name]: value.substr(0, 4) }
+    })
+    .scan((inputs, diff) => update(inputs, diff), {})
 }
 
 function input(name: string, value: string) {
@@ -50,5 +56,5 @@ function input(name: string, value: string) {
       props: { name },
       forceProps: { value }
     })
-  ]);
+  ])
 }

@@ -1,24 +1,24 @@
-import { api as router } from 'abyssa';
-import { Component, h } from 'dompteuse';
+import { api as router } from 'abyssa'
+import { Component, h, DomApi } from 'dompteuse'
 
-import appState, { incrementBlue } from './appState';
-import { contentAnimation } from './animation';
-import index from './index';
-import blue from './blue';
+import appState, { incrementBlue } from './appState'
+import { contentAnimation } from './animation'
+import index from './index'
+import blue from './blue'
 
 
 export default Component({
   key: 'app',
-  state,
+  connect,
   render
 });
 
 interface State {
-  count: number,
+  count: number
   route: string
 }
 
-function state(dom: any) {
+function connect(dom: DomApi) {
   return appState.map(s => ({
     count: s.blue.count,
     route: s.route.fullName
@@ -37,8 +37,8 @@ function render(state: State) {
 }
 
 function getChildren(route: string) {
-  if (route === 'app.index') return [index()];
-  if (route.indexOf('app.blue') === 0) return [blue()];
+  if (route === 'app.index') return [index()]
+  if (route.indexOf('app.blue') === 0) return [blue()]
 }
 
 //setInterval(incrementBlue, 2500);

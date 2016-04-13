@@ -9,12 +9,12 @@ import DomAPi from './domApi';
 const empty = {};
 
 export default function Component(options) {
-  const { key, props = empty, state, render } = options;
+  const { key, props = empty, connect, render } = options;
 
   const compProps = {
     key,
     hook: { create, insert, postpatch, destroy },
-    component: { props, stateFn: state, render, key }
+    component: { props, connect, render, key }
   };
 
   return h('div', compProps);
@@ -23,7 +23,7 @@ export default function Component(options) {
 // Called when the component is created but isn't yet attached to the DOM
 function create(_, vnode) {
   const { component } = vnode.data;
-  const { props, stateFn } = component;
+  const { props, connect } = component;
 
   component.lifecycle = {};
 
@@ -42,7 +42,7 @@ function create(_, vnode) {
 
   const domApi = new DomAPi(componentDestruction);
 
-  const state = stateFn(domApi, propStream).takeUntilBy(componentDestruction);
+  const state = connect(domApi, propStream).takeUntilBy(componentDestruction);
   let stateCalled = false;
 
   component.elm = vnode.elm;

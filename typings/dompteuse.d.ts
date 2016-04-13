@@ -10,7 +10,7 @@ export function startApp<S>(options: {
 export function Component<P, S>(options: {
   key: string;
   props?: P;
-  state: (api: StateApi, props: Property<P>) => Property<S>;
+  connect: (dom: DomApi, props: Property<P>) => Property<S>;
   render: (state: S) => Vnode;
 }): Vnode;
 
@@ -19,7 +19,7 @@ export var log: {
   stream: boolean;
 }
 
-export interface StateApi {
+export interface DomApi {
   onEvent(selector: string, eventName: string): Stream<Event>
   emit: any; // TODO: type this
 }

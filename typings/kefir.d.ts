@@ -156,3 +156,25 @@ export function fromPromise<T>(promise: any): Property<T>;
 // Combine observables
 export function pool<T>(): ObservablePool<T>;
 export function repeat<T>(generator: (i: number) => Observable<T> | boolean): Observable<T>;
+
+export function combine<A, B, R>(
+  obss: [Observable<A>, Observable<B>],
+  fn: (a: A, b: B) => R): Stream<R>;
+export function combine<A, B, C, R>(
+  obss: [Observable<A>, Observable<B>, Observable<C>],
+  fn: (a: A, b: B, c: C) => R): Stream<R>;
+export function combine<A, B, C, D, R>(
+  obss: [Observable<A>, Observable<B>, Observable<C>, Observable<D>],
+  fn: (a: A, b: B, c: C, d: D) => R): Stream<R>;
+export function combine<A, B, C, D, E, R>(
+  obss: [Observable<A>, Observable<B>, Observable<C>, Observable<D>, Observable<E>],
+  fn: (a: A, b: B, c: C, d: D, e: E) => R): Stream<R>;
+export function combine<A, B, C, D, E, F, R>(
+  obss: [Observable<A>, Observable<B>, Observable<C>, Observable<D>, Observable<E>, Observable<F>],
+  fn: (a: A, b: B, c: C, d: D, e: E, f: F) => R): Stream<R>;
+export function combine<A, B, C, D, E, F, G, R>(
+  obss: [Observable<A>, Observable<B>, Observable<C>, Observable<D>, Observable<E>, Observable<F>, Observable<G>],
+  fn: (a: A, b: B, c: C, d: D, e: E, f: F, g: G) => R): Stream<R>;
+export function combine<A, B, C, D, E, F, G, H, R>(
+  obss: [Observable<A>, Observable<B>, Observable<C>, Observable<D>, Observable<E>, Observable<F>, Observable<G>, Observable<H>],
+  fn: (a: A, b: B, c: C, d: D, e: E, f: F, g: G, h: H) => R): Stream<R>;

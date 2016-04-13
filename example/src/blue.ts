@@ -1,19 +1,19 @@
-import { api as router } from 'abyssa';
-import { Component, h, StateApi } from 'dompteuse';
+import { api as router } from 'abyssa'
+import { Component, h, DomApi } from 'dompteuse'
 
-import { contentAnimation } from './animation';
-import green from './green';
-import red from './red';
-import appState, { incrementBlue } from './appState';
+import { contentAnimation } from './animation'
+import green from './green'
+import red from './red'
+import appState, { incrementBlue } from './appState'
 
 
 export default function() {
   return Component({
     key: 'blue',
-    state,
+    connect,
     render
   });
-};
+}
 
 interface State {
   count: number;
@@ -21,18 +21,18 @@ interface State {
   id: string;
 }
 
-function state(dom: StateApi) {
-  dom.onEvent('.increment button', 'click').onValue(incrementBlue);
+function connect(dom: DomApi) {
+  dom.onEvent('.increment button', 'click').onValue(incrementBlue)
 
   return appState.map(state => ({
     count: state.blue.count,
     route: state.route.fullName,
     id: state.route.params['id']
-  }));
+  }))
 }
 
 function render(state: State) {
-  const { id, route } = state;
+  const { id, route } = state
 
   return h('div#blue', [
     h('h1', 'Blue screen'),
@@ -43,13 +43,13 @@ function render(state: State) {
       h('button', 'Increment')
     ]),
     contentAnimation('section', getChildren(state))
-  ]);
+  ])
 }
 
 function getChildren(state: State) {
-  const { route } = state;
+  const { route } = state
 
-  if (route === 'app.blue') return [h('span', 'I am blue')];
-  if (route === 'app.blue.green') return [green()];
-  if (route === 'app.blue.red') return [red({ openedByDefault: true }), red()];
+  if (route === 'app.blue') return [h('span', 'I am blue')]
+  if (route === 'app.blue.green') return [green()]
+  if (route === 'app.blue.red') return [red({ openedByDefault: true }), red()]
 }

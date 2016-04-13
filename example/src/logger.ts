@@ -1,3 +1,3 @@
-import { log } from 'dompteuse';
+import { log } from 'dompteuse'
 
-log.render = log.stream = true;
+log.render = log.stream = true
