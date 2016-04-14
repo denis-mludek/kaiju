@@ -1,4 +1,4 @@
-import { Component, h, DomApi, Property, kefir } from 'dompteuse'
+import { Component, h, DomApi, Property, makeState } from 'dompteuse'
 import update from 'immupdate'
 
 import appState from './appState'
@@ -21,10 +21,10 @@ function connect(dom: DomApi) {
   const form = getFormState(dom)
   const id = appState.map(state => state.route.params['id'])
 
-  return kefir.combine(
+  return makeState(
     [form, id],
     (form, id) => ({ form, id })
-  ).toProperty()
+  )
 }
 
 function render(state: State) {

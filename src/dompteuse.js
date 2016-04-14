@@ -19,6 +19,10 @@ function startApp({ app, elm, patch }) {
   elm.appendChild(newVnode.elm);
 }
 
+function makeState(properties, fn) {
+  return kefir.combine(properties, fn).toProperty()
+}
+
 export {
   Component,
   startApp,
@@ -29,4 +33,5 @@ export {
   snabbdom,
   h,
   kefir,
+  makeState
 };

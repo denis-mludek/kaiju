@@ -29,7 +29,9 @@ interface State {
 }
 
 function connect(dom: DomApi, props: Property<Props>) {
-  return props.map(p => extend(defaultProps, p)).flatMapFirst(p =>
+  const initialProps = props.take(1).map(p => extend(defaultProps, p))
+
+  return initialProps.flatMapFirst(p =>
     dom.onEvent('button', 'click')
       .scan((opened, evt) => !opened, p.openedByDefault)
       .map(opened => ({ opened }))
