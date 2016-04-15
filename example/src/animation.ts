@@ -56,14 +56,14 @@ const contentAnimations = {
 
     TweenLite.fromTo(elm, 0.2,
       { css: { opacity: 0 } },
-      { css: { opacity: 1 }, delay: 0.22 }
+      { css: { opacity: 1 }, delay: 0.22, overwrite: true }
     ).eventCallback('onStart', (): any => elm.style.removeProperty('display'))
   },
 
   remove: (vnode: Vnode, cb: any) => {
     TweenLite.fromTo(vnode.elm, 0.2,
       { css: { opacity: 1 } },
-      { css: { opacity: 0 } }
+      { css: { opacity: 0 }, overwrite: true }
     ).eventCallback('onComplete', cb)
   }
 };
