@@ -8,8 +8,6 @@ export default function DomApi(componentDestruction) {
   componentDestruction.onEnd(_ => this._destroy());
 };
 
-// TODO: Perhaps we need to listen immediately if the api is already activated.
-// This could happen if we flatMapped an onEvent() later after component creation?
 DomApi.prototype.onEvent = function(selector, evt) {
   this.eventSubs = this.eventSubs || [];
 
@@ -20,6 +18,7 @@ DomApi.prototype.onEvent = function(selector, evt) {
   });
 
   this.eventSubs.push(sub);
+  if (this.el) subscribe(sub, this.el);
 
   return stream;
 };
@@ -28,16 +27,7 @@ DomApi.prototype._activate = function(el) {
   if (!this.eventSubs) return;
 
   this.el = el;
-
-  this.eventSubs.forEach(sub => {
-    const listener = evt => {
-      // TODO: simulate bubbling (evt.target could be bellow our selector)
-      if (matches(evt.target, sub.selector)) sub.emitter.emit(evt);
-    }
-    const useCapture = sub.evt in nonBubblingEvents;
-    el.addEventListener(sub.evt, listener, useCapture);
-    sub.listener = { fn: listener, useCapture };
-  });
+  this.eventSubs.forEach(sub => subscribe(sub, el));
 };
 
 DomApi.prototype._destroy = function() {
@@ -50,6 +40,16 @@ DomApi.prototype._destroy = function() {
 
   this.eventSubs = null;
 };
+
+function subscribe(sub, el) {
+  const listener = evt => {
+    // TODO: simulate bubbling (evt.target could be bellow our selector)
+    if (matches(evt.target, sub.selector)) sub.emitter.emit(evt);
+  }
+  const useCapture = sub.evt in nonBubblingEvents;
+  el.addEventListener(sub.evt, listener, useCapture);
+  sub.listener = { fn: listener, useCapture };
+}
 
 
 const proto = Element.prototype;
