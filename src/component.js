@@ -13,10 +13,12 @@ export default function Component(options) {
 
   const compProps = {
     key,
-    hook: { create, insert, postpatch, destroy },
+    hook: { create, postpatch, destroy },
     component: { props, connect, render, key }
   };
 
+  // An empty placeholder is returned, and that's all our parent is going to see.
+  // Components handle their own internal rendering.
   return h('div', compProps);
 };
 
@@ -25,7 +27,10 @@ function create(_, vnode) {
   const { component } = vnode.data;
   const { props, connect } = component;
 
-  component.lifecycle = {};
+  component.lifecycle = {
+    inserted,
+    rendered
+  };
 
   // A stream which only produces one value at component destruction time
   const componentDestruction = kefir.stream(emitter => {
@@ -46,7 +51,6 @@ function create(_, vnode) {
   let stateCalled = false;
 
   component.elm = vnode.elm;
-  component.onRender = onRender;
   component.placeholder = vnode;
 
   state.onValue(state => {
@@ -61,6 +65,7 @@ function create(_, vnode) {
     if (oldState === undefined) {
       renderComponentNow(component);
       component.placeholder.elm = component.vnode.elm;
+      component.placeholder.elm.__comp__ = component;
       domApi._activate(component.vnode.elm);
     }
 
@@ -75,8 +80,8 @@ function create(_, vnode) {
 
 // Store the component depth once it's attached to the DOM so we can render
 // component hierarchies in a predictive manner.
-function insert(vnode) {
-  vnode.data.component.depth = vnode.elm.__depth__ = getDepth(vnode.elm);
+function inserted(component) {
+  component.depth = getDepth(component.vnode.elm);
 }
 
 // Called on every re-render, this is where the props passed by the component's parent may have changed.
@@ -96,7 +101,7 @@ function postpatch(oldVnode, vnode) {
     component.lifecycle.propsChanged(newData.props);
 }
 
-function onRender(component, newVnode) {
+function rendered(component, newVnode) {
   let i;
 
   // Store the new vnode inside the component so we can diff it next render
@@ -110,6 +115,8 @@ function onRender(component, newVnode) {
 
 function destroy(vnode) {
   const comp = vnode.data.component;
+  comp.vnode.elm.__comp__ = null;
+
   destroyVnode(comp.vnode);
   comp.destroyed = true;
   comp.lifecycle.destroyed();
@@ -127,12 +134,11 @@ function destroyVnode(vnode) {
 }
 
 function getDepth(elm) {
+  let depth = 0;
   let parent = elm.parentElement;
-
   while (parent) {
-    if (parent.__depth__ !== undefined) return parent.__depth__ + 1;
+    depth++;
     parent = parent.parentElement;
   }
-
-  return 0;
+  return depth;
 }
