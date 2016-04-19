@@ -40,9 +40,15 @@ function create(_, vnode) {
     }
   });
 
+  let stateChangedFromProps = false;
+
   // The stream of changing props given by the component's parent
   const propStream = kefir.stream(emitter => {
-    component.lifecycle.propsChanged = newProps => emitter.emit(newProps)
+    component.lifecycle.propsChanged = newProps => {
+      stateChangedFromProps = true;
+      emitter.emit(newProps);
+      stateChangedFromProps = false;
+    }
   }).toProperty(() => props);
 
   const domApi = new DomAPi(componentDestruction);
@@ -52,6 +58,7 @@ function create(_, vnode) {
 
   component.elm = vnode.elm;
   component.placeholder = vnode;
+  component.domApi = domApi;
 
   state.onValue(state => {
     stateCalled = true;
@@ -68,6 +75,9 @@ function create(_, vnode) {
       component.placeholder.elm.__comp__ = component;
       domApi._activate(component.vnode.elm);
     }
+
+    else if (stateChangedFromProps)
+      renderComponentNow(component, true);
 
     else if (!shallowEqual(oldState, state))
       renderComponent(component);
@@ -89,16 +99,18 @@ function postpatch(oldVnode, vnode) {
   const oldData = oldVnode.data;
   const newData = vnode.data;
 
+  const component = oldData.component;
+  const oldProps = component.props;
+
   // Pass on the component instance everytime a new Vnode instance is created,
   // but update any important property that can change over time.
-  const component = oldData.component;
   component.props = newData.component.props;
   component.render = newData.component.render;
   component.placeholder = vnode;
   newData.component = component;
 
-  if (!shallowEqual(newData.props, oldData.props))
-    component.lifecycle.propsChanged(newData.props);
+  if (!shallowEqual(component.props, oldProps))
+    component.lifecycle.propsChanged(component.props);
 }
 
 function rendered(component, newVnode) {

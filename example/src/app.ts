@@ -7,7 +7,7 @@ import index from './index'
 import blue from './blue'
 
 
-export default Component({
+export default Component<void, State>({
   key: 'app',
   connect,
   render

@@ -19,9 +19,21 @@ export var log: {
   stream: boolean;
 }
 
+export type NoArgCustomEvent = () => EventPayload<void>;
+export type CustomEvent<P> = (payload: P) => EventPayload<P>;
+
+export function Event(name: string): NoArgCustomEvent;
+export function Event<P>(name: string): CustomEvent<P>;
+
+interface EventPayload<P> {
+  _id: number;
+  payload: P;
+}
+
 export interface DomApi {
   onEvent(selector: string, eventName: string): Stream<Event>
-  emit: any; // TODO: type this
+  onEvent<P>(selector: string, customEvent: CustomEvent<P>): Stream<P>
+  emit<P>(event: EventPayload<P>): void
 }
 
 // Kefir

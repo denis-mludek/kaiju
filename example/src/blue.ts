@@ -8,7 +8,7 @@ import appState, { incrementBlue } from './appState'
 
 
 export default function() {
-  return Component({
+  return Component<void, State>({
     key: 'blue',
     connect,
     render

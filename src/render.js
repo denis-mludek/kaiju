@@ -36,12 +36,14 @@ export function renderComponent(component) {
     nextRender = requestAnimationFrame(renderNow);
 };
 
-export function renderComponentNow(component) {
+export function renderComponentNow(component, checkRenderQueue = false) {
   const { state, elm, render, vnode, destroyed } = component;
 
   // Bail if the component is already destroyed.
   // This can happen if the parent renders first and decide a child component should be removed.
   if (destroyed) return;
+
+  if (checkRenderQueue && componentsToRender.indexOf(component) !== -1) return;
 
   const isNew = vnode === undefined;
   const { patch } = Render;
@@ -63,20 +65,18 @@ export function renderComponentNow(component) {
 function renderNow() {
   rendering = true;
 
-  const components = componentsToRender;
-
   nextRender = undefined;
-  componentsToRender = [];
   newComponents = [];
 
   if (log.render) console.log('%cNew rendering frame', 'color: orange');
 
   // Render components in a top-down fashion.
   // This ensures the rendering order is predictive and props & states are consistent.
-  components.sort((compA, compB) => compA.depth - compB.depth);
-  components.forEach(renderComponentNow);
+  componentsToRender.sort((compA, compB) => compA.depth - compB.depth);
+  componentsToRender.forEach(c => renderComponentNow(c, false));
 
   rendering = false;
+  componentsToRender = [];
 
   newComponents.forEach(c => c.lifecycle.inserted(c));
 }

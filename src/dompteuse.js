@@ -5,6 +5,7 @@ import kefir from 'kefir';
 
 import Render, { renderApp } from './render';
 import Component from './component';
+import Event from './event';
 import { Action, ActionStream } from './actionStream';
 import log from './log';
 
@@ -20,6 +21,7 @@ function makeState(properties, fn) {
 
 export {
   Component,
+  Event,
   startApp,
   log,
   Action,
