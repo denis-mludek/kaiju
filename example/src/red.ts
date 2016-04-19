@@ -36,8 +36,6 @@ interface State {
 }
 
 function connect(dom: DomApi, props: Property<Props>): Property<State> {
-  const text = props.map(p => p.text)
-
   const opened = props.take(1).flatMapFirst(p =>
     dom.onEvent('button', 'click').scan((opened, evt) => !opened, p.openedByDefault)
   ).toProperty()
@@ -45,8 +43,8 @@ function connect(dom: DomApi, props: Property<Props>): Property<State> {
   opened.skip(1).filter(v => v).onValue(v => dom.emit(Opened()))
 
   return makeState(
-    [text, opened],
-    (text, opened) => ({ text, opened })
+    [props, opened],
+    (props, opened) => ({ text: props.text, opened })
   )
 }
 
