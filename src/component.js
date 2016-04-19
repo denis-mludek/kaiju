@@ -9,7 +9,11 @@ import DomAPi from './domApi';
 const empty = {};
 
 export default function Component(options) {
-  const { key, props = empty, connect, render } = options;
+  const { key, props = empty, defaultProps, connect, render } = options;
+
+  if (defaultProps)
+    Object.keys(defaultProps).forEach(key => {
+      if (props[key] === undefined) props[key] = defaultProps[key]});
 
   const compProps = {
     key,

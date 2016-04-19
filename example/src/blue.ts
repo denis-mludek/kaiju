@@ -1,5 +1,5 @@
 import { api as router } from 'abyssa'
-import { Component, h, DomApi } from 'dompteuse'
+import { Component, h, DomApi, Property } from 'dompteuse'
 
 import { contentAnimation } from './animation'
 import green from './green'
@@ -8,7 +8,7 @@ import appState, { incrementBlue } from './appState'
 
 
 export default function() {
-  return Component<void, State>({
+  return Component({
     key: 'blue',
     connect,
     render
@@ -21,7 +21,7 @@ interface State {
   id: string;
 }
 
-function connect(dom: DomApi) {
+function connect(dom: DomApi): Property<State> {
   dom.onEvent('.increment button', 'click').onValue(incrementBlue)
 
   return appState.map(state => ({

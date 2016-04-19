@@ -1,5 +1,5 @@
 import { api as router } from 'abyssa'
-import { Component, h, DomApi } from 'dompteuse'
+import { Component, h, DomApi, Property } from 'dompteuse'
 
 import appState, { incrementBlue } from './appState'
 import { contentAnimation } from './animation'
@@ -7,7 +7,7 @@ import index from './index'
 import blue from './blue'
 
 
-export default Component<void, State>({
+export default Component({
   key: 'app',
   connect,
   render
@@ -18,7 +18,7 @@ interface State {
   route: string
 }
 
-function connect(dom: DomApi) {
+function connect(dom: DomApi): Property<State> {
   return appState.map(s => ({
     count: s.blue.count,
     route: s.route.fullName

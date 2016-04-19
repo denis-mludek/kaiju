@@ -7,10 +7,11 @@ export function startApp<S>(options: {
   elm: HTMLElement;
 }): void;
 
-export function Component<P, S>(options: {
+export function Component<DP extends P, P, S>(options: {
   key: string;
   props?: P;
-  connect: (dom: DomApi, props: Property<P>) => Property<S>;
+  defaultProps?: DP;
+  connect: (dom: DomApi, props: Property<P & DP>) => Property<S>;
   render: (state: S) => Vnode;
 }): Vnode;
 

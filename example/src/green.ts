@@ -6,7 +6,7 @@ import red, { Opened } from './red';
 
 
 export default function() {
-  return Component<void, State>({
+  return Component({
     key: 'green',
     connect,
     render
@@ -19,7 +19,7 @@ interface State {
   redText: string
 }
 
-function connect(dom: DomApi) {
+function connect(dom: DomApi): Property<State> {
   const form = getFormState(dom)
   const id = appState.map(state => state.route.params['id'])
   const redText = dom.onEvent('.red', Opened).scan((current, _) => current + ' Opened!', '')

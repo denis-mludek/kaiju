@@ -6,9 +6,10 @@ import { extend } from './util'
 
 
 export default function(props?: Props) {
-  return Component<Props, State>({
+  return Component({
     key: 'red',
     props,
+    defaultProps,
     connect,
     render
   })
@@ -34,12 +35,10 @@ interface State {
   text: string
 }
 
-function connect(dom: DomApi, props: Property<Props>) {
-  const propsWithDefaults = props.map(p => extend(p, defaultProps))
+function connect(dom: DomApi, props: Property<Props>): Property<State> {
+  const text = props.map(p => p.text)
 
-  const text = propsWithDefaults.map(p => p.text)
-
-  const opened = propsWithDefaults.take(1).flatMapFirst(p =>
+  const opened = props.take(1).flatMapFirst(p =>
     dom.onEvent('button', 'click').scan((opened, evt) => !opened, p.openedByDefault)
   ).toProperty()
 
