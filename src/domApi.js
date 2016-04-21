@@ -72,8 +72,8 @@ function subscribe(sub, el) {
   if (sub.isCustomEvent) return;
 
   const listener = evt => {
-    // TODO: simulate bubbling (evt.target could be bellow our selector)
-    if (matches(evt.target, sub.selector)) sub.emitter.emit(evt);
+    if (targetMatches(evt.target, sub.selector, el))
+      sub.emitter.emit(evt);
   }
   const useCapture = sub.evt in nonBubblingEvents;
   el.addEventListener(sub.evt, listener, useCapture);
@@ -121,3 +121,10 @@ const nonBubblingEvents = Set(
   `emptied`,
   `stalled`,
 );
+
+function targetMatches(target, selector, root) {
+  for (let el = target; el && el !== root; el = el.parentElement) {
+    if (matches(el, selector)) return true;
+  }
+  return false;
+}

@@ -44,7 +44,7 @@ function connect(dom: DomApi, props: Property<Props>): Property<State> {
 
   return makeState(
     [props, opened],
-    (props, opened) => ({ text: props.text, opened })
+    (props, opened) => ({ text: props.text, opened }) // could do { ...props } once ts supports object spreads
   )
 }
 
