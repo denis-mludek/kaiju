@@ -4,6 +4,7 @@ import kefir from 'kefir';
 import { renderComponentNow, renderComponent } from './render';
 import shallowEqual from './shallowEqual';
 import DomAPi from './domApi';
+import log from './log';
 
 
 const empty = {};
@@ -58,14 +59,17 @@ function create(_, vnode) {
   const domApi = new DomAPi(componentDestruction);
 
   const state = connect(domApi, propStream).takeUntilBy(componentDestruction);
-  let stateCalled = false;
+  let stateInitialized = false;
 
   component.elm = vnode.elm;
   component.placeholder = vnode;
   component.domApi = domApi;
 
   state.onValue(state => {
-    stateCalled = true;
+    if (log.stream && stateInitialized)
+      console.log('State changed for component: ', component.placeholder.elm, state);
+
+    stateInitialized = true;
 
     const oldState = component.state;
     component.state = state;
@@ -87,8 +91,8 @@ function create(_, vnode) {
       renderComponent(component);
   });
 
-  if (!stateCalled)
-    console.error('state() returned a Property without an initial value for component',
+  if (!stateInitialized)
+    console.error('connect() returned a Property without an initial value for component',
       component.elm, component.key);
 }
 
