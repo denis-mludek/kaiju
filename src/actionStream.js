@@ -1,6 +1,6 @@
 /* Opt-in, convenience construct used to update a global stream imperatively and in a type safe fashion */
 
-import kefir from 'kefir';
+import xs from 'xstream';
 import defaultLog from './log';
 
 let actionId = 1;
@@ -44,41 +44,43 @@ export function ActionStream(initialState, registerActions, log) {
   if (instance.log)
     console.log('%cInitial state:', 'color: green', initialState);
 
-  const stream = kefir.stream(emitter => {
-    let state = initialState;
+  const stream = xs.create({
+    start: listener => {
+      let state = initialState;
 
-    pushStreams.push(instance);
+      pushStreams.push(instance);
 
-    instance.handleAction = function(action, payload) {
-      // TODO: Is this so bad since we have async redraws? We could push to a temp queue.
-      // The scenario would be: in the middle of an Action handling, we want to conditionally dispatch another action.
-      if (dispatching) throw new Error(
-        'Cannot dispatch an Action in the middle of another Action\'s dispatch');
+      instance.handleAction = function(action, payload) {
+        // TODO: Is this so bad since we have async redraws? We could push to a temp queue.
+        // The scenario would be: in the middle of an Action handling, we want to conditionally dispatch another action.
+        if (dispatching) throw new Error(
+          'Cannot dispatch an Action in the middle of another Action\'s dispatch');
 
-      // Bail fast if this stream isn't interested.
-      const handler = handlers[action._id];
-      if (!handler) return;
+        // Bail fast if this stream isn't interested.
+        const handler = handlers[action._id];
+        if (!handler) return;
 
-      dispatching = true;
+        dispatching = true;
 
-      let newState;
+        let newState;
 
-      try {
-        newState = handler(state, payload);
+        try {
+          newState = handler(state, payload);
+        }
+        finally {
+          if (instance.log)
+            console.log(`%cNew PushStream state:`, 'color: blue', newState);
+
+          dispatching = false;
+        }
+
+        if (newState !== state) listener.next(newState);
+        state = newState;
       }
-      finally {
-        if (instance.log)
-          console.log(`%cNew PushStream state:`, 'color: blue', newState);
+    }
+  }).startWith(initialState).remember();
 
-        dispatching = false;
-      }
-
-      if (newState !== state) emitter.emit(newState);
-      state = newState;
-    };
-  }).toProperty(() => initialState);
-
-  stream.onValue(() => {});
+  stream.addListener({ next: () => {}, error: () => {} });
 
   return stream;
 }

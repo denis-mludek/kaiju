@@ -11,7 +11,7 @@ export function Component<DP extends P, P, S>(options: {
   key: string;
   props?: P;
   defaultProps?: DP;
-  connect: (dom: DomApi, props: Property<P & DP>) => Property<S>;
+  connect: (dom: DomApi, props: MemoryStream<P & DP>) => MemoryStream<S>;
   render: (state: S) => Vnode;
 }): Vnode;
 
@@ -37,35 +37,31 @@ export interface DomApi {
   emit<P>(event: EventPayload<P>): void
 }
 
-// Kefir
+// xstream
 
-import { Stream, Property } from './kefir';
-export { Stream, Property } from './kefir';
+import { Stream, MemoryStream } from 'xstream';
 
-import * as Kefir from './kefir';
-export var kefir: typeof Kefir;
-
-export function makeState<A, B, R>(
-  obss: [Property<A>, Property<B>],
-  fn: (a: A, b: B) => R): Property<R>;
-export function makeState<A, B, C, R>(
-  obss: [Property<A>, Property<B>, Property<C>],
-  fn: (a: A, b: B, c: C) => R): Property<R>;
-export function makeState<A, B, C, D, R>(
-  obss: [Property<A>, Property<B>, Property<C>, Property<D>],
-  fn: (a: A, b: B, c: C, d: D) => R): Property<R>;
-export function makeState<A, B, C, D, E, R>(
-  obss: [Property<A>, Property<B>, Property<C>, Property<D>, Property<E>],
-  fn: (a: A, b: B, c: C, d: D, e: E) => R): Property<R>;
-export function makeState<A, B, C, D, E, F, R>(
-  obss: [Property<A>, Property<B>, Property<C>, Property<D>, Property<E>, Property<F>],
-  fn: (a: A, b: B, c: C, d: D, e: E, f: F) => R): Property<R>;
-export function makeState<A, B, C, D, E, F, G, R>(
-  obss: [Property<A>, Property<B>, Property<C>, Property<D>, Property<E>, Property<F>, Property<G>],
-  fn: (a: A, b: B, c: C, d: D, e: E, f: F, g: G) => R): Property<R>;
-export function makeState<A, B, C, D, E, F, G, H, R>(
-  obss: [Property<A>, Property<B>, Property<C>, Property<D>, Property<E>, Property<F>, Property<G>, Property<H>],
-  fn: (a: A, b: B, c: C, d: D, e: E, f: F, g: G, h: H) => R): Property<R>;
+// export function makeState<A, B, R>(
+//   obss: [Property<A>, Property<B>],
+//   fn: (a: A, b: B) => R): Property<R>;
+// export function makeState<A, B, C, R>(
+//   obss: [Property<A>, Property<B>, Property<C>],
+//   fn: (a: A, b: B, c: C) => R): Property<R>;
+// export function makeState<A, B, C, D, R>(
+//   obss: [Property<A>, Property<B>, Property<C>, Property<D>],
+//   fn: (a: A, b: B, c: C, d: D) => R): Property<R>;
+// export function makeState<A, B, C, D, E, R>(
+//   obss: [Property<A>, Property<B>, Property<C>, Property<D>, Property<E>],
+//   fn: (a: A, b: B, c: C, d: D, e: E) => R): Property<R>;
+// export function makeState<A, B, C, D, E, F, R>(
+//   obss: [Property<A>, Property<B>, Property<C>, Property<D>, Property<E>, Property<F>],
+//   fn: (a: A, b: B, c: C, d: D, e: E, f: F) => R): Property<R>;
+// export function makeState<A, B, C, D, E, F, G, R>(
+//   obss: [Property<A>, Property<B>, Property<C>, Property<D>, Property<E>, Property<F>, Property<G>],
+//   fn: (a: A, b: B, c: C, d: D, e: E, f: F, g: G) => R): Property<R>;
+// export function makeState<A, B, C, D, E, F, G, H, R>(
+//   obss: [Property<A>, Property<B>, Property<C>, Property<D>, Property<E>, Property<F>, Property<G>, Property<H>],
+//   fn: (a: A, b: B, c: C, d: D, e: E, f: F, g: G, h: H) => R): Property<R>;
 
 
 // snabbdom
@@ -116,4 +112,4 @@ type Action<P> = (payload: P) => void;
 
 export function Action(name: string): NoArgAction;
 export function Action<P>(name: string): Action<P>;
-export function ActionStream<S>(initialState: S, registerActions: (on: OnAction<S>) => void): Property<S>;
+export function ActionStream<S>(initialState: S, registerActions: (on: OnAction<S>) => void): MemoryStream<S>;

@@ -1,5 +1,6 @@
 import { api as router } from 'abyssa'
-import { Component, h, DomApi, Property } from 'dompteuse'
+import { Component, h, DomApi } from 'dompteuse'
+import { MemoryStream } from 'xstream'
 
 import appState, { incrementBlue } from './appState'
 import { contentAnimation } from './animation'
@@ -18,11 +19,11 @@ interface State {
   route: string
 }
 
-function connect(dom: DomApi): Property<State> {
+function connect(dom: DomApi): MemoryStream<State> {
   return appState.map(s => ({
     count: s.blue.count,
     route: s.route.fullName
-  }));
+  })).remember()
 }
 
 function render(state: State) {

@@ -1,11 +1,15 @@
-import kefir from 'kefir';
+import xs from 'xstream';
 
 import { Set } from './util';
 
+function noop() {}
 
 export default function DomApi(componentDestruction) {
   this.componentDestruction = componentDestruction;
-  componentDestruction.onEnd(_ => this._destroy());
+  componentDestruction.addListener({
+    next: noop,
+    complete: () => this._destroy()
+  });
 };
 
 DomApi.prototype.onEvent = function(selector, evt) {
@@ -13,8 +17,9 @@ DomApi.prototype.onEvent = function(selector, evt) {
 
   const sub = { selector, evt, isCustomEvent: evt._isCustomEvent };
 
-  const stream = kefir.stream(emitter => {
-    sub.emitter = emitter;
+  const stream = xs.create({
+    start: listener => sub.stream = listener,
+    stop: noop
   });
 
   this.eventSubs.push(sub);
@@ -64,7 +69,7 @@ DomApi.prototype._handleEmit = function(event) {
   for (let i = 0; i < subs.length; i++) {
     const sub = subs[i];
     if (sub.isCustomEvent && matches(event.targetComponent, sub.selector))
-      sub.emitter.emit(event.payload);
+      sub.stream.next(event.payload);
   }
 };
 
@@ -73,7 +78,7 @@ function subscribe(sub, el) {
 
   const listener = evt => {
     if (targetMatches(evt.target, sub.selector, el))
-      sub.emitter.emit(evt);
+      sub.stream.next(evt);
   }
   const useCapture = sub.evt in nonBubblingEvents;
   el.addEventListener(sub.evt, listener, useCapture);

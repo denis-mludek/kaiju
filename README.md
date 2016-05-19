@@ -5,8 +5,7 @@
 Fast Virtual DOM with Reactive updating.
 
 - Fast (thanks to [snabbdom](https://github.com/paldepind/snabbdom), subtree redraw optimizations and RAF)
-- Has the same programming model for global app state and components' local state
-- Flux-like data flow. Gentle learning curve, faster and more flexible compared to most approaches based on streams.
+- Global and local states use streams for greater composition
 - No JS `class` / `this` nonsense
 - Tiny size in KB
 - Comes with useful logs

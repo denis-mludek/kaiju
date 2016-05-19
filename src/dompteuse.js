@@ -1,7 +1,7 @@
 
 import snabbdom from 'snabbdom';
 import h from 'snabbdom/h';
-import kefir from 'kefir';
+import xs from 'xstream';
 
 import Render, { renderApp } from './render';
 import Component from './component';
@@ -15,8 +15,9 @@ function startApp({ app, elm, patch }) {
   renderApp(app, elm);
 }
 
-function makeState(properties, fn) {
-  return kefir.combine(properties, fn).toProperty()
+function makeState() {
+  // TODO: is that even useful then
+  return xs.combine.apply(null, arguments)
 }
 
 export {
@@ -29,6 +30,5 @@ export {
   // Proxied for convenient typesafety
   snabbdom,
   h,
-  kefir,
   makeState
 };

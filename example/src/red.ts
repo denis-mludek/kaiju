@@ -1,5 +1,6 @@
 import update from 'immupdate'
-import { Component, h, Property, DomApi, makeState, Event } from 'dompteuse'
+import { Component, h, DomApi, Event } from 'dompteuse'
+import xs, { MemoryStream } from 'xstream'
 
 import appState, { incrementBlue } from './appState'
 import { extend } from './util'
@@ -35,17 +36,23 @@ interface State {
   text: string
 }
 
-function connect(dom: DomApi, props: Property<Props>): Property<State> {
-  const opened = props.take(1).flatMapFirst(p =>
-    dom.onEvent('button', 'click').scan((opened, evt) => !opened, p.openedByDefault)
-  ).toProperty()
+// TODO remove
+const noop = () => {}
+function onValue(stream: any, cb: any) {
+  stream.addListener({ next: cb, error: noop, complete: noop })
+}
 
-  opened.skip(1).filter(v => v).onValue(v => dom.emit(Opened()))
+function connect(dom: DomApi, props: MemoryStream<Props>): MemoryStream<State> {
+  const opened = props.take(1).map(p =>
+    dom.onEvent('button', 'click').fold((opened, evt) => !opened, p.openedByDefault)
+  ).flatten().remember()
 
-  return makeState(
-    [props, opened],
-    (props, opened) => ({ text: props.text, opened }) // could do { ...props } once ts supports object spreads
-  )
+  onValue(opened.drop(1).filter(v => v), v => dom.emit(Opened()))
+
+  return xs.combine(
+    (props, opened) => ({ text: props.text, opened }),
+    props, opened
+  ).remember()
 }
 
 function render(state: State) {

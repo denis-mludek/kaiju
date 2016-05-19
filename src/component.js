@@ -1,5 +1,5 @@
 import h from 'snabbdom/h';
-import kefir from 'kefir';
+import xs from 'xstream';
 
 import { renderComponentNow, renderComponent } from './render';
 import shallowEqual from './shallowEqual';
@@ -8,6 +8,7 @@ import log from './log';
 
 
 const empty = {};
+function noop() {};
 
 export default function Component(options) {
   const { key, props = empty, defaultProps, connect, render } = options;
@@ -38,57 +39,63 @@ function create(_, vnode) {
   };
 
   // A stream which only produces one value at component destruction time
-  const componentDestruction = kefir.stream(emitter => {
-    component.lifecycle.destroyed = () => {
-      emitter.emit();
-      emitter.end();
-    }
+  const componentDestruction = xs.create({
+    start: listener => {
+      component.lifecycle.destroyed = () => listener.complete()
+    },
+    stop: noop
   });
 
   let stateChangedFromProps = false;
 
   // The stream of changing props given by the component's parent
-  const propStream = kefir.stream(emitter => {
-    component.lifecycle.propsChanged = newProps => {
-      stateChangedFromProps = true;
-      emitter.emit(newProps);
-      stateChangedFromProps = false;
-    }
-  }).toProperty(() => props);
+  const propStream = xs.create({
+    start: listener => {
+      component.lifecycle.propsChanged = newProps => {
+        stateChangedFromProps = true;
+        listener.next(newProps);
+        stateChangedFromProps = false;
+      }
+    },
+    stop: noop
+  }).startWith(props).remember()
 
   const domApi = new DomAPi(componentDestruction);
 
-  const state = connect(domApi, propStream).takeUntilBy(componentDestruction);
+  const state = connect(domApi, propStream).endWhen(componentDestruction);
   let stateInitialized = false;
 
   component.elm = vnode.elm;
   component.placeholder = vnode;
   component.domApi = domApi;
 
-  state.onValue(state => {
-    if (log.stream && stateInitialized)
-      console.log('State changed for component: ', component.placeholder.elm, state);
+  state.addListener({
+    complete: noop,
+    next: state => {
+      if (log.stream && stateInitialized)
+        console.log('State changed for component: ', component.placeholder.elm, state);
 
-    stateInitialized = true;
+      stateInitialized = true;
 
-    const oldState = component.state;
-    component.state = state;
+      const oldState = component.state;
+      component.state = state;
 
-    // First render:
-    // Create and insert the component's content
-    // while its parent is still unattached for better perfs.
-    if (oldState === undefined) {
-      renderComponentNow(component);
-      component.placeholder.elm = component.vnode.elm;
-      component.placeholder.elm.__comp__ = component;
-      domApi._activate(component.vnode.elm);
+      // First render:
+      // Create and insert the component's content
+      // while its parent is still unattached for better perfs.
+      if (oldState === undefined) {
+        renderComponentNow(component);
+        component.placeholder.elm = component.vnode.elm;
+        component.placeholder.elm.__comp__ = component;
+        domApi._activate(component.vnode.elm);
+      }
+
+      else if (stateChangedFromProps)
+        renderComponentNow(component, true);
+
+      else if (!shallowEqual(oldState, state))
+        renderComponent(component);
     }
-
-    else if (stateChangedFromProps)
-      renderComponentNow(component, true);
-
-    else if (!shallowEqual(oldState, state))
-      renderComponent(component);
   });
 
   if (!stateInitialized)

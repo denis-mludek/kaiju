@@ -1,5 +1,6 @@
-import { Component, h, DomApi, Property, makeState } from 'dompteuse'
+import { Component, h, DomApi } from 'dompteuse'
 import update from 'immupdate'
+import xs, { MemoryStream } from 'xstream'
 
 import appState from './appState'
 import red, { Opened } from './red';
@@ -19,15 +20,15 @@ interface State {
   redText: string
 }
 
-function connect(dom: DomApi): Property<State> {
+function connect(dom: DomApi): MemoryStream<State> {
   const form = getFormState(dom)
   const id = appState.map(state => state.route.params['id'])
-  const redText = dom.onEvent('.red', Opened).scan((current, _) => current + ' Opened!', '')
+  const redText = dom.onEvent('.red', Opened).fold((current, _) => current + ' Opened!', '')
 
-  return makeState(
-    [form, id, redText],
-    (form, id, redText) => ({ form, id, redText })
-  )
+  return xs.combine(
+    (form, id, redText) => ({ form, id, redText }),
+    form, id, redText
+  ).remember()
 }
 
 function render(state: State) {
@@ -50,7 +51,7 @@ function getFormState(dom: DomApi) {
       const { name, value } = evt.target as HTMLInputElement
       return { [name]: value.substr(0, 4) }
     })
-    .scan<any>((form, diff) => update(form, diff), {})
+    .fold((form, diff) => update(form, diff), {})
 }
 
 function input(name: string, value: string) {
