@@ -1,17 +1,16 @@
 import h from 'snabbdom/h';
-import xs from 'xstream';
+import most from 'most';
 
-import { renderComponentNow, renderComponent } from './render';
+import { renderComponentSync, renderComponentAsync } from './render';
 import shallowEqual from './shallowEqual';
-import DomAPi from './domApi';
+import DomEvents from './domEvents';
 import log from './log';
 
 
 const empty = {};
-function noop() {};
 
 export default function Component(options) {
-  const { key, props = empty, defaultProps, connect, render } = options;
+  const { key, props = empty, defaultProps, initState, connect, render } = options;
 
   if (defaultProps)
     Object.keys(defaultProps).forEach(key => {
@@ -20,7 +19,7 @@ export default function Component(options) {
   const compProps = {
     key,
     hook: { create, postpatch, destroy },
-    component: { props, connect, render, key }
+    component: { props, initState, connect, render, key }
   };
 
   // An empty placeholder is returned, and that's all our parent is going to see.
@@ -31,76 +30,47 @@ export default function Component(options) {
 // Called when the component is created but isn't yet attached to the DOM
 function create(_, vnode) {
   const { component } = vnode.data;
-  const { props, connect } = component;
+  const { props, initState, connect } = component;
 
+  // Internal callbacks
   component.lifecycle = {
     inserted,
     rendered
   };
 
   // A stream which only produces one value at component destruction time
-  const componentDestruction = xs.create({
-    start: listener => {
-      component.lifecycle.destroyed = () => listener.complete()
-    },
-    stop: noop
+  const componentDestruction = most.create(add => {
+    component.lifecycle.destroyed = add;
   });
 
-  let stateChangedFromProps = false;
+  const domEvents = new DomEvents(componentDestruction);
 
-  // The stream of changing props given by the component's parent
-  const propStream = xs.create({
-    start: listener => {
-      component.lifecycle.propsChanged = newProps => {
-        stateChangedFromProps = true;
-        listener.next(newProps);
-        stateChangedFromProps = false;
-      }
-    },
-    stop: noop
-  }).startWith(props).remember()
-
-  const domApi = new DomAPi(componentDestruction);
-
-  const state = connect(domApi, propStream).endWhen(componentDestruction);
-  let stateInitialized = false;
-
+  component.state = initState(props);
   component.elm = vnode.elm;
   component.placeholder = vnode;
-  component.domApi = domApi;
+  component.domEvents = domEvents;
 
-  state.addListener({
-    complete: noop,
-    next: state => {
-      if (log.stream && stateInitialized)
-        console.log('State changed for component: ', component.placeholder.elm, state);
+  // First render:
+  // Create and insert the component's content
+  // while its parent is still unattached for better perfs.
+  renderComponentSync(component);
+  component.placeholder.elm = component.vnode.elm;
+  component.placeholder.elm.__comp__ = component;
 
-      stateInitialized = true;
+  // Subsequent renders following a state update
+  const onStream = (stream, fn) => stream.until(componentDestruction).observe(val => {
+    const oldState = component.state;
+    component.state = fn(oldState, val);
 
-      const oldState = component.state;
-      component.state = state;
-
-      // First render:
-      // Create and insert the component's content
-      // while its parent is still unattached for better perfs.
-      if (oldState === undefined) {
-        renderComponentNow(component);
-        component.placeholder.elm = component.vnode.elm;
-        component.placeholder.elm.__comp__ = component;
-        domApi._activate(component.vnode.elm);
-      }
-
-      else if (stateChangedFromProps)
-        renderComponentNow(component, true);
-
-      else if (!shallowEqual(oldState, state))
-        renderComponent(component);
+    if (!shallowEqual(oldState, component.state)) {
+      if (log.stream)
+        console.log('Component state changed', `'${component.key}'`, component.state);
+      renderComponentAsync(component);
     }
   });
 
-  if (!stateInitialized)
-    console.error('connect() returned a Property without an initial value for component',
-      component.elm, component.key);
+  connect(onStream, domEvents);
+  domEvents._activate(component.vnode.elm);
 }
 
 // Store the component depth once it's attached to the DOM so we can render
@@ -124,8 +94,10 @@ function postpatch(oldVnode, vnode) {
   component.placeholder = vnode;
   newData.component = component;
 
+  // If the props changed, render immediately as we are already
+  // in the render context of our parent
   if (!shallowEqual(component.props, oldProps))
-    component.lifecycle.propsChanged(component.props);
+    renderComponentSync(component);
 }
 
 function rendered(component, newVnode) {

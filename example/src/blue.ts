@@ -1,6 +1,6 @@
 import { api as router } from 'abyssa'
-import { Component, h, DomApi } from 'dompteuse'
-import { MemoryStream } from 'xstream'
+import { Component, h, StreamSub, DomEvents } from 'dompteuse'
+import { Stream } from 'most'
 
 import { contentAnimation } from './animation'
 import green from './green'
@@ -11,6 +11,7 @@ import appState, { incrementBlue } from './appState'
 export default function() {
   return Component({
     key: 'blue',
+    initState: readGlobalState,
     connect,
     render
   })
@@ -22,23 +23,20 @@ interface State {
   id: string
 }
 
-// TODO remove
-const noop = () => {}
-function onValue(stream: any, cb: any) {
-  stream.addListener({ next: cb, error: noop, complete: noop })
+function readGlobalState() {
+  return {
+    count: appState.value.blue.count,
+    route: appState.value.route.fullName,
+    id: appState.value.route.params['id']
+  }
 }
 
-function connect(dom: DomApi): MemoryStream<State> {
-  onValue(dom.onEvent('.increment button', 'click'), incrementBlue)
-
-  return appState.map(state => ({
-    count: state.blue.count,
-    route: state.route.fullName,
-    id: state.route.params['id']
-  })).remember()
+function connect(on: StreamSub<State>, dom: DomEvents) {
+  dom.events('.increment button', 'click').forEach(incrementBlue)
+  on(appState, readGlobalState)
 }
 
-function render(state: State) {
+function render(props: void, state: State) {
   const { id, route } = state
 
   return h('div#blue', [

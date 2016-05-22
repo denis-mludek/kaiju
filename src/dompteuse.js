@@ -1,7 +1,6 @@
 
 import snabbdom from 'snabbdom';
 import h from 'snabbdom/h';
-import xs from 'xstream';
 
 import Render, { renderApp } from './render';
 import Component from './component';
@@ -15,11 +14,6 @@ function startApp({ app, elm, patch }) {
   renderApp(app, elm);
 }
 
-function makeState() {
-  // TODO: is that even useful then
-  return xs.combine.apply(null, arguments)
-}
-
 export {
   Component,
   Event,
@@ -29,6 +23,5 @@ export {
   ActionStream,
   // Proxied for convenient typesafety
   snabbdom,
-  h,
-  makeState
+  h
 };

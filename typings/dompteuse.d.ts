@@ -7,12 +7,15 @@ export function startApp<S>(options: {
   elm: HTMLElement;
 }): void;
 
+export type StreamSub<S> = <A>(stream: Stream<A>, cb: (state: S, value: A) => S) => void;
+
 export function Component<DP extends P, P, S>(options: {
   key: string;
   props?: P;
   defaultProps?: DP;
-  connect: (dom: DomApi, props: MemoryStream<P & DP>) => MemoryStream<S>;
-  render: (state: S) => Vnode;
+  initState: (props: P) => S;
+  connect: (on: StreamSub<S>, dom: DomEvents) => void;
+  render: (props: P, state: S) => Vnode;
 }): Vnode;
 
 export var log: {
@@ -31,38 +34,15 @@ interface EventPayload<P> {
   payload: P;
 }
 
-export interface DomApi {
-  onEvent(selector: string, eventName: string): Stream<Event>
-  onEvent<P>(selector: string, customEvent: CustomEvent<P>): Stream<P>
+export interface DomEvents {
+  events(selector: string, eventName: string): Stream<Event>
+  events<P>(selector: string, customEvent: CustomEvent<P>): Stream<P>
   emit<P>(event: EventPayload<P>): void
 }
 
-// xstream
+// most
 
-import { Stream, MemoryStream } from 'xstream';
-
-// export function makeState<A, B, R>(
-//   obss: [Property<A>, Property<B>],
-//   fn: (a: A, b: B) => R): Property<R>;
-// export function makeState<A, B, C, R>(
-//   obss: [Property<A>, Property<B>, Property<C>],
-//   fn: (a: A, b: B, c: C) => R): Property<R>;
-// export function makeState<A, B, C, D, R>(
-//   obss: [Property<A>, Property<B>, Property<C>, Property<D>],
-//   fn: (a: A, b: B, c: C, d: D) => R): Property<R>;
-// export function makeState<A, B, C, D, E, R>(
-//   obss: [Property<A>, Property<B>, Property<C>, Property<D>, Property<E>],
-//   fn: (a: A, b: B, c: C, d: D, e: E) => R): Property<R>;
-// export function makeState<A, B, C, D, E, F, R>(
-//   obss: [Property<A>, Property<B>, Property<C>, Property<D>, Property<E>, Property<F>],
-//   fn: (a: A, b: B, c: C, d: D, e: E, f: F) => R): Property<R>;
-// export function makeState<A, B, C, D, E, F, G, R>(
-//   obss: [Property<A>, Property<B>, Property<C>, Property<D>, Property<E>, Property<F>, Property<G>],
-//   fn: (a: A, b: B, c: C, d: D, e: E, f: F, g: G) => R): Property<R>;
-// export function makeState<A, B, C, D, E, F, G, H, R>(
-//   obss: [Property<A>, Property<B>, Property<C>, Property<D>, Property<E>, Property<F>, Property<G>, Property<H>],
-//   fn: (a: A, b: B, c: C, d: D, e: E, f: F, g: G, h: H) => R): Property<R>;
-
+import { Stream } from 'most';
 
 // snabbdom
 
@@ -112,4 +92,6 @@ type Action<P> = (payload: P) => void;
 
 export function Action(name: string): NoArgAction;
 export function Action<P>(name: string): Action<P>;
-export function ActionStream<S>(initialState: S, registerActions: (on: OnAction<S>) => void): MemoryStream<S>;
+export function ActionStream<S>(
+  initialState: S,
+  registerActions: (on: OnAction<S>) => void): Stream<S> & { value: S };

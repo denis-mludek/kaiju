@@ -1,25 +1,24 @@
 import update from 'immupdate'
-import { Component, h, DomApi, Event } from 'dompteuse'
-import xs, { MemoryStream } from 'xstream'
+import { Component, h, StreamSub, DomEvents, Event } from 'dompteuse'
+import { Stream } from 'most'
 
 import appState, { incrementBlue } from './appState'
-import { extend } from './util'
+import { merge } from './util'
 
 
 export default function(props?: Props) {
   return Component({
     key: 'red',
     props,
+    initState,
     defaultProps,
     connect,
     render
   })
 }
 
-// Custom event to indirectly communicate with parent components
 export const Opened = Event('opened')
 
-// Props passed by our parent
 interface Props {
   openedByDefault?: boolean
   text?: string
@@ -30,33 +29,28 @@ const defaultProps = {
   text: ''
 }
 
-// Our local state
 interface State {
   opened: boolean
-  text: string
 }
 
-// TODO remove
-const noop = () => {}
-function onValue(stream: any, cb: any) {
-  stream.addListener({ next: cb, error: noop, complete: noop })
+function initState(props: Props) {
+  return {
+    opened: props.openedByDefault,
+    text: ''
+  }
 }
 
-function connect(dom: DomApi, props: MemoryStream<Props>): MemoryStream<State> {
-  const opened = props.take(1).map(p =>
-    dom.onEvent('button', 'click').fold((opened, evt) => !opened, p.openedByDefault)
-  ).flatten().remember()
-
-  onValue(opened.drop(1).filter(v => v), v => dom.emit(Opened()))
-
-  return xs.combine(
-    (props, opened) => ({ text: props.text, opened }),
-    props, opened
-  ).remember()
+function connect(on: StreamSub<State>, dom: DomEvents) {
+  on(dom.events('button', 'click'), state => {
+    const opened = !state.opened
+    if (opened) dom.emit(Opened())
+    return merge(state, { opened })
+  })
 }
 
-function render(state: State) {
-  const { opened, text } = state
+function render(props: Props, state: State) {
+  const { text } = props
+  const { opened } = state
 
   return h('div.red', { class: { opened } }, [
     h('button', 'Toggle'),

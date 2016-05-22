@@ -19,7 +19,7 @@ export function renderApp(app, appElm) {
   newComponents.forEach(c => c.lifecycle.inserted(c));
 }
 
-export function renderComponent(component) {
+export function renderComponentAsync(component) {
   if (rendering) {
     console.warn('A component tried to re-render while a rendering was already ongoing', component.elm);
     return;
@@ -36,13 +36,19 @@ export function renderComponent(component) {
     nextRender = requestAnimationFrame(renderNow);
 };
 
-export function renderComponentNow(component, checkRenderQueue = false) {
-  const { state, elm, render, vnode, destroyed } = component;
+export function renderComponentSync(component) {
+  renderComponent(component, true);
+};
+
+function renderComponent(component, checkRenderQueue) {
+  const { props, state, elm, render, vnode, destroyed } = component;
 
   // Bail if the component is already destroyed.
   // This can happen if the parent renders first and decide a child component should be removed.
   if (destroyed) return;
 
+  // The component is going to be rendered later as part of the normal
+  // render process, do not force-render it now.
   if (checkRenderQueue && componentsToRender.indexOf(component) !== -1) return;
 
   const isNew = vnode === undefined;
@@ -51,7 +57,7 @@ export function renderComponentNow(component, checkRenderQueue = false) {
   let beforeRender;
 
   if (log.render) beforeRender = performance.now();
-  const newVnode = render(state);
+  const newVnode = render(props, state);
 
   patch(vnode || elm, newVnode);
 
@@ -73,7 +79,7 @@ function renderNow() {
   // Render components in a top-down fashion.
   // This ensures the rendering order is predictive and props & states are consistent.
   componentsToRender.sort((compA, compB) => compA.depth - compB.depth);
-  componentsToRender.forEach(c => renderComponentNow(c, false));
+  componentsToRender.forEach(c => renderComponent(c, false));
 
   rendering = false;
   componentsToRender = [];

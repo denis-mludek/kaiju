@@ -1,34 +1,27 @@
-import xs from 'xstream';
+import most from 'most';
 
 import { Set } from './util';
 
-function noop() {}
 
-export default function DomApi(componentDestruction) {
+export default function DomEvents(componentDestruction) {
   this.componentDestruction = componentDestruction;
-  componentDestruction.addListener({
-    next: noop,
-    complete: () => this._destroy()
-  });
+  componentDestruction.observe(this._destroy);
 };
 
-DomApi.prototype.onEvent = function(selector, evt) {
+DomEvents.prototype.events = function(selector, evt) {
   this.eventSubs = this.eventSubs || [];
 
+  const stream = most.create(add => sub.streamAdd = add)
+    .until(this.componentDestruction);
+
   const sub = { selector, evt, isCustomEvent: evt._isCustomEvent };
-
-  const stream = xs.create({
-    start: listener => sub.stream = listener,
-    stop: noop
-  });
-
   this.eventSubs.push(sub);
   if (this.el) subscribe(sub, this.el);
 
   return stream;
 };
 
-DomApi.prototype.emit = function(event) {
+DomEvents.prototype.emit = function(event) {
   if (!this.eventSubs) return;
 
   let parentEl = this.el.parentElement;
@@ -37,20 +30,20 @@ DomApi.prototype.emit = function(event) {
 
   while (parentEl) {
     if (parentEl.__comp__)
-      parentEl.__comp__.domApi._handleEmit(event);
+      parentEl.__comp__.domEvents._handleEmit(event);
 
     parentEl = parentEl.parentElement;
   }
 };
 
-DomApi.prototype._activate = function(el) {
+DomEvents.prototype._activate = function(el) {
   if (!this.eventSubs) return;
 
   this.el = el;
   this.eventSubs.forEach(sub => subscribe(sub, el));
 };
 
-DomApi.prototype._destroy = function() {
+DomEvents.prototype._destroy = function() {
   if (!this.eventSubs) return;
 
   this.eventSubs.forEach(sub => {
@@ -62,14 +55,14 @@ DomApi.prototype._destroy = function() {
   this.eventSubs = null;
 };
 
-DomApi.prototype._handleEmit = function(event) {
+DomEvents.prototype._handleEmit = function(event) {
   const subs = this.eventSubs;
   if (!subs) return;
 
   for (let i = 0; i < subs.length; i++) {
     const sub = subs[i];
     if (sub.isCustomEvent && matches(event.targetComponent, sub.selector))
-      sub.stream.next(event.payload);
+      sub.streamAdd(event.payload);
   }
 };
 
@@ -78,7 +71,7 @@ function subscribe(sub, el) {
 
   const listener = evt => {
     if (targetMatches(evt.target, sub.selector, el))
-      sub.stream.next(evt);
+      sub.streamAdd(evt);
   }
   const useCapture = sub.evt in nonBubblingEvents;
   el.addEventListener(sub.evt, listener, useCapture);
@@ -98,33 +91,33 @@ function matches(el, selector) {
 }
 
 const nonBubblingEvents = Set(
-  `load`,
-  `unload`,
-  `focus`,
-  `blur`,
-  `mouseenter`,
-  `mouseleave`,
-  `submit`,
-  `change`,
-  `reset`,
-  `timeupdate`,
-  `playing`,
-  `waiting`,
-  `seeking`,
-  `seeked`,
-  `ended`,
-  `loadedmetadata`,
-  `loadeddata`,
-  `canplay`,
-  `canplaythrough`,
-  `durationchange`,
-  `play`,
-  `pause`,
-  `ratechange`,
-  `volumechange`,
-  `suspend`,
-  `emptied`,
-  `stalled`,
+  'load',
+  'unload',
+  'focus',
+  'blur',
+  'mouseenter',
+  'mouseleave',
+  'submit',
+  'change',
+  'reset',
+  'timeupdate',
+  'playing',
+  'waiting',
+  'seeking',
+  'seeked',
+  'ended',
+  'loadedmetadata',
+  'loadeddata',
+  'canplay',
+  'canplaythrough',
+  'durationchange',
+  'play',
+  'pause',
+  'ratechange',
+  'volumechange',
+  'suspend',
+  'emptied',
+  'stalled',
 );
 
 function targetMatches(target, selector, root) {

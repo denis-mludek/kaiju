@@ -2,7 +2,7 @@ import defaultLog from './log';
 
 let eventId = 1;
 
-/* User-defined component events */
+/* User-defined component event factory */
 export default function Event(name) {
 
   const _id = eventId++;

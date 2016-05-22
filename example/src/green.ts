@@ -1,14 +1,16 @@
-import { Component, h, DomApi } from 'dompteuse'
+import { Component, h, DomEvents, StreamSub } from 'dompteuse'
 import update from 'immupdate'
-import xs, { MemoryStream } from 'xstream'
+import { Stream } from 'most'
 
 import appState from './appState'
-import red, { Opened } from './red';
+import red, { Opened } from './red'
+import { merge } from './util'
 
 
 export default function() {
   return Component({
     key: 'green',
+    initState,
     connect,
     render
   })
@@ -20,18 +22,35 @@ interface State {
   redText: string
 }
 
-function connect(dom: DomApi): MemoryStream<State> {
-  const form = getFormState(dom)
-  const id = appState.map(state => state.route.params['id'])
-  const redText = dom.onEvent('.red', Opened).fold((current, _) => current + ' Opened!', '')
-
-  return xs.combine(
-    (form, id, redText) => ({ form, id, redText }),
-    form, id, redText
-  ).remember()
+function initState() {
+  return {
+    id: appState.value.route.params['id'],
+    form: {},
+    redText: ''
+  }
 }
 
-function render(state: State) {
+function connect(on: StreamSub<State>, dom: DomEvents) {
+
+  const formUpdate = dom.events('input', 'input').map(evt => {
+    const { name, value } = evt.target as HTMLInputElement
+    return { [name]: value.substr(0, 4) }
+  })
+
+  on(formUpdate, (state, patch) =>
+    update(state, { form: patch })
+  )
+
+  on(appState, (state, appState) =>
+    merge(state, { id: appState.route.params['id'] })
+  )
+
+  on(dom.events('.red', Opened), (state, _) =>
+    merge(state, { redText: state.redText + ' Opened!' })
+  )
+}
+
+function render(props: void, state: State) {
   const { id, form, redText } = state
   const { firstName, lastName } = form
 
@@ -43,15 +62,6 @@ function render(state: State) {
     ]),
     red({ text: redText })
   ])
-}
-
-function getFormState(dom: DomApi) {
-  return dom.onEvent('input', 'input')
-    .map(evt => {
-      const { name, value } = evt.target as HTMLInputElement
-      return { [name]: value.substr(0, 4) }
-    })
-    .fold((form, diff) => update(form, diff), {})
 }
 
 function input(name: string, value: string) {

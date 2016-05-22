@@ -10,7 +10,6 @@
 		"typings/**/*.d.ts"
 	],
 	"files": [
-		"typings/dompteuse.d.ts",
-		"typings/kefir.d.ts"
+		"typings/dompteuse.d.ts"
 	]
 }
