@@ -4,140 +4,211 @@
 
 Fast Virtual DOM with Reactive updating.
 
-- Fast (thanks to [snabbdom](https://github.com/paldepind/snabbdom), subtree redraw optimizations and RAF)
+- Fast thanks to [snabbdom](https://github.com/paldepind/snabbdom), [most](https://github.com/cujojs/most), component isolation and async RAF rendering
 - Global and local states use streams for greater composition
 - No JS `class` / `this` nonsense
 - Tiny size in KB
 - Comes with useful logs
-- Very typescript friendly (Check the [example](https://github.com/AlexGalays/dompteuse/tree/master/example/src))
+- Very typesafe / typescript friendly
 
 # Content
 * [Componentization](#componentization)
+* [Global streams](#globalStreams)
 * [Api](#api)
+* [Example](https://github.com/AlexGalays/dompteuse/tree/master/example/src)
 
 <a name="componentization"></a>
 # Componentization
 
-`dompteuse` brings the concept of encapsulated components to pure functional virtual dom.  
+`dompteuse` adds the concept of encapsulated components to pure functional virtual dom.  
+Standard Virtual nodes and components are composed to build a Vnode tree that can scale in size and complexity.
 
-At a high level, these are the different kinds of components and nodes you may compose in a typical application:  
+A component is simply a function that takes an option object as an argument and returns a Vnode ready to be used inside its parent children.
 
-## Virtual nodes
-Most of your application will still be made up of plain old virtual dom nodes without any internal state.
-```javascript
-import { h } from 'dompteuse';
-
-function button(props) {
-  return h('button', props);
-}
-```
-
-## Stateless component
-Pulls state from the global store then pass props derived from that state to its children.  
-These components are optimized as they only redraw if the pulled state changed.  
-It also remove the cumbersome act of passing props several layer down, so it's easier to maintain/refactor.  
-Typically, you use stateless components at every url route / sub-route pivot or as an optimization
-for deeply nested components that need a piece of data its parents don't care about.  
-On the other hand, pulling state from the global store is not suitable for reusable components.
+Note: typescript will be used in the examples, javascript devs can simply ignore the types annotations.
 
 ```javascript
-import { component, h } from 'dompteuse';
+import { Component } from 'dompteuse'
 
-export default function() {
-  return component({
-    key: 'users',
-    pullState,
-    render
-  });
-};
-
-function pullState(state) {
-  return { users: state.users };
-}
-
-function render({ users }) {
-  return h('ul', users.map(user => h('li', user.name)));
-}
-
-```
-
-## Stateful components
-Maintains a state locally by using a transient fluxx store. While keeping state in the global store is nice
-to synchronize multiple components together, keeping everything in the global store is a maintenance hazard and leads
-to a lot of code repetition. Relying on global state a lot also means you have to clean up the state when navigating inside the app, for instance when a temporary form did start to push his data into the global state, then gets cancelled and need to be later reopened with a blank slate.  
-You typically want to keep very transient state as local as possible so that it remains encapsulated and do not leak up (ex: Whether a select dropdown is opened, a component has focus, which grid row is highlighted, basically any state that resets if the user navigate away then come back)
-
-```javascript
-import update from 'immupdate';
-import { component, h } from 'dompteuse';
-import { LocalStore, Action } from 'fluxx';
-
-export default function(props) {
-  return component({
-    key: 'select',
-    localStore,
+export default function(props?: Props) {
+  return Component({
+    key: 'Select',
     props,
+    defaultProps,
+    initState,
+    connect,
     render
-  });
-};
-
-function localStore(props) {
-  const initialState = { opened: props.openedByDefault };
-
-  const actions = {
-    toggle: Action('toggle')
-  };
-
-  const store = LocalStore(initialState, on => {
-    on(actions.toggle, state => update(state, { opened: !state.opened }))
-  });
-
-  return { store, actions };
+  })
 }
-
-function render({ props, localState, actions }) {
-  const { opened } = localState;
-  return h('div.select', { class: { opened }, on: { click: actions.toggle } });
-}
-
 ```
 
-Components can also be stateful AND pull state from the global store. Ex: The global store maintains
-a cached list of all users, while the local store knows which filter is currently active for this particular screen.
+Let's look at the option object properties:  
+
+## key
+
+Mandatory `String`  
+This is the standard Virtual node key used to uniquely identify this Vnode. It is also used for logging purposes, so it is usually just the name of the component.
+
+## props
+
+Optional `Object`  
+An object representing all the properties passed by our parent.
+Typically props either represent state that is maintained outside the component or properties used to tweak the component behavior.  
+The `render` function will be called if the props object changed shallowly, hence it's a better practice to use a flat object.
+Note: props and state are separated exactly like in `React` as it works great. The same best practices apply.
+
+## defaultProps
+
+Optional `Object` (upper type of props)  
+An object with some keys of the props that should be used if the parent do not specify all the props.
+
+## initState
+
+Mandatory `Object`  
+A function taking the initial props as an argument and returning the starting state.  
+
+## connect
+
+Mandatory `function(on: StreamSub<State>, dom: DomEvents): void`  
+Connects the component to the rest of the app and computes the local state of the component.  
+`connect` is called only once when the component is mounted.  
+
+`connect` is called with two arguments:  
+`on` registers a Stream that modifies the component local state.  
+`dom` is the interface used to listen to bubbling events or emit custom events.
+
+`connect` arguably has more interesting characteristics than the imperative approach `React` use (i.e `setState`):  
+
+- Streams are composable, callbacks are not. Doing things like throttling or only listening to the very last ajax action fired
+is a recurrent, non abstractable pain with imperative code.  
+
+- Separation of the markup and the component hierarchy wiring logic.  
+render functions in react can get pretty messy, having to
+pass callbacks several level down. What's more, callback references often change over time (most likely from using partial application) and we can no longer apply streamlined performance optimizations because some props truly represent data while other props are callbacks that may or may not purposedly change.  
+Designers may also feel more at ease with working with a clean tree of Vnodes without having to think about the app logic.
+
+Example:  
+
+```javascript
+import { StreamSub, DomEvents, Event } from 'dompteuse'
+
+// A custom, type-safe event used to communicate with our parent hierarchy
+export const Opened = Event('opened')
+
+function connect(on: StreamSub<State>, dom: DomEvents) {
+  // Subscribe to the stream of button clicks and update our state every time it changes
+  on(dom.events('button', 'click'), state => {
+    const opened = !state.opened
+
+    // dispatch a custom event conditionaly.
+    // Any parent component can listen to it using  dom.events('css selector', Opened)
+    if (opened) dom.emit(Opened())
+
+    // Any 'on' handler must return the new component state
+    return merge(state, { opened })
+  })
+}
+```
+
+`connect` can listen to any kind of `most` stream, not just the provided dom event stream. See [global streams](#globalStreams).  
+Just like with props, a redraw will only get scheduled if the state object changed shallowly so returning the current state
+in `on()` will skip rerendering.  
+
+## render
+
+Mandatory `function(props: Props, state: State): VNode`  
+
+Returns the Vnode tree based on the props and state.
+
+Example:  
+
+```javascript
+import { h } from 'dompteuse'
+
+interface State {
+  text: string
+}
+
+function render(props: void, state: State) {
+  const { text } = state
+
+  return h('div#text', [
+    h('h1', 'Hello'),
+    h('p', text)
+  ])
+}
+```
+
+<a name="globalStreams"></a>
+# Global streams
+
+A construct is provided to easily build push-based global streams in a typesafe fashion. This is of course entirely optional.   
+
+You typically want to keep very transient state as local as possible so that it remains encapsulated in a component and do not leak up (ex: Whether a select dropdown is opened, a component has focus, which grid row is highlighted, basically any state that resets if the user navigate away then come back)
+
+Additionally, keeping state that is only useful to one screen should be kept inside the top-most component of that screen and no higher.  
+
+That leaves global state, which can be updated from anywhere and is read from multiple screens. Ex: User preferences or any raw domain data that will be mapped/filtered in the different screens.  
+
+Subscriptions to this global stream are automatically released when the component is unmounted.  
+
+Example:  
+```javascript
+
+import { Action, ActionStream } from 'dompteuse'
+import merge from './util/obj/merge'
+
+
+export const setUserName = Action('setUserName')
+
+interface UserState {
+  name: string
+}
+
+const initialState = { name: 'bob' }
+
+// This exports a stream ready to be used in a component's connect function
+export default ActionStream<UserState>(initialState, on => {
+  on(setUserName, (state, name) =>
+    merge(state, { name })
+  )
+})
+
+// Then anywhere else, import setUserName and use it
+setUserName('Monique')
+```
 
 <a name="api"></a>
 # Api
 
 ## startApp
 
-Wires and perform the first render of the app.  
-Imported with:  `import { startApp } from 'dompteuse';`
+Performs the initial render of the app synchronously.
 
 ```javascript
 function startApp<S>(options: {
-  app: Vnode; // The root Vnode
-  store: GlobalStore<S>; // The global fluxx store for this application
-  elm: HTMLElement; // The root element where the app will be rendered
+  app: Vnode // The root Vnode
+  elm: HTMLElement // The root element where the app will be rendered
+  patch: PatchFunction // The snabbdom patch function to be used during renders
 }): void;
 ```
 
-## Component
-
-Returns a new Vnode with a Component lifecycle.  
-Imported with: `import { component } from 'dompteuse';`
-
 ```javascript
-export function component<P extends DP, DP, PS, LS, AS>(options: {
-  key: string; // The snabbdom key unique to this element
-  props?: P; // Props passed by the component's parent
-  defaultProps?: DP; // Default props
-  localStore?: (props: P) => { store: LocalStore<LS>, actions: AS }; // The stateful component's fluxx Store and its associated actions
-  pullState?: <S>(state: S) => PS; // The function that slices the global state this component consumes
-  render: (options: {
-    props?: P;
-    state?: PS;
-    localState?: LS;
-    actions?: AS;
-  }) => Vnode; // The render function
-}): Vnode;
+
+import { snabbdom, startApp } from 'dompteuse'
+import app from './app'
+
+declare var require: any
+const patch = snabbdom.init([
+  require('snabbdom/modules/class'),
+  require('snabbdom/modules/props'),
+  require('snabbdom/modules/attributes'),
+  require('snabbdom/modules/style')
+])
+
+startApp({ app, patch, elm: document.body })
+
 ```
+
+
+TODO
