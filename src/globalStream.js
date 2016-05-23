@@ -42,7 +42,7 @@ export function GlobalStream(initialState, registerHandlers, log) {
       }
       finally {
         if (log)
-          console.log(`%cNew PushStream state:`, 'color: blue', newState);
+          console.log(`%cNew GlobalStream state:`, 'color: blue', newState);
 
         dispatching = false;
       }
