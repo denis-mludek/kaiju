@@ -142,15 +142,18 @@ function render(props: void, state: State) {
 <a name="globalStreams"></a>
 # Global streams
 
-A construct is provided to easily build push-based global streams in a typesafe fashion. This is of course entirely optional.   
+A construct is provided to easily build push-based global streams in a typesafe fashion. This is entirely optional.    
 
 You typically want to keep very transient state as local as possible so that it remains encapsulated in a component and do not leak up (ex: Whether a select dropdown is opened, a component has focus, which grid row is highlighted, basically any state that resets if the user navigate away then come back)
 
 Additionally, keeping state that is only useful to one screen should be kept inside the top-most component of that screen and no higher.  
 
-That leaves global state, which can be updated from anywhere and is read from multiple screens. Ex: User preferences or any raw domain data that will be mapped/filtered in the different screens.  
+That leaves global state, which can be updated from anywhere and is read from multiple screens such as:    
+* The current route
+* User preferences
+* Any raw domain data that will be mapped/filtered/transformed in the different screens.  
 
-Subscriptions to this global stream are automatically released when the component is unmounted.  
+The subscription to this global stream is automatically released when the component is unmounted.  
 
 Example:  
 ```javascript
@@ -174,12 +177,42 @@ export default ActionStream<UserState>(initialState, on => {
   )
 })
 
+// ...
+// Subscribe to it in a component's connect
+import userState from './userState'
+
+// Provide an initial value
+function initialState() {
+  return {
+    userName: userState.value.name
+  }
+}
+
+connect(on: StreamSub<State>, dom: DomEvents) {
+  on(userState, (state, user) => {
+    // 'Copy' the global user name into our local component state to make it available to `render`
+    return merge(state, { userName: user.name })
+  })
+}
+
+// ...
 // Then anywhere else, import setUserName and use it
 setUserName('Monique')
 ```
 
 <a name="api"></a>
 # Api
+
+## h
+
+Creates a Vnode  
+This is proxied to [snabbdom's h](https://github.com/paldepind/snabbdom/blob/master/h.js) so we can add our type definitions
+transparently.
+
+```javascript
+import { h } from 'dompteuse'
+h('div', 'hello')
+```
 
 ## startApp
 
@@ -209,6 +242,59 @@ const patch = snabbdom.init([
 startApp({ app, patch, elm: document.body })
 
 ```
+## Event
 
+Create a custom application event used to communicate between components.  
+This effectively replace callbacks passed from parent to children in React.   
 
-TODO
+```javascript
+import { Event } from 'dompteuse'
+
+// Event taking no arguments
+const increment = Event('increment')
+
+// Event taking one argument
+const incrementBy = Event<number>('incrementBy')
+```
+
+## StreamSub
+
+The registration function passed to `connect` used to subscribe to a stream and update the component state.  
+
+Signature:  
+
+```javascript
+on(stream: Stream<A>, handler: (state: State, payload: A) => State)
+```
+
+## DomEvents
+
+The api object passed to `connect` and used to communicate via events propagating through the DOM.  
+
+Detail:  
+
+```javascript
+dom.events(selector: string, eventName: string): Stream<Event>
+dom.events<P>(selector: string, customEvent: CustomEvent<P>): Stream<P>
+dom.emit<P>(event: EventPayload<P>): void
+```
+
+Example:  
+```javascript
+import { StreamSub, DomEvents, Event } from 'dompteuse'
+import { Opened } from './someComponent'
+
+const Increment = Event('increment')
+
+connect(on: StreamSub<State>, dom: DomEvents) {
+
+  // Regular DOM events
+  const clickStream = dom.events('button', 'click')
+
+  // Custom Events
+  const openStream = dom.events('.someComponent', Opened)
+
+  // Emit a bubbling custom Event. Any parent component can listen to it.
+  dom.emit(Increment())
+}
+```
