@@ -3,25 +3,25 @@ import most from 'most';
 import { Set } from './util';
 
 
-export default function DomEvents(componentDestruction) {
+export default function Events(componentDestruction) {
   this.componentDestruction = componentDestruction;
   componentDestruction.observe(this._destroy);
 };
 
-DomEvents.prototype.events = function(selector, evt) {
+Events.prototype.listen = function(selector, evt) {
   this.eventSubs = this.eventSubs || [];
 
   const stream = most.create(add => sub.streamAdd = add)
     .until(this.componentDestruction);
 
-  const sub = { selector, evt, isCustomEvent: evt._isCustomEvent };
+  const sub = { selector, evt, isCustom: evt._isCustom };
   this.eventSubs.push(sub);
   if (this.el) subscribe(sub, this.el);
 
   return stream;
 };
 
-DomEvents.prototype.emit = function(event) {
+Events.prototype.emit = function(event) {
   if (!this.eventSubs) return;
 
   let parentEl = this.el.parentElement;
@@ -30,24 +30,24 @@ DomEvents.prototype.emit = function(event) {
 
   while (parentEl) {
     if (parentEl.__comp__)
-      parentEl.__comp__.domEvents._handleEmit(event);
+      parentEl.__comp__.events._handleEmit(event);
 
     parentEl = parentEl.parentElement;
   }
 };
 
-DomEvents.prototype._activate = function(el) {
+Events.prototype._activate = function(el) {
   if (!this.eventSubs) return;
 
   this.el = el;
   this.eventSubs.forEach(sub => subscribe(sub, el));
 };
 
-DomEvents.prototype._destroy = function() {
+Events.prototype._destroy = function() {
   if (!this.eventSubs) return;
 
   this.eventSubs.forEach(sub => {
-    if (sub.isCustomEvent) return;
+    if (sub.isCustom) return;
     const { evt, listener: { fn, useCapture }} = sub;
     this.el.removeEventListener(evt, fn, useCapture);
   });
@@ -55,19 +55,19 @@ DomEvents.prototype._destroy = function() {
   this.eventSubs = null;
 };
 
-DomEvents.prototype._handleEmit = function(event) {
+Events.prototype._handleEmit = function(event) {
   const subs = this.eventSubs;
   if (!subs) return;
 
   for (let i = 0; i < subs.length; i++) {
     const sub = subs[i];
-    if (sub.isCustomEvent && matches(event.targetComponent, sub.selector))
+    if (sub.isCustom && matches(event.targetComponent, sub.selector))
       sub.streamAdd(event.payload);
   }
 };
 
 function subscribe(sub, el) {
-  if (sub.isCustomEvent) return;
+  if (sub.isCustom) return;
 
   const listener = evt => {
     if (targetMatches(evt.target, sub.selector, el))

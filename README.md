@@ -69,13 +69,13 @@ A function taking the initial props as an argument and returning the starting st
 
 ## connect
 
-Mandatory `function(on: StreamSub<State>, dom: DomEvents): void`  
+Mandatory `function(on: StreamSub<State>, events: Events): void`  
 Connects the component to the rest of the app and computes the local state of the component.  
 `connect` is called only once when the component is mounted.  
 
 `connect` is called with two arguments:  
 `on` registers a Stream that modifies the component local state.  
-`dom` is the interface used to listen to bubbling events or emit custom events.
+`events` is the interface used to listen to bubbling dom events or emit custom Messages.
 
 `connect` arguably has more interesting characteristics than the imperative approach `React` use (i.e `setState`):  
 
@@ -90,18 +90,18 @@ Designers may also feel more at ease with working with a clean tree of Vnodes wi
 Example:  
 
 ```javascript
-import { StreamSub, DomEvents, Event } from 'dompteuse'
+import { StreamSub, Events, Message } from 'dompteuse'
 
-// A custom, type-safe event used to communicate with our parent hierarchy
-export const Opened = Event('opened')
+// A custom, type-safe message used to communicate with our parent hierarchy
+export const Opened = Message('opened')
 
-function connect(on: StreamSub<State>, dom: DomEvents) {
+function connect(on: StreamSub<State>, events: Events) {
   // Subscribe to the stream of button clicks and update our state every time it changes
-  on(dom.events('button', 'click'), state => {
+  on(events.listen('button', 'click'), state => {
     const opened = !state.opened
 
-    // dispatch a custom event conditionaly.
-    // Any parent component can listen to it using  dom.events('css selector', Opened)
+    // dispatch a custom message conditionally.
+    // Any parent component can listen to it using  events.listen('css selector', Opened)
     if (opened) dom.emit(Opened())
 
     // Any 'on' handler must return the new component state
@@ -158,11 +158,11 @@ The subscription to this global stream is automatically released when the compon
 Example:  
 ```javascript
 
-import { Action, ActionStream } from 'dompteuse'
+import { Message, GlobalStream } from 'dompteuse'
 import merge from './util/obj/merge'
 
 
-export const setUserName = Action('setUserName')
+export const setUserName = Message<string>('setUserName')
 
 interface UserState {
   name: string
@@ -171,7 +171,7 @@ interface UserState {
 const initialState = { name: 'bob' }
 
 // This exports a stream ready to be used in a component's connect function
-export default ActionStream<UserState>(initialState, on => {
+export default GlobalStream<UserState>(initialState, on => {
   on(setUserName, (state, name) =>
     merge(state, { name })
   )
@@ -188,7 +188,7 @@ function initialState() {
   }
 }
 
-connect(on: StreamSub<State>, dom: DomEvents) {
+connect(on: StreamSub<State>, events: Events) {
   on(userState, (state, user) => {
     // 'Copy' the global user name into our local component state to make it available to `render`
     return merge(state, { userName: user.name })
@@ -242,19 +242,17 @@ const patch = snabbdom.init([
 startApp({ app, patch, elm: document.body })
 
 ```
-## Event
+## Message
 
-Create a custom application event used to communicate between components.  
-This effectively replace callbacks passed from parent to children in React.   
-
+Create a custom application message used to either communicate between components or push to a [GlobalStream](#globalStreams).    
 ```javascript
-import { Event } from 'dompteuse'
+import { Message } from 'dompteuse'
 
-// Event taking no arguments
-const increment = Event('increment')
+// Message taking no arguments
+const increment = Message('increment')
 
-// Event taking one argument
-const incrementBy = Event<number>('incrementBy')
+// Message taking one argument
+const incrementBy = Message<number>('incrementBy')
 ```
 
 ## StreamSub
@@ -267,34 +265,34 @@ Signature:
 on(stream: Stream<A>, handler: (state: State, payload: A) => State)
 ```
 
-## DomEvents
+## Events
 
 The api object passed to `connect` and used to communicate via events propagating through the DOM.  
 
 Detail:  
 
 ```javascript
-dom.events(selector: string, eventName: string): Stream<Event>
-dom.events<P>(selector: string, customEvent: CustomEvent<P>): Stream<P>
-dom.emit<P>(event: EventPayload<P>): void
+events.listen(selector: string, eventName: string): Stream<Event>
+events.listen<P>(selector: string, message: Message<P>): Stream<P>
+events.emit<P>(message: MessagePayload<P>): void
 ```
 
 Example:  
 ```javascript
-import { StreamSub, DomEvents, Event } from 'dompteuse'
+import { StreamSub, Events, Message } from 'dompteuse'
 import { Opened } from './someComponent'
 
-const Increment = Event('increment')
+const Increment = Message('increment')
 
-connect(on: StreamSub<State>, dom: DomEvents) {
+connect(on: StreamSub<State>, events: Events) {
 
   // Regular DOM events
-  const clickStream = dom.events('button', 'click')
+  const clickStream = events.listen('button', 'click')
 
-  // Custom Events
-  const openStream = dom.events('.someComponent', Opened)
+  // Custom Messages
+  const openStream = events.listen('.someComponent', Opened)
 
-  // Emit a bubbling custom Event. Any parent component can listen to it.
-  dom.emit(Increment())
+  // Emit a bubbling custom message. Any parent component can listen to it.
+  events.emit(Increment())
 }
 ```

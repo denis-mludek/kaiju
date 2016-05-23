@@ -4,8 +4,8 @@ import h from 'snabbdom/h';
 
 import Render, { renderApp } from './render';
 import Component from './component';
-import Event from './event';
-import { Action, ActionStream } from './actionStream';
+import Message from './message';
+import { GlobalStream } from './globalStream';
 import log from './log';
 
 
@@ -16,11 +16,11 @@ function startApp({ app, elm, patch }) {
 
 export {
   Component,
-  Event,
+  Message,
   startApp,
   log,
-  Action,
-  ActionStream,
+  GlobalStream,
+
   // Proxied for convenient typesafety
   snabbdom,
   h

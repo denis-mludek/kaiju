@@ -1,5 +1,5 @@
 import update from 'immupdate'
-import { Component, h, StreamSub, DomEvents, Event } from 'dompteuse'
+import { Component, h, StreamSub, Events, Message } from 'dompteuse'
 import { Stream } from 'most'
 
 import appState, { incrementBlue } from './appState'
@@ -17,7 +17,7 @@ export default function(props?: Props) {
   })
 }
 
-export const Opened = Event('opened')
+export const Opened = Message('opened')
 
 interface Props {
   openedByDefault?: boolean
@@ -40,10 +40,10 @@ function initState(props: Props) {
   }
 }
 
-function connect(on: StreamSub<State>, dom: DomEvents) {
-  on(dom.events('button', 'click'), state => {
+function connect(on: StreamSub<State>, events: Events) {
+  on(events.listen('button', 'click'), state => {
     const opened = !state.opened
-    if (opened) dom.emit(Opened())
+    if (opened) events.emit(Opened())
     return merge(state, { opened })
   })
 }

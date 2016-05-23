@@ -1,10 +1,10 @@
 import { StateWithParams, Router, State } from 'abyssa'
 import update from 'immupdate'
-import { Action, ActionStream } from 'dompteuse'
+import { Message, GlobalStream } from 'dompteuse'
 
 
-export const incrementBlue = Action('incrementBlue')
-export const routeChanged = Action<StateWithParams>('routeChanged')
+export const incrementBlue = Message('incrementBlue')
+export const routeChanged = Message<StateWithParams>('routeChanged')
 
 
 export interface AppState {
@@ -26,7 +26,7 @@ const router = Router({
 .configure({ urlSync: 'hash' })
 .init()
 
-router.transition.on('ended', routeChanged)
+router.transition.on('ended', state => stream.emit(routeChanged(state)))
 
 
 const initialState: AppState = {
@@ -34,7 +34,7 @@ const initialState: AppState = {
   blue: { count: 0 }
 }
 
-export default ActionStream<AppState>(initialState, on => {
+const stream = GlobalStream<AppState>(initialState, on => {
   on(incrementBlue, state =>
     update(state, { blue: { count: (c: number) => c + 1 } })
   )
@@ -43,3 +43,5 @@ export default ActionStream<AppState>(initialState, on => {
     update(state, { route })
   )
 })
+
+export default stream

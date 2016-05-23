@@ -14,7 +14,7 @@ export function Component<DP extends P, P, S>(options: {
   props?: P;
   defaultProps?: DP;
   initState: (props: P) => S;
-  connect: (on: StreamSub<S>, dom: DomEvents) => void;
+  connect: (on: StreamSub<S>, events: Events) => void;
   render: (props: P, state: S) => Vnode;
 }): Vnode;
 
@@ -23,21 +23,22 @@ export var log: {
   stream: boolean;
 }
 
-export type NoArgCustomEvent = () => EventPayload<void>;
-export type CustomEvent<P> = (payload: P) => EventPayload<P>;
+export type NoArgMessage = () => MessagePayload<void>;
+export type Message<P> = (payload: P) => MessagePayload<P>;
 
-export function Event(name: string): NoArgCustomEvent;
-export function Event<P>(name: string): CustomEvent<P>;
+export function Message(name: string): NoArgMessage;
+export function Message<P>(name: string): Message<P>;
 
-interface EventPayload<P> {
+interface MessagePayload<P> {
   _id: number;
+  _name: string;
   payload: P;
 }
 
-export interface DomEvents {
-  events(selector: string, eventName: string): Stream<Event>
-  events<P>(selector: string, customEvent: CustomEvent<P>): Stream<P>
-  emit<P>(event: EventPayload<P>): void
+export interface Events {
+  listen(selector: string, eventName: string): Stream<Event>
+  listen<P>(selector: string, message: Message<P>): Stream<P>
+  emit<P>(event: MessagePayload<P>): void
 }
 
 // most
@@ -80,18 +81,18 @@ export function h(sel: string): Vnode;
 export function h(sel: string, dataOrChildren: any): Vnode;
 export function h(sel: string, data: any, children: Array<Node> | string): Vnode;
 
-// Actions & ActionStream
+// GlobalStream
 
-interface OnAction<S> {
-  (action: NoArgAction, handler: (state: S) => S): void;
-  <P>(action: Action<P>, handler: (state: S, payload: P) => S): void;
+interface OnMessage<S> {
+  (message: NoArgMessage, handler: (state: S) => S): void;
+  <P>(message: Message<P>, handler: (state: S, payload: P) => S): void;
 }
 
-type NoArgAction = () => void;
-type Action<P> = (payload: P) => void;
+type GlobalStream<S> = Stream<S> & {
+  value: S
+  emit: <P>(payload: MessagePayload<P>) => void
+}
 
-export function Action(name: string): NoArgAction;
-export function Action<P>(name: string): Action<P>;
-export function ActionStream<S>(
+export function GlobalStream<S>(
   initialState: S,
-  registerActions: (on: OnAction<S>) => void): Stream<S> & { value: S };
+  registerHandlers: (on: OnMessage<S>) => void): GlobalStream<S>;

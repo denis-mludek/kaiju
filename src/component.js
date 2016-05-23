@@ -3,7 +3,7 @@ import most from 'most';
 
 import { renderComponentSync, renderComponentAsync } from './render';
 import shallowEqual from './shallowEqual';
-import DomEvents from './domEvents';
+import Events from './events';
 import log from './log';
 
 
@@ -43,12 +43,12 @@ function create(_, vnode) {
     component.lifecycle.destroyed = add;
   });
 
-  const domEvents = new DomEvents(componentDestruction);
+  const events = new Events(componentDestruction);
 
   component.state = initState(props);
   component.elm = vnode.elm;
   component.placeholder = vnode;
-  component.domEvents = domEvents;
+  component.events = events;
 
   // First render:
   // Create and insert the component's content
@@ -69,8 +69,8 @@ function create(_, vnode) {
     }
   });
 
-  connect(onStream, domEvents);
-  domEvents._activate(component.vnode.elm);
+  connect(onStream, events);
+  events._activate(component.vnode.elm);
 }
 
 // Store the component depth once it's attached to the DOM so we can render

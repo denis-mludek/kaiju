@@ -1,4 +1,4 @@
-import { Component, h, DomEvents, StreamSub } from 'dompteuse'
+import { Component, h, Events, StreamSub } from 'dompteuse'
 import update from 'immupdate'
 import { Stream } from 'most'
 
@@ -30,9 +30,9 @@ function initState() {
   }
 }
 
-function connect(on: StreamSub<State>, dom: DomEvents) {
+function connect(on: StreamSub<State>, events: Events) {
 
-  const formUpdate = dom.events('input', 'input').map(evt => {
+  const formUpdate = events.listen('input', 'input').map(evt => {
     const { name, value } = evt.target as HTMLInputElement
     return { [name]: value.substr(0, 4) }
   })
@@ -45,7 +45,7 @@ function connect(on: StreamSub<State>, dom: DomEvents) {
     merge(state, { id: appState.route.params['id'] })
   )
 
-  on(dom.events('.red', Opened), (state, _) =>
+  on(events.listen('.red', Opened), (state, _) =>
     merge(state, { redText: state.redText + ' Opened!' })
   )
 }

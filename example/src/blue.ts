@@ -1,5 +1,5 @@
 import { api as router } from 'abyssa'
-import { Component, h, StreamSub, DomEvents } from 'dompteuse'
+import { Component, h, StreamSub, Events } from 'dompteuse'
 import { Stream } from 'most'
 
 import { contentAnimation } from './animation'
@@ -31,8 +31,8 @@ function readGlobalState() {
   }
 }
 
-function connect(on: StreamSub<State>, dom: DomEvents) {
-  dom.events('.increment button', 'click').forEach(incrementBlue)
+function connect(on: StreamSub<State>, events: Events) {
+  events.listen('.increment button', 'click').forEach(_ => appState.emit(incrementBlue()))
   on(appState, readGlobalState)
 }
 
