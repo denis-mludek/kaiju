@@ -1,6 +1,6 @@
 {
   "name": "dompteuse",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "main": "lib/dompteuse",
   "typings": "lib/dompteuse.d.ts",
   "description": "Virtual dom, streams and isolated components",
@@ -19,7 +19,7 @@
 
   "devDependencies": {
     "snabbdom": "0.4.2",
-    "most": "git@github.com:TylorS/most.git#a93e106970604571fae87ceca46052cf2d112c8c",
+    "most": "0.19.5",
     "typescript": "1.8.7",
     "babel-cli": "6.4.5",
     "babel-preset-es2015-loose": "7.0.0",
