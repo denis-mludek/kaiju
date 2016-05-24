@@ -5,18 +5,31 @@ import { Set } from './util';
 
 export default function Events(componentDestruction) {
   this.componentDestruction = componentDestruction;
-  componentDestruction.observe(this._destroy);
+  componentDestruction.observe(() => this._destroy());
 };
 
 Events.prototype.listen = function(selector, evt) {
   this.eventSubs = this.eventSubs || [];
 
-  const stream = most.create(add => sub.streamAdd = add)
-    .until(this.componentDestruction);
+  const stream = most.create(add => {
+    const sub = {
+      selector,
+      evt,
+      isCustom: evt._isCustom,
+      streamAdd: add
+    };
 
-  const sub = { selector, evt, isCustom: evt._isCustom };
-  this.eventSubs.push(sub);
-  if (this.el) subscribe(sub, this.el);
+    this.eventSubs.push(sub);
+    subscribe(sub, this.el);
+
+    return () => {
+      // Already disposed
+      if (!this.eventSubs) return;
+      this.eventSubs.splice(this.eventSubs.indexOf(sub), 1);
+      unsubscribe(sub, this.el);
+    }
+  })
+  .until(this.componentDestruction);
 
   return stream;
 };
@@ -46,12 +59,7 @@ Events.prototype._activate = function(el) {
 Events.prototype._destroy = function() {
   if (!this.eventSubs) return;
 
-  this.eventSubs.forEach(sub => {
-    if (sub.isCustom) return;
-    const { evt, listener: { fn, useCapture }} = sub;
-    this.el.removeEventListener(evt, fn, useCapture);
-  });
-
+  this.eventSubs.forEach(sub => unsubscribe(sub, this.el));
   this.eventSubs = null;
 };
 
@@ -67,7 +75,7 @@ Events.prototype._handleEmit = function(event) {
 };
 
 function subscribe(sub, el) {
-  if (sub.isCustom) return;
+  if (!el || sub.isCustom) return;
 
   const listener = evt => {
     if (targetMatches(evt.target, sub.selector, el))
@@ -76,6 +84,13 @@ function subscribe(sub, el) {
   const useCapture = sub.evt in nonBubblingEvents;
   el.addEventListener(sub.evt, listener, useCapture);
   sub.listener = { fn: listener, useCapture };
+}
+
+function unsubscribe(sub, el) {
+  if (!el || sub.isCustom) return;
+
+  const { evt, listener: { fn, useCapture }} = sub;
+  el.removeEventListener(evt, fn, useCapture);
 }
 
 
