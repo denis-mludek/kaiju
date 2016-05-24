@@ -144,7 +144,11 @@ function render(props: void, state: State) {
 
 A construct is provided to easily build push-based global streams in a typesafe fashion. This is entirely optional.    
 
-You typically want to keep very transient state as local as possible so that it remains encapsulated in a component and do not leak up (ex: Whether a select dropdown is opened, a component has focus, which grid row is highlighted, basically any state that resets if the user navigate away then come back)
+You typically want to keep very transient state as local as possible so that it remains encapsulated in a component and do not leak up such as:  
+* Whether a select dropdown is opened
+* The component has focus
+* Which grid row is highlighted
+* Basically any state that resets if the user navigate away then come back
 
 Additionally, keeping state that is only useful to one screen should be kept inside the top-most component of that screen and no higher.  
 
