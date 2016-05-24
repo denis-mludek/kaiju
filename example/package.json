@@ -10,9 +10,9 @@
 
   "dependencies": {
     "typescript": "1.8.7",
-    "dompteuse": "0.2.0",
+    "dompteuse": "0.2.1",
     "snabbdom": "0.4.2",
-    "most": "0.19.5",
+    "most": "0.19.6",
     "abyssa": "7.2.7",
     "immupdate": "0.2.0",
     "gsap": "1.18.2"
