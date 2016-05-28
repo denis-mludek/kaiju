@@ -298,3 +298,17 @@ connect({ on, messages }: ConnectParams<Props, State>) {
   messages.send(Increment())
 }
 ```
+
+## Events
+
+Builds a Stream of DOM Events using Event delegation.
+
+```javascript
+listenAt(node: Element, targetSelector: string, eventName: string): Stream<Event>
+```
+
+```javascript
+import { Events } from 'dompteuse'
+
+const stream = Events.listenAt(document.body, '.button', 'click')
+```

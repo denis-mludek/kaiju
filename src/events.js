@@ -50,8 +50,7 @@ export default {
     return most.create(add => {
 
       const listener = evt => {
-        if (targetMatches(evt.target, sub.selector, el))
-          sub.streamAdd(evt);
+        if (targetMatches(evt.target, sel, el)) add(evt);
       }
 
       const useCapture = name in nonBubblingEvents;
