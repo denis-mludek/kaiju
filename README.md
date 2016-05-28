@@ -25,7 +25,7 @@ Standard Virtual nodes and components are composed to build a Vnode tree that ca
 
 A component is simply a function that takes an option object as an argument and returns a Vnode ready to be used inside its parent children.
 
-Note: typescript will be used in the examples, javascript devs can simply ignore the types annotations.
+Note: typescript will be used in the examples, javascript devs can ignore the types annotations.
 
 ```javascript
 import { Component } from 'dompteuse'
@@ -53,14 +53,14 @@ This is the standard Virtual node key used to uniquely identify this Vnode. It i
 
 Optional `Object`  
 An object representing all the properties passed by our parent.
-Typically props either represent state that is maintained outside the component or properties used to tweak the component behavior.  
-The `render` function will be called if the props object changed shallowly, hence it's a better practice to use a flat object.
-Note: props and state are separated exactly like in `React` as it works great. The same best practices apply.
+Typically props either represent state that is maintained outside the component or properties used to tweak the component's behavior.  
+The `render` function will be called if the props object changed shallowly, hence it's a good practice to use a flat object.
+Note: props and state are separated exactly like in `React` as it works great. The same design best practices apply.
 
 ## defaultProps
 
 Optional `Object` (upper type of props)  
-An object with some keys of the props that should be used if the parent do not specify all the props.
+An object with part of the prop keys that should be used if the parent do not specify all the props.
 
 ## initState
 
@@ -69,40 +69,34 @@ A function taking the initial props as an argument and returning the starting st
 
 ## connect
 
-Mandatory `function(on: StreamSub<State>, events: Events): void`  
-Connects the component to the rest of the app and computes the local state of the component.  
+Mandatory `function({ on, messages, props }: ConnectParams<Props, State>): void`  
+Connects the component to the app and computes the local state of the component.  
 `connect` is called only once when the component is mounted.  
 
-`connect` is called with two arguments:  
-`on` registers a Stream that modifies the component local state.  
-`events` is the interface used to listen to bubbling dom events or emit custom Messages.
+`connect` is called with three arguments, encapsulated in a `ConnectParams` object:  
+
+- `on` registers a Stream that modifies the component local state. The stream will be unsubscribed from when
+the component is unmounted.
+- `messages` is the interface used to `listen` to custom Messages sent by direct component children or `send` a message to our direct component parent.
+- `props` A props accessor function. Used to read props inside connect.
 
 `connect` arguably has more interesting characteristics than the imperative approach `React` use (i.e `setState`):  
 
-- Streams are composable, callbacks are not. Doing things like throttling or only listening to the very last ajax action fired
-is a recurrent, non abstractable pain with imperative code.  
-
-- Separation of the markup and the component hierarchy wiring logic.  
-render functions in react can get pretty messy, having to
-pass callbacks several level down. What's more, callback references often change over time (most likely from using partial application) and we can no longer apply streamlined performance optimizations because some props truly represent data while other props are callbacks that may or may not purposedly change.  
-Designers may also feel more at ease with working with a clean tree of Vnodes without having to think about the app logic.
+Streams are composable, callbacks are not. Doing things like throttling or only listening to the very last ajax action fired
+is a recurrent, non abstractable pain with imperative callback/setState.  
 
 Example:  
 
 ```javascript
-import { StreamSub, Events, Message } from 'dompteuse'
+import { Message, ConnectParams } from 'dompteuse'
 
-// A custom, type-safe message used to communicate with our parent hierarchy
-export const Opened = Message('opened')
+// Message used to communicate with our children in a cohesive manner
+const TriggerClick = Message('triggerClick')
 
-function connect(on: StreamSub<State>, events: Events) {
+function connect({ on, props, messages }: ConnectParams<Props, State>) {
   // Subscribe to the stream of button clicks and update our state every time it changes
-  on(events.listen('button', 'click'), state => {
+  on(messages.listen(TriggerClick, state => {
     const opened = !state.opened
-
-    // dispatch a custom message conditionally.
-    // Any parent component can listen to it using  events.listen('css selector', Opened)
-    if (opened) dom.emit(Opened())
 
     // Any 'on' handler must return the new component state
     return merge(state, { opened })
@@ -110,9 +104,9 @@ function connect(on: StreamSub<State>, events: Events) {
 }
 ```
 
-`connect` can listen to any kind of `most` stream, not just the provided dom event stream. See [global streams](#globalStreams).  
+`on` can listen to any kind of `most` stream. See [global streams](#globalStreams).  
 Just like with props, a redraw will only get scheduled if the state object changed shallowly so returning the current state
-in `on()` will skip rerendering.  
+in `on()` will skip rendering.  
 
 ## render
 
@@ -123,18 +117,21 @@ Returns the Vnode tree based on the props and state.
 Example:  
 
 ```javascript
-import { h } from 'dompteuse'
+import { h, Message } from 'dompteuse'
 
 interface State {
   text: string
 }
+
+const ButtonClick = Message('buttonClick')
 
 function render(props: void, state: State) {
   const { text } = state
 
   return h('div#text', [
     h('h1', 'Hello'),
-    h('p', text)
+    h('p', text),
+    h('button', { events: { onClick: ButtonClick } })
   ])
 }
 ```
@@ -156,8 +153,6 @@ That leaves global state, which can be updated from anywhere and is read from mu
 * The current route
 * User preferences
 * Any raw domain data that will be mapped/filtered/transformed in the different screens.  
-
-The subscription to this global stream is automatically released when the component is unmounted.  
 
 Example:  
 ```javascript
@@ -200,8 +195,8 @@ connect(on: StreamSub<State>, events: Events) {
 }
 
 // ...
-// Then anywhere else, import setUserName and use it
-setUserName('Monique')
+// Then anywhere else, import the stream and the message
+stream.send(setUserName('Monique'))
 ```
 
 <a name="api"></a>
@@ -226,24 +221,24 @@ Performs the initial render of the app synchronously.
 function startApp<S>(options: {
   app: Vnode // The root Vnode
   elm: HTMLElement // The root element where the app will be rendered
-  patch: PatchFunction // The snabbdom patch function to be used during renders
+  snabbdomModules: any[] // The snabbdom modules that should be active during patching
 }): void;
 ```
 
 ```javascript
 
-import { snabbdom, startApp } from 'dompteuse'
+import { startApp } from 'dompteuse'
 import app from './app'
 
 declare var require: any
-const patch = snabbdom.init([
+const snabbdomModules = [
   require('snabbdom/modules/class'),
   require('snabbdom/modules/props'),
   require('snabbdom/modules/attributes'),
   require('snabbdom/modules/style')
-])
+]
 
-startApp({ app, patch, elm: document.body })
+startApp({ app, snabbdomModules, elm: document.body })
 
 ```
 ## Message
@@ -259,44 +254,47 @@ const increment = Message('increment')
 const incrementBy = Message<number>('incrementBy')
 ```
 
-## StreamSub
+## ConnectParams
 
-The registration function passed to `connect` used to subscribe to a stream and update the component state.  
+### StreamSub
+
+Used to subscribe to a stream and update the component state.  
 
 Signature:  
 
 ```javascript
-on(stream: Stream<A>, handler: (state: State, payload: A) => State)
+on<A>(stream: Stream<A>, cb: (state: S, value: A) => S): Stream<A>
+on(message: NoArgMessage, cb: (state: S) => S): Stream<void>
+
+// Shortcut for on(messages.listen(MyMessage))
+on<P>(message: Message<P>, cb: (state: S, payload: P) => S): Stream<P>
 ```
 
-## Events
-
-The api object passed to `connect` and used to communicate via events propagating through the DOM.  
-
-Detail:  
+### Messages
 
 ```javascript
-events.listen(selector: string, eventName: string): Stream<Event>
-events.listen<P>(selector: string, message: Message<P>): Stream<P>
-events.emit<P>(message: MessagePayload<P>): void
+// Listen for messages coming from immediate Vnodes or component children
+messages.listen<P>(message: Message<P>): Stream<P>
+
+// Sends a message to the nearest parent component
+messages.send<P>(message: MessagePayload<P>): void
 ```
 
 Example:  
 ```javascript
-import { StreamSub, Events, Message } from 'dompteuse'
+import { ConnectParams, Message } from 'dompteuse'
 import { Opened } from './someComponent'
 
 const Increment = Message('increment')
 
-connect(on: StreamSub<State>, events: Events) {
+connect({ on, messages }: ConnectParams<Props, State>) {
+  // Listen to the Opened even sent by 'someComponent'
+  const openStream = messages.listen(Opened)
 
-  // Regular DOM events
-  const clickStream = events.listen('button', 'click')
+  // This is equivalent to above
+  const openStream2 = on(Opened, state => state)
 
-  // Custom Messages
-  const openStream = events.listen('.someComponent', Opened)
-
-  // Emit a bubbling custom message. Any parent component can listen to it.
-  events.emit(Increment())
+  // Send a message. Our direct parent can react to it.
+  messages.send(Increment())
 }
 ```

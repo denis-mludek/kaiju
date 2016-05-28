@@ -5,12 +5,12 @@ import app from './app'
 
 
 declare var require: any
-const patch = snabbdom.init([
+const snabbdomModules = [
   require('snabbdom/modules/class'),
   require('snabbdom/modules/props'),
   require('snabbdom/modules/attributes'),
   require('snabbdom/modules/style'),
-  require('dompteuse/lib/forceProps')
-])
+  require('./util/forceProps')
+]
 
-startApp({ app, patch, elm: document.body })
+startApp({ app, snabbdomModules, elm: document.body })

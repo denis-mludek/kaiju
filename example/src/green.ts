@@ -1,10 +1,10 @@
-import { Component, h, Events, StreamSub } from 'dompteuse'
+import { Component, h, Message, ConnectParams } from 'dompteuse'
 import update from 'immupdate'
 import { Stream } from 'most'
 
 import appState from './appState'
-import red, { Opened } from './red'
-import { merge } from './util'
+import red from './red'
+import { merge } from './util/util'
 
 
 export default function() {
@@ -15,6 +15,9 @@ export default function() {
     render
   })
 }
+
+const InputChanged = Message<Event>('inputChanged')
+const RedOpened = Message('redOpened')
 
 interface State {
   id: string
@@ -30,9 +33,9 @@ function initState() {
   }
 }
 
-function connect(on: StreamSub<State>, events: Events) {
+function connect({ on, messages }: ConnectParams<void, State>) {
 
-  const formUpdate = events.listen('input', 'input').map(evt => {
+  const formUpdate = messages.listen(InputChanged).map(evt => {
     const { name, value } = evt.target as HTMLInputElement
     return { [name]: value.substr(0, 4) }
   })
@@ -45,7 +48,7 @@ function connect(on: StreamSub<State>, events: Events) {
     merge(state, { id: appState.route.params['id'] })
   )
 
-  on(events.listen('.red', Opened), (state, _) =>
+  on(RedOpened, state =>
     merge(state, { redText: state.redText + ' Opened!' })
   )
 }
@@ -60,7 +63,10 @@ function render(props: void, state: State) {
       input('firstName', firstName),
       input('lastName', lastName)
     ]),
-    red({ text: redText })
+    red({
+      text: redText,
+      onOpened: RedOpened
+    })
   ])
 }
 
@@ -69,7 +75,8 @@ function input(name: string, value: string) {
     name,
     h('input', {
       props: { name },
-      forceProps: { value }
+      forceProps: { value },
+      events: { onInput: InputChanged }
     })
   ])
 }

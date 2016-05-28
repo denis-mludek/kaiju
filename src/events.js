@@ -1,97 +1,68 @@
 import most from 'most';
-
 import { Set } from './util';
 
 
-export default function Events(componentDestruction) {
-  this.componentDestruction = componentDestruction;
-  componentDestruction.observe(() => this._destroy());
-};
+/* snabbdom module extension used to register Messages as event listeners */
 
-Events.prototype.listen = function(selector, evt) {
-  this.eventSubs = this.eventSubs || [];
+function updateEventListeners(oldVnode, vnode) {
+  const oldEvents = oldVnode.data.events;
+  const events = vnode.data.events;
 
-  const stream = most.create(add => {
-    const sub = {
-      selector,
-      evt,
-      isCustom: evt._isCustom,
-      streamAdd: add
-    };
+  if (!events) return;
 
-    this.eventSubs.push(sub);
-    subscribe(sub, this.el);
+  for (name in events) {
+    const current = events[name];
+    const old = oldEvents && oldEvents[name];
 
-    return () => {
-      // Already disposed
-      if (!this.eventSubs) return;
-      this.eventSubs.splice(this.eventSubs.indexOf(sub), 1);
-      unsubscribe(sub, this.el);
-    }
-  })
-  .until(this.componentDestruction);
-
-  return stream;
-};
-
-Events.prototype.emit = function(event) {
-  if (!this.eventSubs) return;
-
-  let parentEl = this.el.parentElement;
-
-  event.targetComponent = this.el;
-
-  while (parentEl) {
-    if (parentEl.__comp__)
-      parentEl.__comp__.events._handleEmit(event);
-
-    parentEl = parentEl.parentElement;
+    if (old !== current)
+      vnode.elm[name.toLowerCase()] = function(evt) {
+        const payload = current(evt);
+        sendToNearestComponent(evt.target, payload);
+      }
   }
-};
 
-Events.prototype._activate = function(el) {
-  if (!this.eventSubs) return;
+  if (!oldEvents) return;
 
-  this.el = el;
-  this.eventSubs.forEach(sub => subscribe(sub, el));
-};
-
-Events.prototype._destroy = function() {
-  if (!this.eventSubs) return;
-
-  this.eventSubs.forEach(sub => unsubscribe(sub, this.el));
-  this.eventSubs = null;
-};
-
-Events.prototype._handleEmit = function(event) {
-  const subs = this.eventSubs;
-  if (!subs) return;
-
-  for (let i = 0; i < subs.length; i++) {
-    const sub = subs[i];
-    if (sub.isCustom && matches(event.targetComponent, sub.selector))
-      sub.streamAdd(event.payload);
+  for (name in oldEvents) {
+    if (events[name] == null)
+      vnode.elm[name.toLowerCase()] = null;
   }
-};
-
-function subscribe(sub, el) {
-  if (!el || sub.isCustom) return;
-
-  const listener = evt => {
-    if (targetMatches(evt.target, sub.selector, el))
-      sub.streamAdd(evt);
-  }
-  const useCapture = sub.evt in nonBubblingEvents;
-  el.addEventListener(sub.evt, listener, useCapture);
-  sub.listener = { fn: listener, useCapture };
 }
 
-function unsubscribe(sub, el) {
-  if (!el || sub.isCustom) return;
-
-  const { evt, listener: { fn, useCapture }} = sub;
-  el.removeEventListener(evt, fn, useCapture);
+export const snabbdomModule = {
+  create: updateEventListeners,
+  update: updateEventListeners
 }
+
+
+export function sendToNearestComponent(node, message) {
+  while (node) {
+    if (node.__comp__)
+      return node.__comp__.messages._receive(message);
+
+    node = node.parentElement;
+  }
+}
+
+/* Listens to a DOM Event using delegation */
+export default {
+  listenAt: function(el, sel, name) {
+    return most.create(add => {
+
+      const listener = evt => {
+        if (targetMatches(evt.target, sub.selector, el))
+          sub.streamAdd(evt);
+      }
+
+      const useCapture = name in nonBubblingEvents;
+      el.addEventListener(name, listener, useCapture);
+
+      return function unsub() {
+        el.removeEventListener(name, listener, useCapture);
+      };
+    })
+  }
+};
 
 
 const proto = Element.prototype;
@@ -101,6 +72,7 @@ const nativeMatches = proto.matches
   || proto.mozMatchesSelector
   || proto.msMatchesSelector
   || proto.oMatchesSelector;
+
 function matches(el, selector) {
   return nativeMatches.call(el, selector);
 }

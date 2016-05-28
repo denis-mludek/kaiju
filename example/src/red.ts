@@ -1,27 +1,29 @@
 import update from 'immupdate'
-import { Component, h, StreamSub, Events, Message } from 'dompteuse'
+import { Component, h, Message, ConnectParams } from 'dompteuse'
 import { Stream } from 'most'
 
 import appState, { incrementBlue } from './appState'
-import { merge } from './util'
+import { merge } from './util/util'
 
 
 export default function(props?: Props) {
   return Component({
     key: 'red',
     props,
-    initState,
     defaultProps,
+    initState,
     connect,
     render
   })
 }
 
-export const Opened = Message('opened')
+
+const ToggleOpen = Message('toggleOpen')
 
 interface Props {
   openedByDefault?: boolean
-  text?: string
+  text?: string,
+  onOpened?: () => any
 }
 
 const defaultProps = {
@@ -40,10 +42,15 @@ function initState(props: Props) {
   }
 }
 
-function connect(on: StreamSub<State>, events: Events) {
-  on(events.listen('button', 'click'), state => {
+function connect({ on, props, messages }: ConnectParams<Props, State>) {
+  // This is actually quite unconventional:
+  // state is usually fully owned locally OR externally. Just an example.
+  on(ToggleOpen, state => {
     const opened = !state.opened
-    if (opened) events.emit(Opened())
+    if (opened) {
+      const { onOpened } = props()
+      onOpened && messages.send(onOpened())
+    }
     return merge(state, { opened })
   })
 }
@@ -53,7 +60,7 @@ function render(props: Props, state: State) {
   const { opened } = state
 
   return h('div.red', { class: { opened } }, [
-    h('button', 'Toggle'),
+    h('button', { events: { onClick: ToggleOpen } }, 'Toggle'),
     h('p', text)
   ])
 }

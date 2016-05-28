@@ -19,7 +19,7 @@ export function GlobalStream(initialState, registerHandlers, log) {
     console.log('%cInitial state:', 'color: green', initialState);
 
   const stream = most.create((add, end, error) => {
-    stream.emit = function(message) {
+    stream.send = function(message) {
       const { _id, _name, payload } = message;
 
       // TODO: Is it even useful to prevent redispatching since we have async redraws? We could push to a temp queue.
@@ -29,7 +29,7 @@ export function GlobalStream(initialState, registerHandlers, log) {
 
       const handler = handlers[_id];
       if (!handler) {
-        throw new Error('globalStream.emit: Unknown message: ', _name);
+        throw new Error('globalStream.send: Unknown message: ', _name);
         return;
       }
 

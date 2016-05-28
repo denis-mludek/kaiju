@@ -1,5 +1,6 @@
 import defaultLog from './log';
 
+
 let messageId = 1;
 
 /* User-defined component message factory */
@@ -16,7 +17,7 @@ export default function Message(name) {
 
   message._id = _id;
   message._name = name;
-  message._isCustom = true;
+  message._isMessage = true;
 
   // Allows Actions to be used as Object keys with the correct behavior
   message.toString = () => _id;

@@ -10,7 +10,7 @@
 
   "dependencies": {
     "typescript": "1.8.7",
-    "dompteuse": "0.2.1",
+    "dompteuse": "0.3.0",
     "snabbdom": "0.4.2",
     "most": "0.19.6",
     "abyssa": "7.2.7",

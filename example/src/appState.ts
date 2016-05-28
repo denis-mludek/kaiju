@@ -26,7 +26,7 @@ const router = Router({
 .configure({ urlSync: 'hash' })
 .init()
 
-router.transition.on('ended', state => stream.emit(routeChanged(state)))
+router.transition.on('ended', state => stream.send(routeChanged(state)))
 
 
 const initialState: AppState = {

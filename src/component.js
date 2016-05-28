@@ -3,7 +3,7 @@ import most from 'most';
 
 import { renderComponentSync, renderComponentAsync } from './render';
 import shallowEqual from './shallowEqual';
-import Events from './events';
+import Messages from './messages';
 import log from './log';
 
 
@@ -43,12 +43,12 @@ function create(_, vnode) {
     component.lifecycle.destroyed = add;
   });
 
-  const events = new Events(componentDestruction);
+  const messages = new Messages(componentDestruction);
 
   component.state = initState(props);
   component.elm = vnode.elm;
   component.placeholder = vnode;
-  component.events = events;
+  component.messages = messages;
 
   // First render:
   // Create and insert the component's content
@@ -58,19 +58,34 @@ function create(_, vnode) {
   component.placeholder.elm.__comp__ = component;
 
   // Subsequent renders following a state update
-  const onStream = (stream, fn) => stream.until(componentDestruction).observe(val => {
-    const oldState = component.state;
-    component.state = fn(oldState, val);
+  const onStream = function(streamOrMessage, fn) {
 
-    if (!shallowEqual(oldState, component.state)) {
-      if (log.stream)
-        console.log('Component state changed', `'${component.key}'`, component.state);
-      renderComponentAsync(component);
-    }
-  });
+    const stream = streamOrMessage._isMessage
+      ? messages.listen(streamOrMessage)
+      : streamOrMessage.until(componentDestruction);
 
-  connect(onStream, events);
-  events._activate(component.vnode.elm);
+    stream.observe(val => {
+      const oldState = component.state;
+      component.state = fn(oldState, val);
+
+      if (!shallowEqual(oldState, component.state)) {
+        if (log.stream)
+          console.log('Component state changed', `'${component.key}'`, component.state);
+        renderComponentAsync(component);
+      }
+    });
+
+    return stream;
+  };
+
+  const connectParams = {
+    on: onStream,
+    props: () => component.props,
+    messages
+  };
+
+  connect(connectParams);
+  messages._activate(component.vnode.elm);
 }
 
 // Store the component depth once it's attached to the DOM so we can render

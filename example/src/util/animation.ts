@@ -24,8 +24,8 @@ function prepatch(oldVnode: Vnode, newVnode: Vnode) {
     if (oldKey !== newKey) {
       // Just replace the whole hook for now.
       // It would be cleaner to merge the hooks in.
-      oldVnodeChild.data.hook = oldVnodeChild.data.hook || {}
-      oldVnodeChild.data.hook.remove = (newVnode.data as any).animations.remove
+      oldVnodeChild.data['hook'] = oldVnodeChild.data['hook'] || {}
+      oldVnodeChild.data['hook'].remove = (newVnode.data as any).animations.remove
     }
   }
 }

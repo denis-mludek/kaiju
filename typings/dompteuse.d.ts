@@ -3,18 +3,28 @@
 
 export function startApp<S>(options: {
   app: Vnode;
-  patch: PatchFunction;
-  elm: HTMLElement;
+  snabbdomModules: any[];
+  elm: Element;
 }): void;
 
-export type StreamSub<S> = <A>(stream: Stream<A>, cb: (state: S, value: A) => S) => void;
+interface StreamSub<S> {
+  <A>(stream: Stream<A>, cb: (state: S, value: A) => S): Stream<A>;
+  (message: NoArgMessage, cb: (state: S) => S): Stream<void>;
+  <P>(message: Message<P>, cb: (state: S, payload: P) => S): Stream<P>;
+}
 
-export function Component<DP extends P, P, S>(options: {
+export interface ConnectParams<P, S> {
+  on: StreamSub<S>;
+  props: () => P;
+  messages: Messages;
+}
+
+export function Component<P, S>(options: {
   key: string;
   props?: P;
-  defaultProps?: DP;
+  defaultProps?: any; // :-(    https://github.com/Microsoft/TypeScript/issues/4889
   initState: (props: P) => S;
-  connect: (on: StreamSub<S>, events: Events) => void;
+  connect: (params: ConnectParams<P, S>) => void;
   render: (props: P, state: S) => Vnode;
 }): Vnode;
 
@@ -35,10 +45,13 @@ interface MessagePayload<P> {
   payload: P;
 }
 
-export interface Events {
-  listen(selector: string, eventName: string): Stream<Event>
-  listen<P>(selector: string, message: Message<P>): Stream<P>
-  emit<P>(event: MessagePayload<P>): void
+interface Messages {
+  listen<P>(message: Message<P>): Stream<P>;
+  send<P>(payload: MessagePayload<P>): void;
+}
+
+export var Events: {
+  listenAt(node: Element, targetSelector: string, eventName: string): Stream<Event>
 }
 
 // most
@@ -53,9 +66,14 @@ interface PatchFunction {
 
 export var snabbdom: { init: (modules: any[]) => PatchFunction }
 
+interface VnodeData {
+	[s: string]: any;
+	events?: { [s: string]: NoArgMessage | Message<Event> }
+}
+
 export interface Vnode {
   sel: string;
-  data: any;
+  data: VnodeData;
   children?: Array<Vnode>;
   text?: string;
   elm?: HTMLElement;
@@ -78,8 +96,8 @@ interface Hooks {
 }
 
 export function h(sel: string): Vnode;
-export function h(sel: string, dataOrChildren: any): Vnode;
-export function h(sel: string, data: any, children: Array<Node> | string): Vnode;
+export function h(sel: string, dataOrChildren: VnodeData | Array<Node> | string): Vnode;
+export function h(sel: string, data: VnodeData, children: Array<Node> | string): Vnode;
 
 // GlobalStream
 
@@ -90,7 +108,7 @@ interface OnMessage<S> {
 
 type GlobalStream<S> = Stream<S> & {
   value: S
-  emit: <P>(payload: MessagePayload<P>) => void
+  send: <P>(payload: MessagePayload<P>) => void
 }
 
 export function GlobalStream<S>(

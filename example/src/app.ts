@@ -1,9 +1,9 @@
 import { api as router } from 'abyssa'
-import { Component, h, StreamSub } from 'dompteuse'
+import { Component, h, ConnectParams } from 'dompteuse'
 import { Stream } from 'most'
 
 import appState, { incrementBlue } from './appState'
-import { contentAnimation } from './animation'
+import { contentAnimation } from './util/animation'
 import index from './index'
 import blue from './blue'
 
@@ -27,7 +27,7 @@ function readGlobalState() {
   }
 }
 
-function connect(on: StreamSub<State>) {
+function connect({ on }: ConnectParams<void, State>) {
   on(appState, readGlobalState)
 }
 

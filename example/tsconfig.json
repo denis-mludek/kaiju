@@ -13,17 +13,15 @@
 		"typings/gsap.d.ts"
 	],
 	"files": [
-		"src/animation.ts",
 		"src/app.ts",
 		"src/appState.ts",
 		"src/blue.ts",
 		"src/green.ts",
-		"src/gsap.ts",
 		"src/index.ts",
 		"src/logger.ts",
 		"src/main.ts",
+		"src/patch.ts",
 		"src/red.ts",
-		"src/util.ts",
 		"typings/main.d.ts",
 		"typings/gsap.d.ts"
 	]

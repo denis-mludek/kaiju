@@ -1,8 +1,8 @@
 import { api as router } from 'abyssa'
-import { Component, h, StreamSub, Events } from 'dompteuse'
+import { Component, h, ConnectParams, Message } from 'dompteuse'
 import { Stream } from 'most'
 
-import { contentAnimation } from './animation'
+import { contentAnimation } from './util/animation'
 import green from './green'
 import red from './red'
 import appState, { incrementBlue } from './appState'
@@ -16,6 +16,8 @@ export default function() {
     render
   })
 }
+
+const Increment = Message('increment')
 
 interface State {
   count: number
@@ -31,8 +33,8 @@ function readGlobalState() {
   }
 }
 
-function connect(on: StreamSub<State>, events: Events) {
-  events.listen('.increment button', 'click').forEach(_ => appState.emit(incrementBlue()))
+function connect({ on, messages }: ConnectParams<void, State>) {
+  messages.listen(Increment).forEach(_ => appState.send(incrementBlue()))
   on(appState, readGlobalState)
 }
 
@@ -45,7 +47,7 @@ function render(props: void, state: State) {
     h('a', { attrs: { href: router.link('app.blue.red', { id }), 'data-nav': 'mousedown' } }, 'Red'),
     h('div.increment', [
       'Count: ' + state.count,
-      h('button', 'Increment')
+      h('button', { events: { onClick: Increment } }, 'Increment')
     ]),
     contentAnimation('section', getChildren(state))
   ])
