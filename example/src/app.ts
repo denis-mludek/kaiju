@@ -47,4 +47,4 @@ function getChildren(route: string) {
   if (route.indexOf('app.blue') === 0) return [blue()]
 }
 
-//setInterval(appState.emit.bind(null, incrementBlue()), 2500)
+//setInterval(appState.send.bind(null, incrementBlue()), 2500)

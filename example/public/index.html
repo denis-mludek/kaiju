@@ -1,33 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
 
-	<head>
-		<title>Dompteuse - Demo</title>
+  <head>
+    <title>Dompteuse - Demo</title>
 
-		<style>
-			body {
-				color: #222;
-				overflow-x: hidden;
-				font-family: 'Open Sans', sans-serif;
-				max-width: 400px;
-			}
+    <style>
+      html, body {
+        height: 100%;
+      }
 
-			header {
-				background: #222;
-				padding: 8px;
+      body {
+        color: #222;
+        overflow-x: hidden;
+        overflow-y: hidden;
+        font-family: 'Open Sans', sans-serif;
+        max-width: 400px;
+        margin: 0;
+      }
+
+      header {
+        background: #222;
+        padding: 8px;
         color: white;
-			}
+      }
 
-			a {
-				color: #EEE;
-				display: inline-block;
-				font-weight: bold;
-				margin-right: 10px;
-			}
+      a {
+        color: #EEE;
+        display: inline-block;
+        font-weight: bold;
+        margin-right: 10px;
+      }
 
-			main {
-				margin-top: 8px;
-			}
+      main {
+        margin-top: 8px;
+      }
 
       label {
         display: block;
@@ -39,33 +45,33 @@
         padding: 6px;
       }
 
-			#blue, #green, .red {
-				overflow-x: hidden;
-			}
+      #blue, #green, .red {
+        overflow-x: hidden;
+      }
 
-			#green, .red, #yellow {
-				margin-top: 12px;
-				padding: 18px 8px;
-				color: #EEE;
-			}
+      #green, .red, #yellow {
+        margin-top: 12px;
+        padding: 18px 8px;
+        color: #EEE;
+      }
 
-			#green, .red {
-				border: 1px solid white;
-			}
+      #green, .red {
+        border: 1px solid white;
+      }
 
-			#blue {
-				background: #6DBDD6;
-				padding: 8px;
-				min-height: 400px;
-			}
+      #blue {
+        background: #6DBDD6;
+        padding: 8px;
+        min-height: 400px;
+      }
 
-			#green {
-				background: #118C4E;
-			}
+      #green {
+        background: #118C4E;
+      }
 
-			.red {
-				background: #B71427;
-			}
+      .red {
+        background: #B71427;
+      }
 
       .red.opened {
         height: 150px;
@@ -83,35 +89,62 @@
         margin-top: 0;
       }
 
-			.increment {
-				margin-top: 20px;
-				margin-bottom: 20px;
-			}
+      .increment {
+        margin-top: 20px;
+        margin-bottom: 20px;
+      }
 
-			.increment > * {
-				margin-right: 10px;
-			}
+      .increment > * {
+        margin-right: 10px;
+      }
 
-			button {
-				display: block;
-				margin-top: 10px;
-				cursor: pointer;
-			  padding: 10px 15px;
-			  font-size: 10px;
-			  -webkit-appearance: none;
-				appearance: none;
-			  box-shadow: none;
-			  border-radius: 4px;
-				border-style: none;
-				background: white;
-			}
+      button {
+        display: block;
+        margin-top: 10px;
+        cursor: pointer;
+        padding: 10px 15px;
+        font-size: 10px;
+        -webkit-appearance: none;
+        appearance: none;
+        box-shadow: none;
+        border-radius: 4px;
+        border-style: none;
+        background: white;
+      }
 
-		</style>
-	</head>
+      #screens {
+        overflow-y: scroll;
+        height: 100%;
+        margin: 8px;
+        transform: translate3d(0, 0, 0);
+      }
 
-	<body>
+      .overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+      }
 
-	</body>
+      .popup {
+        width: 300px;
+        margin-top: 140px;
+        margin-left: 22px;
+        padding: 20px;
+        border-radius: 4px;
+        background: pink;
+        box-shadow: 0 5px 15px rgba(0,0,0,.5);
+      }
 
-	<script src="main.js"></script>
+    </style>
+  </head>
+
+  <body>
+    <div id="screens"></div>
+    <div id="popups"></div>
+  </body>
+
+  <script src="main.js"></script>
 </html>

@@ -1,5 +1,6 @@
 
 import h from 'snabbdom/h';
+import Vnode from 'snabbdom/vnode';
 import log from './log';
 
 let componentsToRender = [];
@@ -59,7 +60,7 @@ function renderComponent(component, checkRenderQueue) {
   if (log.render) beforeRender = performance.now();
   const newVnode = render(props, state);
 
-  patch(vnode || elm, newVnode);
+  patch(vnode || Vnode('div', { key: '_init' }, [], undefined, elm), newVnode);
 
   if (log.render) console.log(`Render component '${component.key}'`,
     (performance.now() - beforeRender) + ' ms', component);

@@ -2,6 +2,7 @@ import { h } from 'dompteuse'
 import { TweenLite } from './gsap'
 import { Vnode } from 'dompteuse'
 
+/* Container animating its children in and out */
 
 export default function animate(animations: Animations) {
   return function(sel: string, child: Vnode[]) {
@@ -24,8 +25,8 @@ function prepatch(oldVnode: Vnode, newVnode: Vnode) {
     if (oldKey !== newKey) {
       // Just replace the whole hook for now.
       // It would be cleaner to merge the hooks in.
-      oldVnodeChild.data['hook'] = oldVnodeChild.data['hook'] || {}
-      oldVnodeChild.data['hook'].remove = (newVnode.data as any).animations.remove
+      oldVnodeChild.data.hook = oldVnodeChild.data.hook || {}
+      oldVnodeChild.data.hook.remove = (newVnode.data as any).animations.remove
     }
   }
 }
@@ -50,21 +51,17 @@ interface Animations {
   remove: (vnode: Vnode, cb: any) => void
 }
 
+const duration = 0.2
 const contentAnimations = {
   create: (elm: HTMLElement) => {
     elm.style.display = 'none'
-
-    TweenLite.fromTo(elm, 0.2,
-      { css: { opacity: 0 } },
-      { css: { opacity: 1 }, delay: 0.22, overwrite: true }
-    ).eventCallback('onStart', (): any => elm.style.removeProperty('display'))
+    TweenLite.from(elm, duration, { opacity: 0, delay: duration + 0.02, overwrite: true })
+      .eventCallback('onStart', () => elm.style.removeProperty('display'))
   },
 
-  remove: (vnode: Vnode, cb: any) => {
-    TweenLite.fromTo(vnode.elm, 0.2,
-      { css: { opacity: 1 } },
-      { css: { opacity: 0 }, overwrite: true }
-    ).eventCallback('onComplete', cb)
+  remove: (vnode: Vnode, cb: Function) => {
+    TweenLite.to(vnode.elm, duration, { opacity: 0, overwrite: true })
+      .eventCallback('onComplete', cb)
   }
 };
 

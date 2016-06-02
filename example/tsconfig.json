@@ -8,7 +8,7 @@
 		"rewriteTsconfig": true
 	},
 	"filesGlob": [
-		"src/*.ts",
+		"src/**/*.ts",
 		"typings/main.d.ts",
 		"typings/gsap.d.ts"
 	],
@@ -20,8 +20,12 @@
 		"src/index.ts",
 		"src/logger.ts",
 		"src/main.ts",
-		"src/patch.ts",
 		"src/red.ts",
+		"src/util/animation.ts",
+		"src/util/dom.ts",
+		"src/util/gsap.ts",
+		"src/util/obj.ts",
+		"src/util/popup.ts",
 		"typings/main.d.ts",
 		"typings/gsap.d.ts"
 	]

@@ -4,7 +4,8 @@ import { Stream } from 'most'
 
 import appState from './appState'
 import red from './red'
-import { merge } from './util/util'
+import { merge } from './util/obj'
+import popup, * as Popup from './util/popup'
 
 
 export default function() {
@@ -18,18 +19,21 @@ export default function() {
 
 const InputChanged = Message<Event>('inputChanged')
 const RedOpened = Message('redOpened')
+const ShowPopup = Message('showPopup')
 
 interface State {
   id: string
   form: any
   redText: string
+  popupOpened: boolean
 }
 
 function initState() {
   return {
     id: appState.value.route.params['id'],
     form: {},
-    redText: ''
+    redText: '',
+    popupOpened: false
   }
 }
 
@@ -51,11 +55,16 @@ function connect({ on, messages }: ConnectParams<void, State>) {
   on(RedOpened, state =>
     merge(state, { redText: state.redText + ' Opened!' })
   )
+
+  on(ShowPopup, state => merge(state, { popupOpened: true }))
+  on(Popup.Close, state => merge(state, { popupOpened: false }))
 }
 
 function render(props: void, state: State) {
-  const { id, form, redText } = state
+  const { id, form, redText, popupOpened } = state
   const { firstName, lastName } = form
+
+  const popupEl = popupOpened ? helloPopup() : ''
 
   return h('div#green', [
     `Green (route id = ${id})`,
@@ -66,7 +75,9 @@ function render(props: void, state: State) {
     red({
       text: redText,
       onOpened: RedOpened
-    })
+    }),
+    h('button', { events: { onClick: ShowPopup } }, 'Open popup'),
+    popupEl
   ])
 }
 
@@ -79,4 +90,13 @@ function input(name: string, value: string) {
       events: { onInput: InputChanged }
     })
   ])
+}
+
+function helloPopup() {
+  const content = [
+    h('h2', 'Hello'),
+    h('button', { events: { onClick: Popup.Close } }, 'Close')
+  ]
+
+  return popup({ content })
 }

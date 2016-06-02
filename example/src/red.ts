@@ -3,7 +3,7 @@ import { Component, h, Message, ConnectParams } from 'dompteuse'
 import { Stream } from 'most'
 
 import appState, { incrementBlue } from './appState'
-import { merge } from './util/util'
+import { merge } from './util/obj'
 
 
 export default function(props?: Props) {

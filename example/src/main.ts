@@ -1,11 +1,12 @@
 import './logger'
 
-import { snabbdom, startApp } from 'dompteuse'
+import { startApp } from 'dompteuse'
 import app from './app'
 
 
 declare var require: any
-const snabbdomModules = [
+
+export const snabbdomModules = [
   require('snabbdom/modules/class'),
   require('snabbdom/modules/props'),
   require('snabbdom/modules/attributes'),
@@ -13,4 +14,4 @@ const snabbdomModules = [
   require('./util/forceProps')
 ]
 
-startApp({ app, snabbdomModules, elm: document.body })
+startApp({ app, snabbdomModules, elm: document.getElementById('screens') })

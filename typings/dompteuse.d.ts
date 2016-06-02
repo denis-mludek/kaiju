@@ -47,6 +47,7 @@ interface MessagePayload<P> {
 
 interface Messages {
   listen<P>(message: Message<P>): Stream<P>;
+  listenAt<P>(selector: string, message: Message<P>): Stream<P>;
   send<P>(payload: MessagePayload<P>): void;
 }
 
@@ -54,21 +55,22 @@ export var Events: {
   listenAt(node: Element, targetSelector: string, eventName: string): Stream<Event>
 }
 
+export var patch: PatchFunction;
+
 // most
 
 import { Stream } from 'most';
 
 // snabbdom
 
-interface PatchFunction {
-  _isPatchFunction: any;
-}
+export type PatchFunction = (target: Element | Vnode, vnode: Vnode) => Vnode;
 
-export var snabbdom: { init: (modules: any[]) => PatchFunction }
+export var snabbdom: { init: (modules: any[]) => PatchFunction };
 
 interface VnodeData {
 	[s: string]: any;
-	events?: { [s: string]: NoArgMessage | Message<Event> }
+  hook?: Hooks;
+	events?: { [s: string]: NoArgMessage | Message<Event> };
 }
 
 export interface Vnode {

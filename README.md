@@ -212,6 +212,17 @@ transparently.
 import { h } from 'dompteuse'
 h('div', 'hello')
 ```
+On top of the `snabbdom` modules you pass to `startApp`, an extra module is installed by `dompteuse`: `events`.  
+
+```javascript
+
+import { Message } from 'dompteuse'
+
+const SomeMessage = Message<Event>('someMessage')
+
+// Send a message to the enclosing component on click
+h('div', { events: { onClick: SomeMessage } })
+```
 
 ## startApp
 
@@ -276,6 +287,11 @@ on<P>(message: Message<P>, cb: (state: S, payload: P) => S): Stream<P>
 // Listen for messages coming from immediate Vnodes or component children
 messages.listen<P>(message: Message<P>): Stream<P>
 
+// Listen for a Message at the first Element found using the given CSS selector.
+// This should be rarely used, and is mostly useful for components
+// that attach their content to a remote DOM Element, like popups.
+messages.listenAt<P>(selector: string, message: Message<P>): Stream<P>;
+
 // Sends a message to the nearest parent component
 messages.send<P>(message: MessagePayload<P>): void
 ```
@@ -311,4 +327,13 @@ listenAt(node: Element, targetSelector: string, eventName: string): Stream<Event
 import { Events } from 'dompteuse'
 
 const stream = Events.listenAt(document.body, '.button', 'click')
+```
+
+## patch
+
+The `snabbdom` patch function that dompteuse uses. Only available after the call to `startApp`  
+
+
+```javascript
+import { patch } from 'dompteuse'
 ```

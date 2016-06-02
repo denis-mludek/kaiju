@@ -12,9 +12,11 @@ import log from './log';
 
 function startApp({ app, elm, snabbdomModules }) {
   const modules = snabbdomModules.concat(snabbdomModule);
-  Render.patch = snabbdom.init(modules);
+  patch = Render.patch = snabbdom.init(modules);
   renderApp(app, elm);
 }
+
+let patch;
 
 export {
   Component,
@@ -23,6 +25,7 @@ export {
   startApp,
   log,
   GlobalStream,
+  patch,
 
   // Proxied for convenient typesafety
   snabbdom,

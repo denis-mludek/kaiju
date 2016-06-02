@@ -1,6 +1,6 @@
 {
   "name": "dompteuse",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "main": "lib/dompteuse",
   "typings": "lib/dompteuse.d.ts",
   "description": "Virtual dom, streams and isolated components",

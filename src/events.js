@@ -1,5 +1,6 @@
 import most from 'most';
 import { Set } from './util';
+import { _sendToNode } from './messages';
 
 
 /* snabbdom module extension used to register Messages as event listeners */
@@ -17,8 +18,8 @@ function updateEventListeners(oldVnode, vnode) {
     if (old !== current)
       vnode.elm[name.toLowerCase()] = function(evt) {
         const payload = current(evt);
-        sendToNearestComponent(evt.target, payload);
-      }
+        _sendToNode(evt.target, payload);
+      };
   }
 
   if (!oldEvents) return;
@@ -32,16 +33,6 @@ function updateEventListeners(oldVnode, vnode) {
 export const snabbdomModule = {
   create: updateEventListeners,
   update: updateEventListeners
-}
-
-
-export function sendToNearestComponent(node, message) {
-  while (node) {
-    if (node.__comp__)
-      return node.__comp__.messages._receive(message);
-
-    node = node.parentElement;
-  }
 }
 
 /* Listens to a DOM Event using delegation */
