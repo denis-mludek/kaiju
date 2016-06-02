@@ -2,7 +2,7 @@
 
 ![© DC Comics](http://i171.photobucket.com/albums/u320/boubiyeah/Original_Catwoman_Design_zpsokgquwmu.jpg)
 
-Fast Virtual DOM with Reactive updating.
+Fast Virtual DOM components with Reactive updating.
 
 - Fast thanks to [snabbdom](https://github.com/paldepind/snabbdom), [most](https://github.com/cujojs/most), component isolation and async RAF rendering
 - Global and local states use streams for greater composition
@@ -75,15 +75,17 @@ Connects the component to the app and computes the local state of the component.
 
 `connect` is called with three arguments, encapsulated in a `ConnectParams` object:  
 
-- `on` registers a Stream that modifies the component local state. The stream will be unsubscribed from when
+- `on` registers a Stream that modifies the component local state. The stream will be automatically unsubscribed from when
 the component is unmounted.
-- `messages` is the interface used to `listen` to custom Messages sent by direct component children or `send` a message to our direct component parent.
+- `messages` is the interface used to `listen` to custom Messages sent by direct component children or `send` a message to our direct component parent. Streams created this way will also be unsubscribed from when the component is unmounted.  
 - `props` A props accessor function. Used to read props inside connect.
 
 `connect` arguably has more interesting characteristics than the imperative approach `React` use (i.e `setState`):  
 
-Streams are composable, callbacks are not. Doing things like throttling or only listening to the very last ajax action fired
+- Streams are composable, callbacks are not. Doing things like throttling or only listening to the very last ajax action fired
 is a recurrent, non abstractable pain with imperative callback/setState.  
+
+- Callback references often change over time (most likely from using partial application) and we can no longer apply streamlined performance optimizations because some props truly represent data while other props are callbacks that may or may not purposedly change. By using simple `Messages` instead of bound functions/closures, this issue is avoided.
 
 Example:  
 
@@ -95,7 +97,7 @@ const TriggerClick = Message('triggerClick')
 
 function connect({ on, props, messages }: ConnectParams<Props, State>) {
   // Subscribe to the stream of button clicks and update our state every time it changes
-  on(messages.listen(TriggerClick, state => {
+  on(messages.listen(TriggerClick), state => {
     const opened = !state.opened
 
     // Any 'on' handler must return the new component state
@@ -141,7 +143,9 @@ function render(props: void, state: State) {
 
 A construct is provided to easily build push-based global streams in a typesafe fashion. This is entirely optional.    
 
-You typically want to keep very transient state as local as possible so that it remains encapsulated in a component and do not leak up such as:  
+You typically want to keep very transient state as local as possible so that it remains encapsulated in a component and do not leak up.  
+<br />
+**Example of typical local state**
 * Whether a select dropdown is opened
 * The component has focus
 * Which grid row is highlighted
@@ -149,10 +153,12 @@ You typically want to keep very transient state as local as possible so that it 
 
 Additionally, keeping state that is only useful to one screen should be kept inside the top-most component of that screen and no higher.  
 
-That leaves global state, which can be updated from anywhere and is read from multiple screens such as:    
+That leaves global state, which can be updated from anywhere and is read from multiple screens.  
+<br />
+**Example of typical global state**
 * The current route
 * User preferences
-* Any raw domain data that will be mapped/filtered/transformed in the different screens.  
+* Any raw domain data that will be mapped/filtered/transformed in the different screens (if you're caching these) 
 
 Example:  
 ```javascript
