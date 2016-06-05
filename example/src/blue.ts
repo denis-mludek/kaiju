@@ -89,7 +89,7 @@ function getChildren(state: State) {
   if (route === 'app.blue') return [h('span', 'I am blue')]
   if (route === 'app.blue.green') return [green()]
   if (route === 'app.blue.red') return [
-    h('div.red', [
+    h('div.red', { key: 'red' }, [
       h('button', { events: { onClick: RefreshSelect } }, 'Refresh select list'),
       h('br'),
       select({
