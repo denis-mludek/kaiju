@@ -5,6 +5,10 @@
     <title>Dompteuse - Demo</title>
 
     <style>
+      * {
+        box-sizing: border-box;
+      }
+
       html, body {
         height: 100%;
       }
@@ -45,10 +49,6 @@
         padding: 6px;
       }
 
-      #blue, #green, .red {
-        overflow-x: hidden;
-      }
-
       #green, .red, #yellow {
         margin-top: 12px;
         padding: 18px 8px;
@@ -71,22 +71,6 @@
 
       .red {
         background: #B71427;
-      }
-
-      .red.opened {
-        height: 150px;
-      }
-
-      .red p {
-        display: none;
-      }
-
-      .red.opened p {
-        display: block;
-      }
-
-      .red button {
-        margin-top: 0;
       }
 
       .increment {
@@ -136,6 +120,41 @@
         border-radius: 4px;
         background: pink;
         box-shadow: 0 5px 15px rgba(0,0,0,.5);
+      }
+
+
+      .select {
+        position: relative;
+      }
+
+      input {
+        width: 100%;
+        padding: 8px;
+        border-radius: 3px;
+        border: none;
+        color: #444;
+      }
+
+      .select .dropdown {
+        position: absolute;
+        z-index: 10;
+        width: 100%;
+        top: 16px;
+        background: white;
+        border-radius: 3px;
+        list-style: none;
+        padding: 8px;
+        box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+      }
+
+      .select .dropdown li {
+        width: 100%;
+        color: #444;
+        padding: 4px;
+      }
+
+      .select .dropdown li:hover {
+        background: #F0F0F0;
       }
 
     </style>

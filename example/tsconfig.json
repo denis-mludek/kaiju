@@ -8,9 +8,8 @@
 		"rewriteTsconfig": true
 	},
 	"filesGlob": [
-		"src/**/*.ts",
-		"typings/main.d.ts",
-		"typings/gsap.d.ts"
+		"src/**/*.*",
+		"typings/**/*.d.ts"
 	],
 	"files": [
 		"src/app.ts",
@@ -20,13 +19,15 @@
 		"src/index.ts",
 		"src/logger.ts",
 		"src/main.ts",
-		"src/red.ts",
 		"src/util/animation.ts",
 		"src/util/dom.ts",
+		"src/util/forceProps.ts",
 		"src/util/gsap.ts",
 		"src/util/obj.ts",
 		"src/util/popup.ts",
-		"typings/main.d.ts",
+		"src/util/select.ts",
+		"typings/es6shim.d.ts",
+		"typings/fetch.d.ts",
 		"typings/gsap.d.ts"
 	]
 }

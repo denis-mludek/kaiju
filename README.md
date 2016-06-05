@@ -85,7 +85,7 @@ the component is unmounted.
 - Streams are composable, callbacks are not. Doing things like throttling or only listening to the very last ajax action fired
 is a recurrent, non abstractable pain with imperative callback/setState.  
 
-- Callback references often change over time (most likely from using partial application) and we can no longer apply streamlined performance optimizations because some props truly represent data while other props are callbacks that may or may not purposedly change. By using simple `Messages` instead of bound functions/closures, this issue is avoided.
+- Callback references often change over time (most likely from using partial application) and we can no longer apply streamlined performance optimizations because some props truly represent data while other props are callbacks that may or may not purposely change. By using simple `Messages` instead of bound functions/closures, this issue is avoided.
 
 Example:  
 
@@ -158,7 +158,7 @@ That leaves global state, which can be updated from anywhere and is read from mu
 **Example of typical global state**
 * The current route
 * User preferences
-* Any raw domain data that will be mapped/filtered/transformed in the different screens (if you're caching these) 
+* Any raw domain data that will be mapped/filtered/transformed in the different screens (if you're caching these)
 
 Example:  
 ```javascript

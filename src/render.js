@@ -75,7 +75,7 @@ function renderNow() {
   nextRender = undefined;
   newComponents = [];
 
-  if (log.render) console.log('%cNew rendering frame', 'color: orange');
+  if (log.render) console.log('%cBegin rendering', 'color: orange');
 
   // Render components in a top-down fashion.
   // This ensures the rendering order is predictive and props & states are consistent.
@@ -86,4 +86,6 @@ function renderNow() {
   componentsToRender = [];
 
   newComponents.forEach(c => c.lifecycle.inserted(c));
+
+  if (log.render) console.log('%cEnd rendering', 'color: green');
 }

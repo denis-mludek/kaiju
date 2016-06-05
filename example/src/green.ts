@@ -3,7 +3,6 @@ import update from 'immupdate'
 import { Stream } from 'most'
 
 import appState from './appState'
-import red from './red'
 import { merge } from './util/obj'
 import popup, * as Popup from './util/popup'
 
@@ -18,13 +17,11 @@ export default function() {
 }
 
 const InputChanged = Message<Event>('inputChanged')
-const RedOpened = Message('redOpened')
 const ShowPopup = Message('showPopup')
 
 interface State {
   id: string
   form: any
-  redText: string
   popupOpened: boolean
 }
 
@@ -32,7 +29,6 @@ function initState() {
   return {
     id: appState.value.route.params['id'],
     form: {},
-    redText: '',
     popupOpened: false
   }
 }
@@ -52,16 +48,12 @@ function connect({ on, messages }: ConnectParams<void, State>) {
     merge(state, { id: appState.route.params['id'] })
   )
 
-  on(RedOpened, state =>
-    merge(state, { redText: state.redText + ' Opened!' })
-  )
-
   on(ShowPopup, state => merge(state, { popupOpened: true }))
   on(Popup.Close, state => merge(state, { popupOpened: false }))
 }
 
 function render(props: void, state: State) {
-  const { id, form, redText, popupOpened } = state
+  const { id, form, popupOpened } = state
   const { firstName, lastName } = form
 
   const popupEl = popupOpened ? helloPopup() : ''
@@ -72,10 +64,6 @@ function render(props: void, state: State) {
       input('firstName', firstName),
       input('lastName', lastName)
     ]),
-    red({
-      text: redText,
-      onOpened: RedOpened
-    }),
     h('button', { events: { onClick: ShowPopup } }, 'Open popup'),
     popupEl
   ])
