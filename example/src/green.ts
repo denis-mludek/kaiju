@@ -86,5 +86,5 @@ function helloPopup() {
     h('button', { events: { onClick: Popup.Close } }, 'Close')
   ]
 
-  return popup({ content })
+  return popup({ content, onClose: Popup.Close })
 }

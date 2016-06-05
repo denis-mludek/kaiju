@@ -11,6 +11,7 @@ const OverlayClick = Message<Event>('OverlayClick')
 
 interface Props {
   content: Array<Vnode>
+  onClose: Function
 }
 
 export default function(props: Props) {
@@ -30,10 +31,12 @@ function initState() {
 // Listen for messages inside the popup container, and redispatch at the Popup launcher level.
 function connect({ on, props, messages }: ConnectParams<Props, {}>) {
 
-  messages.listenAt('#popups', Close).forEach(_ => messages.send(Close()))
+  messages.listenAt('#popups', Close).forEach(_ =>
+    messages.send(props().onClose()))
 
   messages.listenAt('#popups', OverlayClick).forEach(evt => {
-    if (!findParentByClass('popup', evt.target as Element)) messages.send(Close())
+    if (!findParentByClass('popup', evt.target as Element))
+      messages.send(props().onClose())
   })
 }
 
