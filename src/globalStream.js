@@ -16,7 +16,7 @@ export function GlobalStream(initialState, registerHandlers, log) {
   registerHandlers(on);
 
   if (log)
-    console.log('%cInitial state:', 'color: green', initialState);
+    console.log('%cGlobal stream - initial state:', 'color: green', initialState);
 
   const stream = most.create((add, end, error) => {
     stream.send = function(message) {
@@ -42,7 +42,7 @@ export function GlobalStream(initialState, registerHandlers, log) {
       }
       finally {
         if (log)
-          console.log(`%cNew GlobalStream state:`, 'color: blue', newState);
+          console.log(`%cGlobal stream - state updated:`, 'color: green', newState);
 
         dispatching = false;
       }

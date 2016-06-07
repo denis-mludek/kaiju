@@ -13,11 +13,11 @@ export default Render;
 
 
 export function renderApp(app, appElm) {
-  // Non destructive patching inside the app element
-  const elmToReplace = document.createElement('div');
-  const appNode = Render.patch(elmToReplace, app);
-  appElm.appendChild(appNode.elm);
+  logBeginRender();
+  const emptyVnode = Vnode('div', { key: '_init' }, [], undefined, appElm);
+  Render.patch(emptyVnode, app);
   newComponents.forEach(c => c.lifecycle.inserted(c));
+  logEndRender();
 }
 
 export function renderComponentAsync(component) {
@@ -62,8 +62,10 @@ function renderComponent(component, checkRenderQueue) {
 
   patch(vnode || Vnode('div', { key: '_init' }, [], undefined, elm), newVnode);
 
-  if (log.render) console.log(`Render component '${component.key}'`,
-    (performance.now() - beforeRender) + ' ms', component);
+  if (log.render) {
+    const renderTime = Math.round((performance.now() - beforeRender) * 100) / 100;
+    console.log(`Render component %c${component.key}`, 'font-weight: bold', renderTime + ' ms', component);
+  }
 
   component.lifecycle.rendered(component, newVnode);
   if (isNew) newComponents.push(component);
@@ -75,7 +77,7 @@ function renderNow() {
   nextRender = undefined;
   newComponents = [];
 
-  if (log.render) console.log('%cBegin rendering', 'color: orange');
+  logBeginRender();
 
   // Render components in a top-down fashion.
   // This ensures the rendering order is predictive and props & states are consistent.
@@ -87,5 +89,13 @@ function renderNow() {
 
   newComponents.forEach(c => c.lifecycle.inserted(c));
 
-  if (log.render) console.log('%cEnd rendering', 'color: green');
+  logEndRender();
+}
+
+function logBeginRender() {
+  if (log.render) console.log('%cRender - begin', 'color: orange');
+}
+
+function logEndRender() {
+  if (log.render) console.log('%cRender - end\n\n', 'color: orange');
 }

@@ -70,7 +70,7 @@ function create(_, vnode) {
 
       if (!shallowEqual(oldState, component.state)) {
         if (log.stream)
-          console.log('Component state changed', `'${component.key}'`, component.state);
+          console.log(`Component state updated %c${component.key}`, 'font-weight: bold', component.state);
         renderComponentAsync(component);
       }
     });
