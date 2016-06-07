@@ -8,9 +8,9 @@ export function startApp<S>(options: {
 }): void;
 
 interface StreamSub<S> {
-  <A>(stream: Stream<A>, cb: (state: S, value: A) => S): Stream<A>;
-  (message: NoArgMessage, cb: (state: S) => S): Stream<void>;
-  <P>(message: Message<P>, cb: (state: S, payload: P) => S): Stream<P>;
+  <A>(stream: Stream<A>, cb: (state: S, value: A) => S|void): Stream<A>;
+  (message: NoArgMessage, cb: (state: S) => S|void): Stream<void>;
+  <P>(message: Message<P>, cb: (state: S, payload: P) => S|void): Stream<P>;
 }
 
 export interface ConnectParams<P, S> {

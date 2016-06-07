@@ -1,5 +1,5 @@
 import { api as router } from 'abyssa'
-import { Component, h, ConnectParams, Message } from 'dompteuse'
+import { Component, h, ConnectParams, Message, Messages } from 'dompteuse'
 import * as most from 'most'
 import { Stream } from 'most'
 
@@ -47,11 +47,31 @@ function readGlobalState() {
 }
 
 function connect({ on, messages }: ConnectParams<void, State>) {
-  messages.listen(Increment).forEach(_ => appState.send(incrementBlue()))
+  on(Increment, _ => appState.send(incrementBlue()))
 
   on(appState, state => merge(state, readGlobalState()))
 
   on(UserChange, (state, user) => merge(state, { selectedUser: user }))
+
+  const [userData, loading] = getUserData(messages)
+  on(userData, (state, users) => merge(state, { users }))
+  on(loading, (state, loading) => merge(state, { loading }))
+}
+
+function getUserData(messages: Messages): [Stream<string[]>, Stream<boolean>] {
+
+  function getSomeUsers() {
+    interface User {
+      name: { first: string, last: string }
+    }
+
+    return most.fromPromise(fetch('https://randomuser.me/api/?results=10')
+      .then(res => res.json())
+      .then(json => (json.results as Array<User>).map((user: any) =>
+        `${user.name.first} ${user.name.last}`)
+      )
+    ).delay(2000)
+  }
 
   const refreshes = messages.listen(RefreshSelect).startWith(undefined).multicast()
   const userData = refreshes
@@ -64,8 +84,7 @@ function connect({ on, messages }: ConnectParams<void, State>) {
     userData.map(_ => false)
   )
 
-  on(userData, (state, users) => merge(state, { users }))
-  on(loading, (state, loading) => merge(state, { loading }))
+  return [userData, loading]
 }
 
 function render(props: void, state: State) {
@@ -100,17 +119,4 @@ function getChildren(state: State) {
       })
     ])
   ]
-}
-
-function getSomeUsers() {
-  interface User {
-    name: { first: string, last: string }
-  }
-
-  return most.fromPromise(fetch('https://randomuser.me/api/?results=10')
-    .then(res => res.json())
-    .then(json => (json.results as Array<User>).map((user: any) =>
-      `${user.name.first} ${user.name.last}`)
-    )
-  ).delay(2000)
 }

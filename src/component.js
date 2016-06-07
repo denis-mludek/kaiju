@@ -66,9 +66,13 @@ function create(_, vnode) {
 
     stream.observe(val => {
       const oldState = component.state;
-      component.state = fn(oldState, val);
+      const newState = fn(oldState, val);
 
-      if (!shallowEqual(oldState, component.state)) {
+      if (newState === undefined) return;
+
+      component.state = newState;
+
+      if (!shallowEqual(oldState, newState)) {
         if (log.stream)
           console.log(`Component state updated %c${component.key}`, 'font-weight: bold', component.state);
         renderComponentAsync(component);

@@ -46,10 +46,7 @@ function connect({ on, props, messages }: ConnectParams<Props<any>, State>) {
   on(Open, state => merge(state, { opened: true }))
   on(Close, state => merge(state, { opened: false }))
 
-  on(ItemSelected, (state, item) => {
-    messages.send(props().onChange(item))
-    return state
-  })
+  on(ItemSelected, (state, item) => messages.send(props().onChange(item)))
 }
 
 function render(props: Props<any>, state: State) {

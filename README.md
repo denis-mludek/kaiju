@@ -276,15 +276,16 @@ const incrementBy = Message<number>('incrementBy')
 ### StreamSub
 
 Used to subscribe to a stream and update the component state.  
+If nothing is returned (undefined) then the component state is not modified.  
 
 Signature:  
 
 ```javascript
-on<A>(stream: Stream<A>, cb: (state: S, value: A) => S): Stream<A>
-on(message: NoArgMessage, cb: (state: S) => S): Stream<void>
+on<A>(stream: Stream<A>, cb: (state: S, value: A) => S|void): Stream<A>
+on(message: NoArgMessage, cb: (state: S) => S|void): Stream<void>
 
 // Shortcut for on(messages.listen(MyMessage))
-on<P>(message: Message<P>, cb: (state: S, payload: P) => S): Stream<P>
+on<P>(message: Message<P>, cb: (state: S, payload: P) => S|void): Stream<P>
 ```
 
 ### Messages
