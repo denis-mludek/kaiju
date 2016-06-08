@@ -1,11 +1,13 @@
 
-// dompteuse internals
+// startApp
 
 export function startApp<S>(options: {
   app: Vnode;
   snabbdomModules: any[];
   elm: Element;
 }): void;
+
+// Components
 
 interface StreamSub<S> {
   <A>(stream: Stream<A>, cb: (state: S, value: A) => S|void): Stream<A>;
@@ -28,10 +30,14 @@ export function Component<P, S>(options: {
   render: (props: P, state: S) => Vnode;
 }): Vnode;
 
+// dompteuse internals
+
 export var log: {
   render: boolean;
   stream: boolean;
 }
+
+// Messages & Events
 
 export type NoArgMessage = () => MessagePayload<void>;
 export type Message<P> = (payload: P) => MessagePayload<P>;
@@ -55,7 +61,22 @@ export var Events: {
   listenAt(node: Element, targetSelector: string, eventName: string): Stream<Event>
 }
 
-export var patch: PatchFunction;
+// Global stream
+
+interface OnMessage<S> {
+  (message: NoArgMessage, handler: (state: S) => S): void;
+  <P>(message: Message<P>, handler: (state: S, payload: P) => S): void;
+}
+
+type GlobalStream<S> = Stream<S> & {
+  value: S
+  send: <P>(payload: MessagePayload<P>) => void
+}
+
+export function GlobalStream<S>(
+  initialState: S,
+  registerHandlers: (on: OnMessage<S>) => void): GlobalStream<S>;
+
 
 // most
 
@@ -101,18 +122,4 @@ export function h(sel: string): Vnode;
 export function h(sel: string, dataOrChildren: VnodeData | Array<Node> | string): Vnode;
 export function h(sel: string, data: VnodeData, children: Array<Node> | string): Vnode;
 
-// GlobalStream
-
-interface OnMessage<S> {
-  (message: NoArgMessage, handler: (state: S) => S): void;
-  <P>(message: Message<P>, handler: (state: S, payload: P) => S): void;
-}
-
-type GlobalStream<S> = Stream<S> & {
-  value: S
-  send: <P>(payload: MessagePayload<P>) => void
-}
-
-export function GlobalStream<S>(
-  initialState: S,
-  registerHandlers: (on: OnMessage<S>) => void): GlobalStream<S>;
+export var patch: PatchFunction;
