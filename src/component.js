@@ -105,17 +105,18 @@ function postpatch(oldVnode, vnode) {
 
   const component = oldData.component;
   const oldProps = component.props;
+  const newProps = newData.component.props;
 
   // Pass on the component instance everytime a new Vnode instance is created,
   // but update any important property that can change over time.
-  component.props = newData.component.props;
-  component.render = newData.component.render;
+  component.props = newProps;
   component.placeholder = vnode;
+
   newData.component = component;
 
   // If the props changed, render immediately as we are already
   // in the render context of our parent
-  if (!shallowEqual(component.props, oldProps))
+  if (!shallowEqual(oldProps, newProps))
     renderComponentSync(component);
 }
 
