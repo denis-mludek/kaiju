@@ -14,9 +14,15 @@ export default Render;
 
 export function renderApp(app, appElm) {
   logBeginRender();
-  const emptyVnode = Vnode('div', { key: '_init' }, [], undefined, appElm);
-  Render.patch(emptyVnode, app);
+
+  const el = document.createElement('div');
+  const emptyVnode = Vnode('div', { key: '_init' }, [], undefined, el);
+  const appNode = Render.patch(emptyVnode, app);
+
   newComponents.forEach(c => c.lifecycle.inserted(c));
+
+  appElm.appendChild(appNode.elm);
+
   logEndRender();
 }
 
