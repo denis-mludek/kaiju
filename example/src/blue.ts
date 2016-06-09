@@ -73,12 +73,8 @@ function getUserData(messages: Messages): [Stream<string[]>, Stream<boolean>] {
     ).delay(2000)
   }
 
-  const refreshes = messages.listen(RefreshSelect).multicast()
-  const userData = refreshes
-    .map(getSomeUsers)
-    .startWith(getSomeUsers())
-    .switch()
-    .multicast()
+  const refreshes = messages.listen(RefreshSelect)
+  const userData = refreshes.map(getSomeUsers).startWith(getSomeUsers()).switch().multicast()
 
   const loading = most.merge(refreshes.constant(true), userData.constant(false))
 

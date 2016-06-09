@@ -53,7 +53,7 @@ export function GlobalStream(initialState, registerHandlers, log) {
         add(newState);
       }
     }
-  })
+  });
 
   stream.value = initialState;
   stream.drain();
