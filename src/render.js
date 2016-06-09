@@ -70,7 +70,7 @@ function renderComponent(component, checkRenderQueue) {
 
   if (log.render) {
     const renderTime = Math.round((performance.now() - beforeRender) * 100) / 100;
-    console.log(`Render component %c${component.key}`, 'font-weight: bold', renderTime + ' ms', component);
+    console.log(`Render component %c${component.key}`, 'font-weight: bold', renderTime + ' ms', props, state);
   }
 
   component.lifecycle.rendered(component, newVnode);

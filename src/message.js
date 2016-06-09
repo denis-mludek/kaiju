@@ -1,5 +1,3 @@
-import defaultLog from './log';
-
 
 let messageId = 1;
 
@@ -9,9 +7,6 @@ export default function Message(name) {
   const _id = messageId++;
 
   function message(payload) {
-    if (defaultLog.stream)
-      console.log('%c' + name, 'color: #FAACF3', 'dispatched with payload ', payload);
-
     return { _id, _name: name, payload };
   }
 

@@ -4,8 +4,6 @@ import most from 'most';
 import { renderComponentSync, renderComponentAsync } from './render';
 import shallowEqual from './shallowEqual';
 import Messages from './messages';
-import log from './log';
-
 
 const empty = {};
 
@@ -72,11 +70,8 @@ function create(_, vnode) {
 
       component.state = newState;
 
-      if (!shallowEqual(oldState, newState)) {
-        if (log.stream)
-          console.log(`Component state updated %c${component.key}`, 'font-weight: bold', component.state);
+      if (!shallowEqual(oldState, newState))
         renderComponentAsync(component);
-      }
     });
 
     return stream;
@@ -98,7 +93,7 @@ function inserted(component) {
   component.depth = getDepth(component.vnode.elm);
 }
 
-// Called on every re-render, this is where the props passed by the component's parent may have changed.
+// Called on every parent re-render, this is where the props passed by the component's parent may have changed.
 function postpatch(oldVnode, vnode) {
   const oldData = oldVnode.data;
   const newData = vnode.data;
@@ -107,8 +102,7 @@ function postpatch(oldVnode, vnode) {
   const oldProps = component.props;
   const newProps = newData.component.props;
 
-  // Pass on the component instance everytime a new Vnode instance is created,
-  // but update any important property that can change over time.
+  // Update the original component with any property that may have changed on this render
   component.props = newProps;
   component.placeholder = vnode;
 

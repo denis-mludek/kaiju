@@ -22,8 +22,9 @@ export function GlobalStream(initialState, registerHandlers, log) {
     stream.send = function(message) {
       const { _id, _name, payload } = message;
 
-      // TODO: Is it even useful to prevent redispatching since we have async redraws? We could push to a temp queue.
-      // The scenario would be: in the middle of a msg handling, we want to conditionally dispatch another msg.
+      if (log)
+        console.log('%c' + _name, 'color: #C93CBD', 'sent globally with payload ', payload);
+
       if (dispatching) throw new Error(
         'Cannot dispatch a Msg in the middle of another msg\'s dispatch');
 

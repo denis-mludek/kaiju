@@ -1,5 +1,7 @@
 import most from 'most';
 
+import log from './log';
+
 
 export default function Messages(componentDestruction) {
   this.componentDestruction = componentDestruction;
@@ -72,13 +74,21 @@ export function _sendToNode(node, msg) {
 
   while (parentEl) {
     // Classic component's listen
-    if (parentEl.__comp__)
+    if (parentEl.__comp__) {
+      if (log) console.log('%c' + msg._name, 'color: #FAACF3',
+        'sent locally to', parentEl , 'with payload ', msg.payload);
+
       return parentEl.__comp__.messages._receive(msg);
+    }
     // listenAt
     else if (parentEl.__subs__)
       return parentEl.__subs__
         .filter(sub => sub.messageType._id === msg._id)
-        .forEach(sub => sub.streamAdd(msg.payload));
+        .forEach(sub => {
+          if (log) console.log('%c' + msg._name, 'color: #FAACF3',
+            'sent locally to', parentEl , 'with payload ', msg.payload);
+          sub.streamAdd(msg.payload);
+        });
 
     parentEl = parentEl.parentElement;
   }
