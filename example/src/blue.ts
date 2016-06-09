@@ -35,7 +35,7 @@ interface State {
 }
 
 function initState() {
-  return merge({ users: [], loading: false }, readGlobalState())
+  return merge({ users: [], loading: true }, readGlobalState())
 }
 
 function readGlobalState() {
@@ -73,16 +73,14 @@ function getUserData(messages: Messages): [Stream<string[]>, Stream<boolean>] {
     ).delay(2000)
   }
 
-  const refreshes = messages.listen(RefreshSelect).startWith(undefined).multicast()
+  const refreshes = messages.listen(RefreshSelect).multicast()
   const userData = refreshes
     .map(getSomeUsers)
+    .startWith(getSomeUsers())
     .switch()
     .multicast()
 
-  const loading = most.merge(
-    refreshes.map(_ => true),
-    userData.map(_ => false)
-  )
+  const loading = most.merge(refreshes.constant(true), userData.constant(false))
 
   return [userData, loading]
 }
@@ -92,8 +90,14 @@ function render(props: void, state: State) {
 
   return h('div#blue', [
     h('h1', 'Blue screen'),
-    h('a', { attrs: { href: router.link('app.blue.green', { id }), 'data-nav': 'mousedown' } }, 'Green'),
-    h('a', { attrs: { href: router.link('app.blue.red', { id }), 'data-nav': 'mousedown' } }, 'Red'),
+    h('a', { attrs: {
+      href: router.link('app.blue.green', { id }),
+      'data-nav': 'mousedown'
+    } }, 'Green'),
+    h('a', {
+      attrs: { href: router.link('app.blue.red', { id }),
+      'data-nav': 'mousedown'
+    } }, 'Red'),
     h('div.increment', [
       'Count: ' + state.count,
       h('button', { events: { onClick: Increment } }, 'Increment')
