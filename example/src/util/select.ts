@@ -56,14 +56,16 @@ function render(props: Props<any>, state: State) {
   const text = (!loading && items.indexOf(selectedItem) > -1) ? selectedItem : ''
   const dropdownEl = getDropdownEl(items, opened, loading)
 
-  return h('div.select', [
-    h('input', {
-      events: { onClick: Open, onBlur: Close },
-      props: { value: text },
-      attrs: { readonly: true, placeholder: 'click me' }
-    }),
-    dropdownEl
-  ])
+  return (
+    h('div.select', [
+      h('input', {
+        events: { onClick: Open, onBlur: Close },
+        props: { value: text },
+        attrs: { readonly: true, placeholder: 'click me' }
+      }),
+      dropdownEl
+    ])
+  )
 }
 
 function getDropdownEl(items: Array<any>, opened: boolean, loading: boolean) {

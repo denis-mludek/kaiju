@@ -43,11 +43,13 @@ function connect({ on, props, messages }: ConnectParams<Props, {}>) {
 function render(props: Props) {
   const { content } = props
 
-  return h('div', {
-    content,
-    attrs: { 'data-popup': true },
-    hook: { insert, postpatch, destroy }
-  })
+  return (
+    h('div', {
+      content,
+      attrs: { 'data-popup': true },
+      hook: { insert, postpatch, destroy }
+    })
+  )
 }
 
 function insert(vnode: Vnode) {
@@ -77,9 +79,11 @@ function destroy(vnode: Vnode) {
 }
 
 function popupWithContent(content: Array<Vnode>) {
-  return h('div.overlay', { hook: animationHook, events: { onClick: OverlayClick } }, [
-    h('div.popup', content)
-  ])
+  return (
+    h('div.overlay', { hook: animationHook, events: { onClick: OverlayClick } }, [
+      h('div.popup', content)
+    ])
+  )
 }
 
 const animationHook = {

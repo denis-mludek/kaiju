@@ -84,22 +84,21 @@ function getUserData(messages: Messages): [Stream<string[]>, Stream<boolean>] {
 function render(props: void, state: State) {
   const { id, route } = state
 
-  return h('div#blue', [
-    h('h1', 'Blue screen'),
-    h('a', { attrs: {
-      href: router.link('app.blue.green', { id }),
-      'data-nav': 'mousedown'
-    } }, 'Green'),
-    h('a', {
-      attrs: { href: router.link('app.blue.red', { id }),
-      'data-nav': 'mousedown'
-    } }, 'Red'),
-    h('div.increment', [
-      'Count: ' + state.count,
-      h('button', { events: { onClick: Increment } }, 'Increment')
-    ]),
-    contentAnimation('section', getChildren(state))
-  ])
+  const greenHref = router.link('app.blue.green', { id })
+  const redHref = router.link('app.blue.red', { id })
+
+  return (
+    h('div#blue', [
+      h('h1', 'Blue screen'),
+      h('a', { attrs: { href: greenHref, 'data-nav': 'mousedown' } }, 'Green'),
+      h('a', { attrs: { href: redHref, 'data-nav': 'mousedown' } }, 'Red'),
+      h('div.increment', [
+        'Count: ' + state.count,
+        h('button', { events: { onClick: Increment } }, 'Increment')
+      ]),
+      contentAnimation('section', getChildren(state))
+    ])
+  )
 }
 
 function getChildren(state: State) {

@@ -58,26 +58,30 @@ function render(props: void, state: State) {
 
   const popupEl = popupOpened ? helloPopup() : ''
 
-  return h('div#green', [
-    `Green (route id = ${id})`,
-    h('form', [
-      input('firstName', firstName),
-      input('lastName', lastName)
-    ]),
-    h('button', { events: { onClick: ShowPopup } }, 'Open popup'),
-    popupEl
-  ])
+  return (
+    h('div#green', [
+      `Green (route id = ${id})`,
+      h('form', [
+        input('firstName', firstName),
+        input('lastName', lastName)
+      ]),
+      h('button', { events: { onClick: ShowPopup } }, 'Open popup'),
+      popupEl
+    ])
+  )
 }
 
 function input(name: string, value: string) {
-  return h('label', [
-    name,
-    h('input', {
-      props: { name },
-      forceProps: { value },
-      events: { onInput: InputChanged }
-    })
-  ])
+  return (
+    h('label', [
+      name,
+      h('input', {
+        props: { name },
+        forceProps: { value },
+        events: { onInput: InputChanged }
+      })
+    ])
+  )
 }
 
 function helloPopup() {
