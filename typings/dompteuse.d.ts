@@ -39,8 +39,14 @@ export var log: {
 
 // Messages & Events
 
-export type NoArgMessage = () => MessagePayload<void>;
-export type Message<P> = (payload: P) => MessagePayload<P>;
+export interface NoArgMessage {
+  (): MessagePayload<void>;
+}
+
+export interface Message<P> {
+  (payload: P): MessagePayload<P>;
+  with(payload: P): [Message<P>, P]
+}
 
 export function Message(name: string): NoArgMessage;
 export function Message<P>(name: string): Message<P>;
@@ -53,7 +59,9 @@ interface MessagePayload<P> {
 
 interface Messages {
   listen<P>(message: Message<P>): Stream<P>;
+  listen(message: NoArgMessage): Stream<void>;
   listenAt<P>(selector: string, message: Message<P>): Stream<P>;
+  listenAt(selector: string, message: NoArgMessage): Stream<void>;
   send<P>(payload: MessagePayload<P>): void;
 }
 
@@ -88,10 +96,13 @@ export type PatchFunction = (target: Element | Vnode, vnode: Vnode) => Vnode;
 
 export var snabbdom: { init: (modules: any[]) => PatchFunction };
 
+
+type EventHandler = NoArgMessage | Message<Event> | [ Message<any>, any ]
+
 interface VnodeData {
 	[s: string]: any;
   hook?: Hooks;
-	events?: { [s: string]: NoArgMessage | Message<Event> };
+	events?: { [s: string]: EventHandler };
 }
 
 export interface Vnode {

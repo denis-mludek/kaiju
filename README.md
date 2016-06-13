@@ -228,6 +228,12 @@ const SomeMessage = Message<Event>('someMessage')
 
 // Send a message to the enclosing component on click
 h('div', { events: { onClick: SomeMessage } })
+
+// Or prepare the message to be sent with an argument.
+// This is more efficient than creating a closure on every render.
+const AnotherMessage = Message<{x: number}>('anotherMessage')
+
+h('div', { events: { onClick: AnotherMessage.with({ x: 3 }) } })
 ```
 
 ## startApp

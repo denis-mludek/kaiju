@@ -14,6 +14,8 @@ export default function Message(name) {
   message._name = name;
   message._isMessage = true;
 
+  message.with = payload => [message, payload];
+
   // Allows Actions to be used as Object keys with the correct behavior
   message.toString = () => _id;
 

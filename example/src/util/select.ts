@@ -85,12 +85,7 @@ function getDropdownEl(items: Array<any>, opened: boolean, loading: boolean) {
 }
 
 function renderItem(item: any) {
-
-  function onMouseDown(evt: Event) {
-    return ItemSelected(item)
-  }
-
-  return h('li', { events: { onMouseDown } }, item)
+  return h('li', { events: { onMouseDown: ItemSelected.with(item) } }, String(item))
 }
 
 const animationHook = {

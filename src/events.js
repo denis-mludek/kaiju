@@ -17,8 +17,8 @@ function updateEventListeners(oldVnode, vnode) {
 
     if (old !== current)
       vnode.elm[name.toLowerCase()] = function(evt) {
-        const payload = current(evt);
-        _sendToNode(evt.target, payload);
+        const [msg, arg] = Array.isArray(current) ? current : [current, evt];
+        _sendToNode(evt.target, msg(arg));
       };
   }
 
