@@ -1,37 +1,26 @@
 import update from 'immupdate'
 import { Component, h, Message, ConnectParams, Vnode } from 'dompteuse'
-import { Stream } from 'most'
 
 import { TweenLite } from './gsap'
 import { merge } from './obj'
 
 
 export default function<T>(props?: Props<T>) {
-  return Component({
-    key: 'select',
-    props,
-    defaultProps,
-    initState,
-    connect,
-    render
-  })
+  return Component<Props<T>, State>({ key: 'select', props, defaultProps, initState, connect, render })
 }
-
-
-const Open = Message('open')
-const Close = Message('close')
-const ItemSelected = Message<any>('itemSelected')
 
 
 interface Props<T> {
   items: Array<T>
   selectedItem: T
-  onChange: Function
+  onChange: Message<T>
+  itemRenderer?: (item: T) => string
   loading: boolean
 }
 
 const defaultProps: any = {
-  items: []
+  items: [],
+  itemRenderer: (item: any) => item.toString()
 }
 
 interface State {
@@ -42,19 +31,25 @@ function initState() {
   return { opened: false }
 }
 
-function connect({ on, props, messages }: ConnectParams<Props<any>, State>) {
+
+const Open = Message('Open')
+const Close = Message('Close')
+const ItemSelected = Message<any>('ItemSelected')
+
+
+function connect({ on, props, msg }: ConnectParams<Props<any>, State>) {
   on(Open, state => merge(state, { opened: true }))
   on(Close, state => merge(state, { opened: false }))
-
-  on(ItemSelected, (state, item) => messages.send(props().onChange(item)))
+  on(ItemSelected, (state, item) => msg.sendToParent(props().onChange(item)))
 }
 
+
 function render(props: Props<any>, state: State) {
-  const { items, selectedItem, loading } = props
+  const { items, selectedItem, loading, itemRenderer } = props
   const { opened } = state
 
   const text = (!loading && items.indexOf(selectedItem) > -1) ? selectedItem : ''
-  const dropdownEl = getDropdownEl(items, opened, loading)
+  const dropdownEl = getDropdownEl(props, opened)
 
   return (
     h('div.select', [
@@ -68,9 +63,11 @@ function render(props: Props<any>, state: State) {
   )
 }
 
-function getDropdownEl(items: Array<any>, opened: boolean, loading: boolean) {
+function getDropdownEl(props: Props<any>, opened: boolean) {
+  const { items, itemRenderer, loading } = props
+
   const itemEls = opened && !loading
-    ? items.map(renderItem)
+    ? items.map(itemRenderer).map(renderItem)
     : undefined
 
   const loaderEl = opened && loading
@@ -85,7 +82,7 @@ function getDropdownEl(items: Array<any>, opened: boolean, loading: boolean) {
 }
 
 function renderItem(item: any) {
-  return h('li', { events: { onMouseDown: ItemSelected.with(item) } }, String(item))
+  return h('li', { events: { onMouseDown: ItemSelected.with(item) } }, item)
 }
 
 const animationHook = {

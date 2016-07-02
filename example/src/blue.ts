@@ -1,28 +1,19 @@
 import { api as router } from 'abyssa'
-import { Component, h, ConnectParams, Message, Messages } from 'dompteuse'
-import * as most from 'most'
-import { Stream } from 'most'
+import { Component, h, ConnectParams, Message, Messages, Observable } from 'dompteuse'
+import mergeObs from 'dompteuse/lib/observable/merge'
 
 import { contentAnimation } from './util/animation'
 import green from './green'
-import appState, { incrementBlue } from './appState'
+import appStore, { AppState, IncrementBlue } from './appStore'
 import { merge } from './util/obj'
 import select from './util/select'
+import observeAjax from './util/ajax'
+import * as promise from './util/promise'
 
 
 export default function() {
-  return Component({
-    key: 'blue',
-    initState,
-    connect,
-    render
-  })
+  return Component<void, State>({ key: 'blue', initState, connect, render })
 }
-
-
-const Increment = Message('increment')
-const UserChange = Message<string>('userChange')
-const RefreshSelect = Message('refreshSelectList')
 
 
 interface State {
@@ -35,51 +26,61 @@ interface State {
 }
 
 function initState() {
-  return merge({ users: [], loading: true }, readGlobalState())
+  return mergeGlobalState({
+    users: [],
+    loading: false,
+    selectedUser: undefined
+  }, appStore.state())
 }
 
-function readGlobalState() {
-  return {
-    count: appState.value.blue.count,
-    route: appState.value.route.fullName,
-    id: appState.value.route.params['id']
-  }
+function mergeGlobalState<S>(partialState: S, appState: AppState) {
+  return merge(partialState, {
+    count: appState.blue.count,
+    route: appState.route.fullName,
+    id: appState.route.params['id']
+  })
 }
 
-function connect({ on, messages }: ConnectParams<void, State>) {
-  on(Increment, _ => appState.send(incrementBlue()))
 
-  on(appState, state => merge(state, readGlobalState()))
+const Increment = Message('Increment')
+const UserChange = Message<string>('UserChange')
+const RefreshSelect = Message('RefreshSelect')
+
+
+function connect({ on, props, msg }: ConnectParams<void, State>) {
+
+  on(Increment, _ => appStore.send(IncrementBlue()))
+
+  on(appStore.state, mergeGlobalState)
 
   on(UserChange, (state, user) => merge(state, { selectedUser: user }))
 
-  const [userData, loading] = getUserData(messages)
-  on(userData, (state, users) => merge(state, { users }))
-  on(loading, (state, loading) => merge(state, { loading }))
+  const ajax = observeAjax({
+    name: 'Users',
+    callNow: true,
+    trigger: msg.listen(RefreshSelect),
+    ajax: getUserData
+  })
+
+  on(ajax.data, (state, users) => merge(state, { users }))
+
+  on(ajax.error, (state, err) => merge(state, { users: [] }))
+
+  on(ajax.loading, (state, loading) => merge(state, { loading }))
 }
 
-function getUserData(messages: Messages): [Stream<string[]>, Stream<boolean>] {
-
-  function getSomeUsers() {
-    interface User {
-      name: { first: string, last: string }
-    }
-
-    return most.fromPromise(fetch('https://randomuser.me/api/?results=10')
-      .then(res => res.json())
-      .then(json => (json.results as Array<User>).map((user: any) =>
-        `${user.name.first} ${user.name.last}`)
-      )
-    ).delay(2000)
+function getUserData() {
+  interface User {
+    name: { first: string, last: string }
   }
 
-  const refreshes = messages.listen(RefreshSelect)
-  const userData = refreshes.map(getSomeUsers).startWith(getSomeUsers()).switch().multicast()
-
-  const loading = most.merge(refreshes.constant(true), userData.constant(false))
-
-  return [userData, loading]
+  return promise.delay(2000).then(x => fetch('https://randomuser.me/api/?results=10')
+    .then(res => res.json())
+    .then(json => (json.results as Array<User>).map(user =>
+      `${user.name.first} ${user.name.last}`)
+    ))
 }
+
 
 function render(props: void, state: State) {
   const { id, route } = state

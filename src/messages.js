@@ -1,95 +1,82 @@
-import most from 'most';
 
-import log from './log';
+import Observable from './observable'
 
 
-export default function Messages(componentDestruction) {
-  this.componentDestruction = componentDestruction;
-};
+export default function Messages() {}
 
 Messages.prototype.listen = function(messageType) {
-  this.subs = this.subs || [];
+  this.subs = this.subs || []
 
-  return most.create(add => {
+  return Observable.create(add => {
     const sub = {
       messageType,
-      streamAdd: add
-    };
+      observableAdd: add
+    }
 
-    this.subs.push(sub);
+    this.subs.push(sub)
 
     return () => {
-      this.subs.splice(this.subs.indexOf(sub), 1);
+      this.subs.splice(this.subs.indexOf(sub), 1)
     }
-  })
-  .until(this.componentDestruction);
-};
+  }).named(messageType._name)
+}
 
 Messages.prototype.listenAt = function(nodeSelector, messageType) {
-  return most.create(add => {
-    const el = document.querySelector(nodeSelector);
-    if (!el) return;
+  return Observable.create(add => {
+    const el = document.querySelector(nodeSelector)
+    if (!el) return
 
-    el.__subs__ = el.__subs__ || [];
-    const subs = el.__subs__;
+    el.__subs__ = el.__subs__ || []
+    const subs = el.__subs__
     const sub = {
       messageType,
-      streamAdd: add
+      observableAdd: add
     }
 
-    subs.push(sub);
+    subs.push(sub)
 
     return () => {
-      subs.splice(subs.indexOf(sub), 1);
-      if (subs.length === 0) el.__subs__ = undefined;
+      subs.splice(subs.indexOf(sub), 1)
+      if (subs.length === 0) el.__subs__ = undefined
     }
-  })
-  .until(this.componentDestruction);
-};
+  }).named(messageType._name)
+}
 
 Messages.prototype.send = function(msg) {
-  if (!this.el)
-    throw new Error('Messages.send cannot be called synchronously in connect()');
+  this._receive(msg)
+}
 
-  _sendToNode(this.el, msg);
-};
+Messages.prototype.sendToParent = function(msg) {
+  if (!this.el) throw new Error('Messages.send cannot be called synchronously in connect()')
+  _sendToElement(this.el.parentElement, msg)
+}
 
 Messages.prototype._activate = function(el) {
-  this.el = el;
-};
+  this.el = el
+}
 
 Messages.prototype._receive = function(msg) {
-  const subs = this.subs;
-  if (!subs) return;
+  const subs = this.subs
+  if (!subs) return
 
   for (let i = 0; i < subs.length; i++) {
-    const sub = subs[i];
+    const sub = subs[i]
     if (sub.messageType._id === msg._id)
-      sub.streamAdd(msg.payload);
+      sub.observableAdd(msg.payload)
   }
-};
+}
 
-export function _sendToNode(node, msg) {
-  let parentEl = node.parentElement;
-
-  while (parentEl) {
+export function _sendToElement(el, msg) {
+  while (el) {
     // Classic component's listen
-    if (parentEl.__comp__) {
-      if (log) console.log('%c' + msg._name, 'color: #FAACF3',
-        'sent locally to', parentEl , 'with payload ', msg.payload);
-
-      return parentEl.__comp__.messages._receive(msg);
-    }
+    if (el.__comp__)
+      return el.__comp__.messages._receive(msg)
     // listenAt
-    else if (parentEl.__subs__)
-      return parentEl.__subs__
+    else if (el.__subs__)
+      return el.__subs__
         .filter(sub => sub.messageType._id === msg._id)
-        .forEach(sub => {
-          if (log) console.log('%c' + msg._name, 'color: #FAACF3',
-            'sent locally to', parentEl , 'with payload ', msg.payload);
-          sub.streamAdd(msg.payload);
-        });
+        .forEach(sub => sub.observableAdd(msg.payload))
 
-    parentEl = parentEl.parentElement;
+    el = el.parentElement
   }
-};
+}

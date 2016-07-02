@@ -1,3 +1,4 @@
 import { log } from 'dompteuse'
 
-log.render = log.stream = true
+log.render = true
+log.message = true

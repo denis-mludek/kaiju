@@ -1,23 +1,15 @@
 import { Component, h, Message, ConnectParams } from 'dompteuse'
 import update from 'immupdate'
-import { Stream } from 'most'
 
-import appState from './appState'
+import appStore from './appStore'
 import { merge } from './util/obj'
 import popup, * as Popup from './util/popup'
 
 
 export default function() {
-  return Component({
-    key: 'green',
-    initState,
-    connect,
-    render
-  })
+  return Component({ key: 'green', initState, connect, render })
 }
 
-const InputChanged = Message<Event>('inputChanged')
-const ShowPopup = Message('showPopup')
 
 interface State {
   id: string
@@ -27,30 +19,34 @@ interface State {
 
 function initState() {
   return {
-    id: appState.value.route.params['id'],
+    id: appStore.state().route.params['id'],
     form: {},
     popupOpened: false
   }
 }
 
-function connect({ on, messages }: ConnectParams<void, State>) {
 
-  const formUpdate = messages.listen(InputChanged).map(evt => {
+const InputChanged = Message<Event>('InputChanged')
+const ShowPopup = Message('ShowPopup')
+
+
+function connect({ on }: ConnectParams<void, State>) {
+
+  on(InputChanged, (state, evt) => {
     const { name, value } = evt.target as HTMLInputElement
-    return { [name]: value.substr(0, 4) }
+    const formPatch = { [name]: value.substr(0, 4) }
+
+    update(state, { form: formPatch })
   })
 
-  on(formUpdate, (state, patch) =>
-    update(state, { form: patch })
-  )
-
-  on(appState, (state, appState) =>
+  on(appStore.state, (state, appState) =>
     merge(state, { id: appState.route.params['id'] })
   )
 
   on(ShowPopup, state => merge(state, { popupOpened: true }))
   on(Popup.Close, state => merge(state, { popupOpened: false }))
 }
+
 
 function render(props: void, state: State) {
   const { id, form, popupOpened } = state

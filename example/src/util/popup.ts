@@ -1,44 +1,43 @@
 
-import { h, Component, Vnode, Message, ConnectParams, patch } from 'dompteuse'
+import { h, Component, Vnode, Message, NoArgMessage, ConnectParams, patch } from 'dompteuse'
 import { TweenLite } from './gsap'
 import { findParentByClass } from './dom'
 
 
+// Popups are rendered in their own top-level container for clean separation of layers.
 let popupContainer = document.getElementById('popups')
-
-export const Close = Message('close')
-const OverlayClick = Message<Event>('OverlayClick')
 
 interface Props {
   content: Array<Vnode>
-  onClose: Function
+  onClose: NoArgMessage
 }
 
 export default function(props: Props) {
-  return Component({
-    key: 'popup',
-    props,
-    initState,
-    connect,
-    render
-  })
+  return Component<Props, void>({ key: 'popup', props, initState, connect, render })
 }
 
 function initState() {
   return {}
 }
 
+
+export const Close = Message('Close')
+const OverlayClick = Message<Event>('OverlayClick')
+
+
 // Listen for messages inside the popup container, and redispatch at the Popup launcher level.
-function connect({ on, props, messages }: ConnectParams<Props, {}>) {
+function connect({ on, props, msg }: ConnectParams<Props, void>) {
 
-  messages.listenAt('#popups', Close).forEach(_ =>
-    messages.send(props().onClose()))
+  on(msg.listenAt('#popups', Close), () => {
+    msg.sendToParent(props().onClose())
+  })
 
-  messages.listenAt('#popups', OverlayClick).forEach(evt => {
+  on(msg.listenAt('#popups', OverlayClick), (state, evt) => {
     if (!findParentByClass('popup', evt.target as Element))
-      messages.send(props().onClose())
+      msg.sendToParent(props().onClose())
   })
 }
+
 
 function render(props: Props) {
   const { content } = props

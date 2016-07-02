@@ -1,16 +1,15 @@
 import { api as router } from 'abyssa'
 import { Component, h, ConnectParams } from 'dompteuse'
-import { Stream } from 'most'
 
-import appState, { incrementBlue } from './appState'
+import appStore, { IncrementBlue } from './appStore'
 import { contentAnimation } from './util/animation'
 import index from './index'
 import blue from './blue'
 
 
-export default Component({
+export default Component<void, State>({
   key: 'app',
-  initState: readGlobalState,
+  initState,
   connect,
   render
 })
@@ -22,14 +21,20 @@ interface State {
 
 function readGlobalState() {
   return {
-    count: appState.value.blue.count,
-    route: appState.value.route.fullName
+    count: appStore.state().blue.count,
+    route: appStore.state().route.fullName
   }
 }
 
-function connect({ on }: ConnectParams<void, State>) {
-  on(appState, readGlobalState)
+function initState() {
+  return readGlobalState()
 }
+
+
+function connect({ on }: ConnectParams<void, State>) {
+  on(appStore.state, readGlobalState)
+}
+
 
 function render(props: void, state: State) {
   return h('div', [
@@ -47,4 +52,4 @@ function getChildren(route: string) {
   if (route.indexOf('app.blue') === 0) return [blue()]
 }
 
-//setInterval(appState.send.bind(null, incrementBlue()), 2500)
+//setInterval(appStore.send.bind(null, IncrementBlue()), 2500)
