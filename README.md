@@ -18,7 +18,6 @@ Fast Virtual DOM components with Reactive updating.
 * [Global stores](#globalStores)
 * [API](#api)
   * [Component](#api-component)
-  * [Global store](#api-globalStore)
   * [h](#api-h)
   * [startApp](#api-startApp)
   * [Message](#api-message)
@@ -45,7 +44,7 @@ A component is simply a function that takes an option object as an argument and 
 
 Note: typescript will be used in the examples, however the library also works just fine with javascript.
 
-Here is the simplest component definition one can write:  
+1) Here is the simplest component definition one can write:  
 
 ```javascript
 import { Component, h } from 'dompteuse'
@@ -65,7 +64,7 @@ function render() {
 
 Now, that isn't terribly useful because we really want our component to be stateful, else we would just use a regular `Vnode` object.
 
-Let's add some state, and make it change over time:  
+2) Let's add some state, and make it change over time:  
 
 
 ```javascript
@@ -132,7 +131,9 @@ Now, the state is only updated if we stopped clicking for 1 second.
 
 
 Our component now has an internal state and we know how to update it. But it's also completely opaque from the outside!  
-In a tree of `Vnodes`, parents must be able to influence the rendering of their children. For that purpose, we introduce props:
+In a tree of `Vnodes`, parents must be able to influence the rendering of their children.
+
+3) For that purpose, we introduce props:
 
 ```javascript
 import { Component, h, Message, ConnectParams } from 'dompteuse'
@@ -180,7 +181,8 @@ directly set the paragraph text of the `p` tag.
 
 When composing components, you must choose which component should own which piece of state. Disregarding global state (which has a use, see [Global store](#globalStores)) for a second, local state can reside in a component or any of its parent hierarchy.
 
-Let's see how we can move the previous button `text` state one level up, so that the component parent can directly set it:  
+
+4) Let's see how we can move the previous button `text` state one level up, so that the component parent can directly set it:  
 
 
 ```javascript
@@ -195,7 +197,7 @@ export default function(props: Props) {
 interface Props {
   text: string
   paragraph: string
-  onClick: Message<void>
+  onClick: Message<Event>
 }
 
 interface State {}
@@ -209,7 +211,7 @@ const Click = Message('Click')
 
 
 function connect({ on, props, msg }: ConnectParams<Props, State>) {
-  on(Click, () => msg.sendToParent(props().onClick()))
+  on(Click, (_, event) => msg.sendToParent(props().onClick(event)))
 }
 
 
@@ -256,7 +258,78 @@ All combinators can be found under `lib/observable`, for instance to import `deb
 import debounce from 'dompteuse/lib/observable/debounce'
 ```
 
-To see observables in action, check the [example's ajax abstraction](https://github.com/AlexGalays/dompteuse/tree/master/example/src/util/ajax.ts) and [its usage](https://github.com/AlexGalays/dompteuse/tree/master/example/src/blue.ts)
+To see observables in action, check the [example's ajax abstraction](https://github.com/AlexGalays/dompteuse/tree/master/example/src/util/ajax.ts) and [its usage](https://github.com/AlexGalays/dompteuse/tree/master/example/src/blue.ts#L58)
+
+<a name="globalStores"></a>
+## Global stores
+
+A construct is provided to easily build push-based global observables in a type-safe manner. This is entirely optional.    
+
+First, a note on local versus global state:  
+
+You typically want to keep very transient state as local as possible so that it remains encapsulated in a component and do not leak up.  
+<br />
+**Example of typical local state**
+* Whether a select dropdown is opened
+* The component has focus
+* Which grid row is highlighted
+* Basically any state that resets if the user navigate away then come back
+
+Additionally, keeping state that is only useful to one screen should be kept inside the top-most component of that screen and no higher.  
+
+That leaves global state, which can be updated from anywhere and is accessed from multiple screens.  
+<br />
+**Example of typical global state**
+* The current route
+* User preferences
+* Any raw domain data that will be mapped/filtered/transformed in the different screens (if you're caching these)
+
+Example:  
+```javascript
+
+import { Message } from 'dompteuse'
+import GlobalStore from 'dompteuse/lib/store'
+import merge from './util/obj/merge' // Fictitious
+
+
+export const setUserName = Message<string>('setUserName')
+
+
+interface UserState {
+  name: string
+}
+
+const initialState = { name: 'bob' }
+
+// This exports a store containing an observable ready to be used in a component's connect function
+export default GlobalStore<UserState>(initialState, on => {
+  on(setUserName, (state, name) =>
+    merge(state, { name })
+  )
+})
+
+// ...
+// Subscribe to it in a component's connect
+import userStore from './userStore'
+
+// Provide an initial value
+function initialState() {
+  return {
+    userName: userStore.state().name
+  }
+}
+
+function connect({ on }: ConnectParams<{}, State>) {
+  on(userStore.state, (state, user) => {
+    // 'Copy' the global user name into our local component state to make it available to `render`
+    return merge(state, { userName: user.name })
+  })
+}
+
+// ...
+// Then anywhere else, import the store and the message
+userStore.send(setUserName('Monique'))
+```
 
 
 <a name="api"></a>
@@ -359,77 +432,6 @@ function render(props: void, state: State) {
 }
 ```
 
-
-<a name="globalStores"></a>
-## Global stores
-
-A construct is provided to easily build push-based global observables in a type-safe manner. This is entirely optional.    
-
-First, a note on local versus global state:  
-
-You typically want to keep very transient state as local as possible so that it remains encapsulated in a component and do not leak up.  
-<br />
-**Example of typical local state**
-* Whether a select dropdown is opened
-* The component has focus
-* Which grid row is highlighted
-* Basically any state that resets if the user navigate away then come back
-
-Additionally, keeping state that is only useful to one screen should be kept inside the top-most component of that screen and no higher.  
-
-That leaves global state, which can be updated from anywhere and is accessed from multiple screens.  
-<br />
-**Example of typical global state**
-* The current route
-* User preferences
-* Any raw domain data that will be mapped/filtered/transformed in the different screens (if you're caching these)
-
-Example:  
-```javascript
-
-import { Message } from 'dompteuse'
-import GlobalStore from 'dompteuse/lib/store'
-import merge from './util/obj/merge' // Fictitious
-
-
-export const setUserName = Message<string>('setUserName')
-
-
-interface UserState {
-  name: string
-}
-
-const initialState = { name: 'bob' }
-
-// This exports a store containing an observable ready to be used in a component's connect function
-export default GlobalStream<UserState>(initialState, on => {
-  on(setUserName, (state, name) =>
-    merge(state, { name })
-  )
-})
-
-// ...
-// Subscribe to it in a component's connect
-import userStore from './userStore'
-
-// Provide an initial value
-function initialState() {
-  return {
-    userName: userStore.state().name
-  }
-}
-
-function connect({ on }: ConnectParams<{}, State>) {
-  on(userStore.state, (state, user) => {
-    // 'Copy' the global user name into our local component state to make it available to `render`
-    return merge(state, { userName: user.name })
-  })
-}
-
-// ...
-// Then anywhere else, import the stream and the message
-userStore.send(setUserName('Monique'))
-```
 
 <a name="api-h"></a>
 ## h
