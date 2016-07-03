@@ -26,4 +26,4 @@ export function partition(results) {
   ]
 }
 
-function isValue(promiseResult) { return 'value' in promiseResult }
+export function isValue(promiseResult) { return 'value' in promiseResult }

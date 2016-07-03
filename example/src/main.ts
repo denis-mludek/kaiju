@@ -5,7 +5,7 @@ import app from './app'
 import forceProps from './util/forceProps'
 
 
-export const snabbdomModules = [
+const snabbdomModules = [
   require('snabbdom/modules/class'),
   require('snabbdom/modules/props'),
   require('snabbdom/modules/attributes'),

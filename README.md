@@ -7,7 +7,7 @@ Fast Virtual DOM components with Reactive updating.
 - Fast, thanks to [snabbdom](https://github.com/paldepind/snabbdom), aggressive component rendering isolation and async RAF rendering
 - Global and local state can optionally use Observables for greater composition
 - No JS `class` / `this` nonsense
-- Tiny size in KB
+- Tiny size in KB (slow-network-friendly, parsed quickly)
 - Comes with useful logs
 - First class support for typescript (very typesafe)
 
@@ -379,8 +379,25 @@ Returning the current state or `undefined` in an `on` handler will skip renderin
 Full interface:
 
 ```javascript
+/**
+ * Registers an Observable<Value> and call the handler function every time the observable has a new value.
+ * The handler is called with the current component state and the new value of the observable.
+ * Returning undefined or the current state in the handler is a no-op.
+ */
 <T>(observable: Observable<T>, handler: (state: S, value: T) => S|void): void
+
+/**
+ * Registers a Message and call the handler function every time the message is sent.
+ * The handler is called with the current component state.
+ * Returning undefined or the current state in the handler is a no-op.
+ */
 (message: NoArgMessage, handler: (state: S) => S|void): void
+
+/**
+ * Registers a Message and call the handler function every time the message is sent.
+ * The handler is called with the current component state and the payload of the message.
+ * Returning undefined or the current state in the handler is a no-op.
+ */
 <P>(message: Message<P>, handler: (state: S, payload: P) => S|void): void
 ```
 
@@ -389,11 +406,33 @@ Full interface:
 Full interface:
 
 ```javascript
+/**
+ * Listens for a message sent from immediate Vnodes or component children
+ */
 listen<P>(message: Message<P>): Observable<P>
-listen(message: NoArgMessage): Observable<void>
+
+/**
+ * Listens for messages bubbling up to a particular DOM node
+ *
+ * Example:
+ * const clicks = msg.listenAt('#page .button', Click)
+ */
 listenAt<P>(selector: string, message: Message<P>): Observable<P>
-listenAt(selector: string, message: NoArgMessage): Observable<void>
+
+/**
+ * Sends a message to self. Note: Messages should not be sent synchronously from an on() handler.
+ *
+ * Example:
+ * msg.send(AjaxSuccess([1, 2]))
+ */
 send<P>(payload: MessagePayload<P>): void
+
+/**
+ * Sends a message to this component's nearest parent.
+ *
+ * Example:
+ * msg.sendToParent(ItemSelected(item))
+ */
 sendToParent<P>(payload: MessagePayload<P>): void
 ```
 
@@ -523,7 +562,9 @@ import { patch } from 'dompteuse'
 
 `dompteuse` has useful logging to help you debug or visualize the data flows.
 
-By default, nothing is logged, but this can be changed:
+![log-example](http://i171.photobucket.com/albums/u320/boubiyeah/Screen%20Shot%202016-07-03%20at%2009.57.40_zpsf3gllchm.png)
+
+By default, nothing is logged, but that can be changed:
 
 ```javascript
 import { log } from 'dompteuse'
@@ -532,11 +573,11 @@ log.render = true
 log.message = true
 ```
 
-Additionally, you can fine tune which component get logged using that component's `key`:
+Additionally, you can specify which component get logged using the component's `key`:
 
 ```javascript
 log.render = 'select'
 log.message = 'popup'
 ```
 
-You will want to change the log values as early as possible in your program.
+You will want to change the log values as early as possible in your program so that no logs are missed.
