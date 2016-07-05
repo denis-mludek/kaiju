@@ -1,6 +1,7 @@
 
 import { h, Component, Vnode, Message, NoArgMessage, ConnectParams, patch } from 'dompteuse'
-import { TweenLite } from './gsap'
+import anime from 'animejs'
+
 import { findParentByClass } from './dom'
 
 
@@ -87,13 +88,35 @@ function popupWithContent(content: Array<Vnode>) {
 
 const animationHook = {
   insert: (vnode: Vnode) => {
-    TweenLite.from(vnode.elm, 0.2, { opacity: 0 })
-    TweenLite.from(vnode.elm.children[0], 0.2, { opacity: 0, y: -20 })
+
+    vnode.elm.style.opacity = '0'
+    anime(vnode.elm, {
+      duration: 200,
+      opacity: [0, 1]
+    })
+
+    const popup = vnode.elm.children[0] as HTMLElement
+    popup.style.opacity = '0'
+    anime(popup, {
+      duration: 200,
+      delay: 200,
+      opacity: [0, 1],
+      translateY: ['-20px', '0px']
+    })
   },
 
   remove: (vnode: Vnode, cb: Function) => {
-    TweenLite.to(vnode.elm, 0.2, { opacity: 0 })
-    TweenLite.to(vnode.elm.children[0], 0.2, { opacity: 0, y: -20 })
-      .eventCallback('onComplete', cb)
+
+    anime(vnode.elm, {
+      duration: 200,
+      opacity: 0
+    })
+
+    anime(vnode.elm.children[0], {
+      duration: 200,
+      opacity: 0,
+      translateY: '-20px',
+      complete: cb
+    })
   }
 }

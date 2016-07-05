@@ -1,6 +1,8 @@
+
 import { h } from 'dompteuse'
-import { TweenLite } from './gsap'
 import { Vnode } from 'dompteuse'
+import anime from 'animejs'
+
 
 /* Container animating its children in and out */
 
@@ -12,7 +14,7 @@ export default function animate(animations: Animations) {
       hook: { prepatch, postpatch }
     }
     return h(sel, props, child)
-  };
+  }
 }
 
 function prepatch(oldVnode: Vnode, newVnode: Vnode) {
@@ -51,17 +53,27 @@ interface Animations {
   remove: (vnode: Vnode, cb: any) => void
 }
 
-const duration = 0.2
+const duration = 200
 const contentAnimations = {
   create: (elm: HTMLElement) => {
     elm.style.display = 'none'
-    TweenLite.from(elm, duration, { opacity: 0, delay: duration + 0.02, overwrite: true })
-      .eventCallback('onStart', () => elm.style.removeProperty('display'))
+
+    anime(elm, {
+      duration: 240,
+      opacity: [0, 1],
+      delay: 120,
+      begin: () => elm.style.removeProperty('display')
+    })
   },
 
   remove: (vnode: Vnode, cb: Function) => {
-    TweenLite.to(vnode.elm, duration, { opacity: 0, overwrite: true })
-      .eventCallback('onComplete', cb)
+
+    anime(vnode.elm, {
+      targets: vnode.elm,
+      duration: 100,
+      opacity: [1, 0],
+      complete: cb
+    })
   }
 };
 

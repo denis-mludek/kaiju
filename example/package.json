@@ -14,7 +14,7 @@
     "snabbdom": "0.4.2",
     "abyssa": "7.2.7",
     "immupdate": "0.2.0",
-    "gsap": "1.18.2"
+    "animejs": "git@github.com:AlexGalays/anime.git#master"
   },
 
   "devDependencies": {

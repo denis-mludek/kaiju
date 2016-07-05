@@ -23,14 +23,12 @@
 		"src/util/animation.ts",
 		"src/util/dom.ts",
 		"src/util/forceProps.ts",
-		"src/util/gsap.ts",
 		"src/util/obj.ts",
 		"src/util/popup.ts",
 		"src/util/promise.ts",
 		"src/util/select.ts",
 		"typings/es6shim.d.ts",
 		"typings/fetch.d.ts",
-		"typings/globals.d.ts",
-		"typings/gsap.d.ts"
+		"typings/globals.d.ts"
 	]
 }

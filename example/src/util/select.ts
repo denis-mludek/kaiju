@@ -1,7 +1,7 @@
 import update from 'immupdate'
 import { Component, h, Message, ConnectParams, Vnode } from 'dompteuse'
+import anime from 'animejs'
 
-import { TweenLite } from './gsap'
 import { merge } from './obj'
 
 
@@ -87,10 +87,22 @@ function renderItem(item: any) {
 
 const animationHook = {
   insert: (vnode: Vnode) => {
-    TweenLite.from(vnode.elm, 0.14, { opacity: 0, y: -10 })
+
+    vnode.elm.style.opacity = '0'
+    anime(vnode.elm, {
+      duration: 140,
+      opacity: [0, 1],
+      translateY: ['-10px', '0px']
+    })
   },
 
   remove: (vnode: Vnode, cb: Function) => {
-    TweenLite.to(vnode.elm, 0.14, { opacity: 0, y: -10 }).eventCallback('onComplete', cb)
+
+    anime(vnode.elm, {
+      duration: 140,
+      opacity: 0,
+      translateY: '-10px',
+      complete: cb
+    })
   }
 }
