@@ -65,7 +65,7 @@ export interface ConnectParams<P, S> {
  * Creates a Vnode that has a Component lifecycle.
  */
 export function Component<P, S>(options: {
-  key: string
+  name: string
   props?: P
   defaultProps?: any // :-(    https://github.com/Microsoft/TypeScript/issues/4889
   initState: (initProps: P) => S
@@ -79,13 +79,13 @@ export var log: {
 
   /**
    * If true, logs all component render timings and props/state at render time.
-   * If a string, logs only the render timings of that component key.
+   * If a string, logs only the render timings of the components with a matching name.
    */
   render: boolean | string
 
   /**
    * If true, logs all component connect() Message/Observable changes.
-   * If a string, logs only the changes of that component key.
+   * If a string, logs only the changes of the components with a matching name.
    */
   message: boolean | string
 }

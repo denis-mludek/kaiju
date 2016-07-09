@@ -50,7 +50,7 @@ Note: typescript will be used in the examples, however the library also works ju
 import { Component, h } from 'dompteuse'
 
 export default function() {
-  return Component({ key: 'Button', initState, connect, render })
+  return Component({ name: 'button', initState, connect, render })
 }
 
 function initState() { return {} }
@@ -73,7 +73,7 @@ import { merge } from './util/object' // Fictitious
 
 
 export default function() {
-  return Component<{}, State>({ key: 'Button', initState, connect, render })
+  return Component<{}, State>({ name: 'button', initState, connect, render })
 }
 
 interface State {
@@ -141,7 +141,7 @@ import { merge } from './util/object' // Fictitious
 
 
 export default function(props: Props) {
-  return Component<{}, State>({ key: 'Button', props, initState, connect, render })
+  return Component<{}, State>({ name: 'button', props, initState, connect, render })
 }
 
 interface Props {
@@ -191,7 +191,7 @@ import { merge } from './util/object' // Fictitious
 
 
 export default function(props: Props) {
-  return Component<{}, State>({ key: 'Button', props, initState, connect, render })
+  return Component<{}, State>({ name: 'button', props, initState, connect, render })
 }
 
 interface Props {
@@ -340,7 +340,7 @@ userStore.send(setUserName('Monique'))
 
 The `Component` factory function takes an object with the following properties:  
 
-### key
+### name
 
 Mandatory `String`  
 This is the standard Virtual DOM `key` used in the diffing algorithm to uniquely identify this `Vnode`.
@@ -573,7 +573,7 @@ log.render = true
 log.message = true
 ```
 
-Additionally, you can specify which component get logged using the component's `key`:
+Additionally, you can specify which component get logged using the component's `name`:
 
 ```javascript
 log.render = 'select'

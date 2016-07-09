@@ -2,13 +2,13 @@ import { api as router } from 'abyssa'
 import { Component, h, ConnectParams } from 'dompteuse'
 
 import appStore, { IncrementBlue } from './appStore'
-import { contentAnimation } from './util/animation'
+import fadeAnimation from './util/animation/fadeAnimation'
 import index from './index'
 import blue from './blue'
 
 
 export default Component<void, State>({
-  key: 'app',
+  name: 'app',
   initState,
   connect,
   render
@@ -43,7 +43,7 @@ function render(props: void, state: State) {
       h('a', { attrs: { href: router.link('app.blue', { id: 33 }), 'data-nav': 'mousedown' } }, 'Blue'),
       String(state.count)
     ]),
-    contentAnimation('main', getChildren(state.route))
+    fadeAnimation('main', getChildren(state.route))
   ]);
 }
 

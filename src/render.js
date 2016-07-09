@@ -66,7 +66,14 @@ function renderComponent(component, checkRenderQueue) {
   if (log.render) beforeRender = performance.now()
   const newVnode = render(props, state)
 
-  patch(vnode || Vnode('div', { key: '_init' }, [], undefined, elm), newVnode)
+  let target = vnode
+  if (!target) {
+    const div = document.createElement('div')
+    elm.appendChild(div)
+    target = Vnode('div', { key: '_init' }, [], undefined, div)
+  }
+
+  patch(target, newVnode)
 
   if (shouldLog(log.render, component.key)) {
     const renderTime = Math.round((performance.now() - beforeRender) * 100) / 100

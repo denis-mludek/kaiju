@@ -9,21 +9,22 @@ import log, { shouldLog } from './log'
 const empty = {}
 
 export default function Component(options) {
-  const { key, props = empty, defaultProps, initState, connect, render } = options
+  const { name, props = empty, defaultProps, initState, connect, render } = options
 
   if (defaultProps)
     Object.keys(defaultProps).forEach(key => {
       if (props[key] === undefined) props[key] = defaultProps[key]})
 
   const compProps = {
-    key,
+    key: name,
     hook: { create, postpatch, destroy },
-    component: { props, initState, connect, render, key }
+    component: { props, initState, connect, render, key: name },
+    attrs: { name }
   }
 
   // An empty placeholder is returned, and that's all our parent is going to see.
   // Each component handles its own internal rendering.
-  return h('div', compProps)
+  return h('component', compProps)
 }
 
 // Called when the component is created but isn't yet attached to the DOM
@@ -43,7 +44,6 @@ function create(_, vnode) {
 
   component.state = initState(props)
   component.elm = vnode.elm
-  component.placeholder = vnode
   component.messages = messages
   component.subscriptions = []
 
@@ -105,8 +105,7 @@ function create(_, vnode) {
   // Create and insert the component's content
   // while its parent is still unattached for better perfs.
   renderComponentSync(component)
-  component.placeholder.elm = component.vnode.elm
-  component.placeholder.elm.__comp__ = component
+  component.vnode.elm.__comp__ = component
 
   // The component is now attached to the document, activate the messages
   messages._activate(component.vnode.elm)
@@ -129,7 +128,6 @@ function postpatch(oldVnode, vnode) {
 
   // Update the original component with any property that may have changed during this render pass
   component.props = newProps
-  component.placeholder = vnode
 
   newData.component = component
 

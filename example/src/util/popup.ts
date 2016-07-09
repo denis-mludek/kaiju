@@ -14,7 +14,7 @@ interface Props {
 }
 
 export default function(props: Props) {
-  return Component<Props, void>({ key: 'popup', props, initState, connect, render })
+  return Component<Props, void>({ name: 'popup', props, initState, connect, render })
 }
 
 function initState() {

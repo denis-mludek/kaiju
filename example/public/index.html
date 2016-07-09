@@ -23,6 +23,10 @@
         margin: 0;
       }
 
+      component {
+        display: block;
+      }
+
       header {
         background: #222;
         padding: 12px;
@@ -50,23 +54,23 @@
         padding: 6px;
       }
 
-      #green, .red, #yellow {
+      component[name=green], .red {
         margin-top: 12px;
         padding: 18px 8px;
         color: #EEE;
       }
 
-      #green, .red {
+      component[name=green], .red {
         border: 1px solid white;
       }
 
-      #blue {
+      component[name=blue] {
         background: #6DBDD6;
         padding: 12px;
         min-height: 400px;
       }
 
-      #green {
+      component[name=green] {
         background: #118C4E;
       }
 
@@ -124,7 +128,7 @@
       }
 
 
-      .select {
+      component[name=select] {
         position: relative;
       }
 
@@ -136,7 +140,7 @@
         color: #444;
       }
 
-      .select .dropdown {
+      component[name=select] .dropdown {
         position: absolute;
         z-index: 10;
         width: 100%;
@@ -148,13 +152,13 @@
         box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
       }
 
-      .select .dropdown li {
+      component[name=select] .dropdown li {
         width: 100%;
         color: #444;
         padding: 4px;
       }
 
-      .select .dropdown li:hover {
+      component[name=select] .dropdown li:hover {
         background: #F0F0F0;
       }
 

@@ -2,7 +2,7 @@ import { api as router } from 'abyssa'
 import { Component, h, ConnectParams, Message, Messages, Observable } from 'dompteuse'
 import mergeObs from 'dompteuse/lib/observable/merge'
 
-import { contentAnimation } from './util/animation'
+import fadeAnimation from './util/animation/fadeAnimation'
 import green from './green'
 import appStore, { AppState, IncrementBlue } from './appStore'
 import { merge } from './util/obj'
@@ -12,7 +12,7 @@ import * as promise from './util/promise'
 
 
 export default function() {
-  return Component<void, State>({ key: 'blue', initState, connect, render })
+  return Component<void, State>({ name: 'blue', initState, connect, render })
 }
 
 
@@ -89,7 +89,7 @@ function render(props: void, state: State) {
   const redHref = router.link('app.blue.red', { id })
 
   return (
-    h('div#blue', [
+    h('div', [
       h('h1', 'Blue screen'),
       h('a', { attrs: { href: greenHref, 'data-nav': 'mousedown' } }, 'Green'),
       h('a', { attrs: { href: redHref, 'data-nav': 'mousedown' } }, 'Red'),
@@ -97,7 +97,7 @@ function render(props: void, state: State) {
         'Count: ' + state.count,
         h('button', { events: { onClick: Increment } }, 'Increment')
       ]),
-      contentAnimation('section', getChildren(state))
+      fadeAnimation('section', getChildren(state))
     ])
   )
 }

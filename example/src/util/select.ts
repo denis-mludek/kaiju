@@ -6,7 +6,7 @@ import { merge } from './obj'
 
 
 export default function<T>(props?: Props<T>) {
-  return Component<Props<T>, State>({ key: 'select', props, defaultProps, initState, connect, render })
+  return Component<Props<T>, State>({ name: 'select', props, defaultProps, initState, connect, render })
 }
 
 
@@ -52,7 +52,7 @@ function render(props: Props<any>, state: State) {
   const dropdownEl = getDropdownEl(props, opened)
 
   return (
-    h('div.select', [
+    h('div', [
       h('input', {
         events: { onClick: Open, onBlur: Close },
         props: { value: text },

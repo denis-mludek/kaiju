@@ -7,7 +7,7 @@ import popup, * as Popup from './util/popup'
 
 
 export default function() {
-  return Component({ key: 'green', initState, connect, render })
+  return Component({ name: 'green', initState, connect, render })
 }
 
 
@@ -55,7 +55,7 @@ function render(props: void, state: State) {
   const popupEl = popupOpened ? helloPopup() : ''
 
   return (
-    h('div#green', [
+    h('div', [
       `Green (route id = ${id})`,
       h('form', [
         input('firstName', firstName),
