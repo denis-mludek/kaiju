@@ -26,13 +26,13 @@ function initState() {
 }
 
 
-const InputChanged = Message<Event>('InputChanged')
-const ShowPopup = Message('ShowPopup')
+const inputChanged = Message<Event>('inputChanged')
+const showPopup = Message('showPopup')
 
 
 function connect({ on }: ConnectParams<void, State>) {
 
-  on(InputChanged, (state, evt) => {
+  on(inputChanged, (state, evt) => {
     const { name, value } = evt.target as HTMLInputElement
     const formPatch = { [name]: value.substr(0, 4) }
 
@@ -43,8 +43,8 @@ function connect({ on }: ConnectParams<void, State>) {
     merge(state, { id: appState.route.params['id'] })
   )
 
-  on(ShowPopup, state => merge(state, { popupOpened: true }))
-  on(Popup.Close, state => merge(state, { popupOpened: false }))
+  on(showPopup, state => merge(state, { popupOpened: true }))
+  on(Popup.close, state => merge(state, { popupOpened: false }))
 }
 
 
@@ -61,7 +61,7 @@ function render(props: void, state: State) {
         input('firstName', firstName),
         input('lastName', lastName)
       ]),
-      h('button', { events: { onClick: ShowPopup } }, 'Open popup'),
+      h('button', { events: { onClick: showPopup } }, 'Open popup'),
       popupEl
     ])
   )
@@ -74,7 +74,7 @@ function input(name: string, value: string) {
       h('input', {
         props: { name },
         forceProps: { value },
-        events: { onInput: InputChanged }
+        events: { onInput: inputChanged }
       })
     ])
   )
@@ -83,8 +83,8 @@ function input(name: string, value: string) {
 function helloPopup() {
   const content = [
     h('h2', 'Hello'),
-    h('button', { events: { onClick: Popup.Close } }, 'Close')
+    h('button', { events: { onClick: Popup.close } }, 'Close')
   ]
 
-  return popup({ content, onClose: Popup.Close })
+  return popup({ content, onClose: Popup.close })
 }

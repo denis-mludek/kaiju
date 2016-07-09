@@ -42,23 +42,23 @@ function mergeGlobalState<S>(partialState: S, appState: AppState) {
 }
 
 
-const Increment = Message('Increment')
-const UserChange = Message<string>('UserChange')
-const RefreshSelect = Message('RefreshSelect')
+const increment = Message('increment')
+const userChange = Message<string>('userChange')
+const refreshSelect = Message('refreshSelect')
 
 
 function connect({ on, props, msg }: ConnectParams<void, State>) {
 
-  on(Increment, _ => appStore.send(IncrementBlue()))
+  on(increment, _ => appStore.send(IncrementBlue()))
 
   on(appStore.state, mergeGlobalState)
 
-  on(UserChange, (state, user) => merge(state, { selectedUser: user }))
+  on(userChange, (state, user) => merge(state, { selectedUser: user }))
 
   const ajax = observeAjax({
-    name: 'Users',
+    name: 'users',
     callNow: true,
-    trigger: msg.listen(RefreshSelect),
+    trigger: msg.listen(refreshSelect),
     ajax: getUserData
   })
 
@@ -95,7 +95,7 @@ function render(props: void, state: State) {
       h('a', { attrs: { href: redHref, 'data-nav': 'mousedown' } }, 'Red'),
       h('div.increment', [
         'Count: ' + state.count,
-        h('button', { events: { onClick: Increment } }, 'Increment')
+        h('button', { events: { onClick: increment } }, 'Increment')
       ]),
       fadeAnimation('section', getChildren(state))
     ])
@@ -109,12 +109,12 @@ function getChildren(state: State) {
   if (route === 'app.blue.green') return [green()]
   if (route === 'app.blue.red') return [
     h('div.red', { key: 'red' }, [
-      h('button', { events: { onClick: RefreshSelect } }, 'Refresh select list'),
+      h('button', { events: { onClick: refreshSelect } }, 'Refresh select list'),
       h('br'),
       select({
         items: users,
         selectedItem: selectedUser,
-        onChange: UserChange,
+        onChange: userChange,
         loading
       })
     ])

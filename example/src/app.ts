@@ -7,12 +7,8 @@ import index from './index'
 import blue from './blue'
 
 
-export default Component<void, State>({
-  name: 'app',
-  initState,
-  connect,
-  render
-})
+export default Component<void, State>({ name: 'app', initState, connect, render })
+
 
 interface State {
   count: number

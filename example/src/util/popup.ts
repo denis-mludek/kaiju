@@ -22,18 +22,18 @@ function initState() {
 }
 
 
-export const Close = Message('Close')
-const OverlayClick = Message<Event>('OverlayClick')
+export const close = Message('close')
+const overlayClick = Message<Event>('overlayClick')
 
 
 // Listen for messages inside the popup container, and redispatch at the Popup launcher level.
 function connect({ on, props, msg }: ConnectParams<Props, void>) {
 
-  on(msg.listenAt('#popups', Close), () => {
+  on(msg.listenAt('#popups', close), () => {
     msg.sendToParent(props().onClose())
   })
 
-  on(msg.listenAt('#popups', OverlayClick), (state, evt) => {
+  on(msg.listenAt('#popups', overlayClick), (state, evt) => {
     if (!findParentByClass('popup', evt.target as Element))
       msg.sendToParent(props().onClose())
   })
@@ -80,7 +80,7 @@ function destroy(vnode: Vnode) {
 
 function popupWithContent(content: Array<Vnode>) {
   return (
-    h('div.overlay', { hook: animationHook, events: { onClick: OverlayClick } }, [
+    h('div.overlay', { hook: animationHook, events: { onClick: overlayClick } }, [
       h('div.popup', content)
     ])
   )
@@ -88,7 +88,6 @@ function popupWithContent(content: Array<Vnode>) {
 
 const animationHook = {
   insert: (vnode: Vnode) => {
-
     vnode.elm.style.opacity = '0'
     anime(vnode.elm, {
       duration: 200,
@@ -106,7 +105,6 @@ const animationHook = {
   },
 
   remove: (vnode: Vnode, cb: Function) => {
-
     anime(vnode.elm, {
       duration: 200,
       opacity: 0

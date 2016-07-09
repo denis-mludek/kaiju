@@ -32,15 +32,15 @@ function initState() {
 }
 
 
-const Open = Message('Open')
-const Close = Message('Close')
-const ItemSelected = Message<any>('ItemSelected')
+const open = Message('open')
+const close = Message('close')
+const itemSelected = Message<any>('itemSelected')
 
 
 function connect({ on, props, msg }: ConnectParams<Props<any>, State>) {
-  on(Open, state => merge(state, { opened: true }))
-  on(Close, state => merge(state, { opened: false }))
-  on(ItemSelected, (state, item) => msg.sendToParent(props().onChange(item)))
+  on(open, state => merge(state, { opened: true }))
+  on(close, state => merge(state, { opened: false }))
+  on(itemSelected, (state, item) => msg.sendToParent(props().onChange(item)))
 }
 
 
@@ -54,7 +54,7 @@ function render(props: Props<any>, state: State) {
   return (
     h('div', [
       h('input', {
-        events: { onClick: Open, onBlur: Close },
+        events: { onClick: open, onBlur: close },
         props: { value: text },
         attrs: { readonly: true, placeholder: 'click me' }
       }),
@@ -82,7 +82,7 @@ function getDropdownEl(props: Props<any>, opened: boolean) {
 }
 
 function renderItem(item: any) {
-  return h('li', { events: { onMouseDown: ItemSelected.with(item) } }, item)
+  return h('li', { events: { onMouseDown: itemSelected.with(item) } }, item)
 }
 
 const animationHook = {
