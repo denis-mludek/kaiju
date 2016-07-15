@@ -118,7 +118,7 @@ every time the message is sent.
 This is very useful because observables can be composed easily:  
 
 ```javascript
-import debounce from 'dompteuse/lib/observable/debounce'
+import debounce from 'dompteuse/observable/debounce'
 
 function connect({ on, msg }: ConnectParams<{}, State>) {
   const clicks = debounce(1000, msg.listen(Click))
@@ -256,7 +256,7 @@ The characteristics of this observable implementation are:
 All combinators can be found under `lib/observable`, for instance to import `debounce`:
 
 ```javascript
-import debounce from 'dompteuse/lib/observable/debounce'
+import debounce from 'dompteuse/observable/debounce'
 ```
 
 To see observables in action, check the [example's ajax abstraction](https://github.com/AlexGalays/dompteuse/tree/master/example/src/util/ajax.ts) and [its usage](https://github.com/AlexGalays/dompteuse/tree/master/example/src/blue.ts#L58)
@@ -289,7 +289,7 @@ Example:
 ```javascript
 
 import { Message } from 'dompteuse'
-import GlobalStore from 'dompteuse/lib/store'
+import GlobalStore from 'dompteuse/store'
 import merge from './util/obj/merge' // Fictitious
 
 
@@ -357,7 +357,7 @@ Note 1: props and state are separated exactly like in `React` as it works great.
 Note 2: If you wish to compute some state based on whether some part of the props changed (similar to using `componentWillReceiveProps` in react) you can use the sliding2 combinator:  
 
 ```javascript
-import { sliding2 } from 'dompteuse/lib/observable/sliding'
+import { sliding2 } from 'dompteuse/observable/sliding'
 
 on(sliding2(props), (state, [newProps, oldProps]) => ...)
 ```

@@ -1,6 +1,6 @@
 
 import Observable from '../observable'
-import log from '../log'
+import log from '../lib/log'
 
 
 /*

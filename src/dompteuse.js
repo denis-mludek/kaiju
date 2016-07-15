@@ -2,11 +2,11 @@
 import snabbdom from 'snabbdom'
 import h from 'snabbdom/h'
 
-import Render, { renderApp } from './render'
-import Component from './component'
-import Message from './message'
-import { snabbdomModule } from './events'
-import log from './log'
+import Render, { renderApp } from './lib/render'
+import Component from './lib/component'
+import Message from './lib/message'
+import { snabbdomModule } from './lib/events'
+import log from './lib/log'
 
 
 function startApp({ app, elm, snabbdomModules }) {
@@ -23,8 +23,6 @@ export {
   startApp,
   log,
   patch,
-
-  // Proxied for convenient typesafety
   snabbdom,
   h
 }

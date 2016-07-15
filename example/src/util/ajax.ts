@@ -1,10 +1,10 @@
 
-import { Observable } from 'dompteuse/lib/observable'
-import flatMapLatest from 'dompteuse/lib/observable/flatMapLatest'
-import pure from 'dompteuse/lib/observable/pure'
-import fromPromise, { partition } from 'dompteuse/lib/observable/fromPromise'
-import map from 'dompteuse/lib/observable/map'
-import merge from 'dompteuse/lib/observable/merge'
+import { Observable } from 'dompteuse/observable'
+import flatMapLatest from 'dompteuse/observable/flatMapLatest'
+import pure from 'dompteuse/observable/pure'
+import fromPromise, { partition } from 'dompteuse/observable/fromPromise'
+import map from 'dompteuse/observable/map'
+import merge from 'dompteuse/observable/merge'
 
 
 interface Options<A, B> {

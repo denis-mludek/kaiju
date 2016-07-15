@@ -1,3 +1,8 @@
 .DS_Store
 node_modules
+
+observable
+store
 lib
+dompteuse.js
+dompteuse.d.ts

@@ -1,8 +1,8 @@
 {
   "name": "dompteuse",
-  "version": "0.5.1",
-  "main": "lib/dompteuse",
-  "typings": "lib/dompteuse.d.ts",
+  "version": "0.6.1",
+  "main": "dompteuse",
+  "typings": "dompteuse.d.ts",
   "description": "Virtual dom, observables / streams and isolated components",
   "keywords": ["virtual dom", "vdom", "model", "stream", "observable", "component", "framework"],
   "homepage": "https://github.com/AlexGalays/dompteuse/",
@@ -26,10 +26,20 @@
   },
 
   "scripts": {
-    "copy-typings": "cd src && find . -name '*.d.ts' | cpio -pdm ../lib",
-    "babel": "node node_modules/babel-cli/bin/babel.js src --out-dir lib",
-    "copy-lib-to-example": "cp -rf lib example/node_modules/dompteuse",
-    "build": "npm run copy-typings && npm run babel",
-    "example-dev": "npm run build && npm run copy-lib-to-example"
-  }
+    "copy-typings": "cd src && find . -name '*.d.ts' | cpio -pdm ../temp",
+    "babel": "node node_modules/babel-cli/bin/babel.js src --out-dir temp",
+    "copy-lib-to-root": "cp -r temp/. .",
+    "copy-lib-to-example": "cp -rf temp/. example/node_modules/dompteuse",
+    "delete-temp-folder": "rm -rf temp",
+    "build": "npm run copy-typings && npm run babel && npm run copy-lib-to-root && npm run delete-temp-folder",
+    "example-dev": "npm run copy-typings && npm run babel && npm run copy-lib-to-root && npm run copy-lib-to-example && npm run delete-temp-folder"
+  },
+
+  "files": [
+    "observable",
+    "store",
+    "lib",
+    "dompteuse.js",
+    "dompteuse.d.ts"
+  ]
 }

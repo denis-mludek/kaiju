@@ -1,5 +1,5 @@
 
-import log from '../log'
+import log from '../lib/log'
 
 
 function create(activate) {
