@@ -13,13 +13,17 @@
 		"src/dompteuse.d.ts",
 		"src/observable/debounce/index.d.ts",
 		"src/observable/delay/index.d.ts",
+		"src/observable/filter/index.d.ts",
 		"src/observable/flatMapLatest/index.d.ts",
 		"src/observable/fromPromise/index.d.ts",
 		"src/observable/index.d.ts",
+		"src/observable/interval/index.d.ts",
 		"src/observable/map/index.d.ts",
 		"src/observable/merge/index.d.ts",
 		"src/observable/partition/index.d.ts",
 		"src/observable/pure/index.d.ts",
+		"src/observable/sliding/index.d.ts",
+		"src/observable/throttle/index.d.ts",
 		"src/store/index.d.ts"
 	]
 }

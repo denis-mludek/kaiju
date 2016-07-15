@@ -50,7 +50,7 @@ export default function GlobalStore(initialState, registerHandlers) {
         add(newState)
       }
     }
-  }, { replay: false }).named('GlobalStateChanged')
+  }).named('GlobalStateChanged')
 
   // Subscribe forever
   store.state.subscribe(x => x)

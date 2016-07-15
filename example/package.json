@@ -10,9 +10,9 @@
 
   "dependencies": {
     "typescript": "1.8.7",
-    "dompteuse": "0.5.0",
+    "dompteuse": "0.5.1",
     "snabbdom": "0.4.2",
-    "abyssa": "7.2.7",
+    "abyssa": "7.2.10",
     "immupdate": "0.2.0",
     "animejs": "git@github.com:AlexGalays/anime.git#master"
   },

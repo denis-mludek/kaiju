@@ -2,10 +2,7 @@
 import log from '../log'
 
 
-function create(activate, options) {
-  if (!options) options = { replay: true }
-
-  const replay = options.replay
+function create(activate) {
   const subscribers = []
 
   let unsubscribe
@@ -26,7 +23,7 @@ function create(activate, options) {
 
     subscribers.push(cb)
 
-    if (replay && lastValue !== UNSET)
+    if (lastValue !== UNSET)
       cb(lastValue, _name || lastName)
 
     return function _unsubscribe() {

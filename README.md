@@ -250,7 +250,8 @@ The characteristics of this observable implementation are:
 * No error handling/swallowing: No need for it since this observable implementation is synchronous
 * No notion of an observable's end/completion for simplicity sake and since we have just two kinds of observables: never ending ones, and ones that are tied to a component's lifecycle
 * Lazy resource management: An observable only activate if there is at least one subscriber
-* If the observable already hold a value, any subscribe function will be called immediately upon registration (two exceptions being Global stores and props observables)
+* If the observable already hold a value, any subscribe function will be called immediately upon registration
+
 
 All combinators can be found under `lib/observable`, for instance to import `debounce`:
 
@@ -352,7 +353,15 @@ Optional `Object`
 An object representing all the properties passed by our parent.
 Typically props either represent state that is maintained outside the component or properties used to tweak the component's behavior.  
 The `render` function will be called if the props object changed shallowly (any of its property references changed), hence it's a good practice to use a flat object.
-Note: props and state are separated exactly like in `React` as it works great. The same design best practices apply.
+Note 1: props and state are separated exactly like in `React` as it works great. The same design best practices apply.
+Note 2: If you wish to compute some state based on whether some part of the props changed (similar to using `componentWillReceiveProps` in react) you can use the sliding2 combinator:  
+
+```javascript
+import { sliding2 } from 'dompteuse/lib/observable/sliding'
+
+on(sliding2(props), (state, [newProps, oldProps]) => ...)
+```
+
 
 ### defaultProps
 

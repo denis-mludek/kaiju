@@ -50,7 +50,7 @@ function create(_, vnode) {
   const propsObservable = Observable.create(add => {
     add(component.props)
     component.lifecycle.propsChanged = add
-  }, { replay: false }).named('props')
+  }).named('props')
 
   // Eagerly subscribe so that the observable get its first value and we honour
   // the ObservableWithInitialValue interface contract.
@@ -66,7 +66,8 @@ function create(_, vnode) {
     const unsubscribe = observable.subscribe((val, name) => {
       const oldState = component.state
 
-      if (shouldLog(log.message, component.key))
+      // Do not log synchronous observable changes inside connect()
+      if (connected && shouldLog(log.message, component.key))
         console.log(`%c${name} %creceived by %c${component.key}`,
           'color: #C963C1', 'color: black',
           'font-weight: bold', 'with payload', val)

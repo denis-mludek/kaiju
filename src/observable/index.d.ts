@@ -36,9 +36,6 @@ export interface ObservableObject {
    *
    * This function must return a function that will be called when the last subscriber unregisters itself from the observable.
    * Use this as an opportunity to clean up the observable.
-   *
-   * An option object may also be passed to tweak the observable behavior.
-   *   replay: Whether the observable should immediately push its current value to a new subscriber.
    */
-  create: <T>(add: (val: T) => () => void, options?: { replay?: boolean }) => Observable<T>
+  create: <T>(add: (val: T) => () => void) => Observable<T>
 }
