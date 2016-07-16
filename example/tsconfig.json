@@ -1,7 +1,8 @@
 {
 	"compilerOptions": {
 		"target": "es5",
-		"noImplicitAny": true
+		"noImplicitAny": true,
+		"strictNullChecks": true
 	},
 	"compileOnSave": false,
 	"atom": {

@@ -6,7 +6,7 @@ import { findParentByClass } from './dom'
 
 
 // Popups are rendered in their own top-level container for clean separation of layers.
-let popupContainer = document.getElementById('popups')
+let popupContainer = document.getElementById('popups')!
 
 interface Props {
   content: Array<Vnode>

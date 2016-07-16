@@ -5,8 +5,8 @@ import anime from 'animejs'
 import { merge } from './obj'
 
 
-export default function<T>(props?: Props<T>) {
-  return Component<Props<T>, State>({ name: 'select', props, defaultProps, initState, connect, render })
+export default function<T>(props: Props<T>) {
+  return Component<Props<T>, State>({ name: 'select', props, initState, connect, render })
 }
 
 
@@ -16,11 +16,6 @@ interface Props<T> {
   onChange: Message<T>
   itemRenderer?: (item: T) => string
   loading: boolean
-}
-
-const defaultProps: any = {
-  items: [],
-  itemRenderer: (item: any) => item.toString()
 }
 
 interface State {
@@ -45,7 +40,7 @@ function connect({ on, props, msg }: ConnectParams<Props<any>, State>) {
 
 
 function render(props: Props<any>, state: State) {
-  const { items, selectedItem, loading, itemRenderer } = props
+  const { items, selectedItem, loading } = props
   const { opened } = state
 
   const text = (!loading && items.indexOf(selectedItem) > -1) ? selectedItem : ''
@@ -64,7 +59,9 @@ function render(props: Props<any>, state: State) {
 }
 
 function getDropdownEl(props: Props<any>, opened: boolean) {
-  const { items, itemRenderer, loading } = props
+  const { items, loading } = props
+
+  const itemRenderer = props.itemRenderer || ((item: any) => item.toString())
 
   const itemEls = opened && !loading
     ? items.map(itemRenderer).map(renderItem)

@@ -21,7 +21,7 @@ interface State {
   route: string
   id: string
   users: Array<string>
-  selectedUser: string
+  selectedUser?: string
   loading: boolean
 }
 
@@ -119,4 +119,5 @@ function getChildren(state: State) {
       })
     ])
   ]
+  return []
 }

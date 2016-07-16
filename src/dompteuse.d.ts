@@ -67,7 +67,6 @@ export interface ConnectParams<P, S> {
 export function Component<P, S>(options: {
   name: string
   props?: P
-  defaultProps?: any // :-(    https://github.com/Microsoft/TypeScript/issues/4889
   initState: (initProps: P) => S
   connect: (params: ConnectParams<P, S>) => void
   render: (props: P, state: S) => Vnode
@@ -198,7 +197,7 @@ export interface Vnode {
   data: VnodeData
   children?: Array<Vnode>
   text?: string
-  elm?: HTMLElement
+  elm: HTMLElement
   key?: string
 }
 

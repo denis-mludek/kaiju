@@ -46,6 +46,8 @@ function render(props: void, state: State) {
 function getChildren(route: string) {
   if (route === 'app.index') return [index()]
   if (route.indexOf('app.blue') === 0) return [blue()]
+  return []
 }
+
 
 //setInterval(appStore.send.bind(null, IncrementBlue()), 2500)

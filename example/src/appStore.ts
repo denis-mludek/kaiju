@@ -27,9 +27,6 @@ const router = Router({
 .configure({ urlSync: 'hash' })
 .init()
 
-router.transition.on('ended', state => store.send(RouteChanged(state)))
-
-
 const initState: AppState = {
   route: router.current(),
   blue: { count: 0 }
@@ -44,5 +41,8 @@ const store = GlobalStore<AppState>(initState, on => {
     update(state, { route })
   )
 })
+
+router.transition.on('ended', state => store.send(RouteChanged(state)))
+
 
 export default store

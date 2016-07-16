@@ -21,12 +21,15 @@ export default function animate(animations: Animations) {
 function prepatch(oldVnode: Vnode, newVnode: Vnode) {
   const animations = newVnode.data['animations'] as Animations
 
-  const oldKeys = Set(oldVnode.children.map(c => c.key))
-  const newKeys = Set(newVnode.children.map(c => c.key))
+  const oldChildren = oldVnode.children || []
+  const newChildren = newVnode.children || []
+
+  const oldKeys = Set(oldChildren.map(c => c.key || ''))
+  const newKeys = Set(newChildren.map(c => c.key || ''))
 
   // children making an exit
-  oldVnode.children.forEach(child => {
-    if (newKeys[child.key]) return
+  oldChildren.forEach(child => {
+    if (newKeys[child.key || '']) return
 
     child.data.hook = child.data.hook || {}
 
@@ -38,8 +41,8 @@ function prepatch(oldVnode: Vnode, newVnode: Vnode) {
   })
 
   // children making an entrance
-  newVnode.children.forEach(child => {
-    if (oldKeys[child.key]) return
+  newChildren.forEach(child => {
+    if (oldKeys[child.key || '']) return
 
     child.data.hook = child.data.hook || {}
 
