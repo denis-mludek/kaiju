@@ -1,10 +1,13 @@
+require('./layout.styl')
+
 import { api as router } from 'abyssa'
 import { Component, h, ConnectParams } from 'dompteuse'
 
-import appStore, { IncrementBlue } from './appStore'
-import fadeAnimation from './util/animation/fadeAnimation'
-import index from './index'
-import blue from './blue'
+import appStore, { IncrementBlue } from '../appStore'
+import fadeAnimation from '../util/animation/fadeAnimation'
+import link from '../widget/link'
+import index from '../index'
+import blue from '../blue'
 
 
 export default Component<void, State>({ name: 'app', initState, connect, render })
@@ -35,12 +38,12 @@ function connect({ on }: ConnectParams<void, State>) {
 function render(props: void, state: State) {
   return h('div', [
     h('header', [
-      h('a', { attrs: { href: router.link('app.index'), 'data-nav': 'mousedown' } }, 'Index'),
-      h('a', { attrs: { href: router.link('app.blue', { id: 33 }), 'data-nav': 'mousedown' } }, 'Blue'),
+      link({ href: router.link('app.index'), label: 'Index' }),
+      link({ href: router.link('app.blue', { id: 33 }), label: 'Blue' }),
       String(state.count)
     ]),
     fadeAnimation('main', getChildren(state.route))
-  ]);
+  ])
 }
 
 function getChildren(route: string) {

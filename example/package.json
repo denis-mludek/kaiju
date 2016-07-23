@@ -4,8 +4,8 @@
   "private": true,
 
   "scripts": {
-    "build": "webpack -p --config conf/build.js",
-    "watch": "webpack --watch --config conf/watch.js"
+    "build": "webpack -p --config build/prod.js",
+    "watch": "webpack --watch --config build/watch.js"
   },
 
   "dependencies": {
@@ -18,8 +18,14 @@
   },
 
   "devDependencies": {
-    "webpack": "1.12.11",
+    "webpack": "1.13.1",
     "ts-loader": "0.7.2",
-    "imports-loader": "0.6.5"
+    "css-loader": "0.23.1",
+    "style-loader": "0.12.3",
+    "stylus-loader": "2.1.1",
+    "stylus": "0.54.5",
+    "extract-text-webpack-plugin": "1.0.1",
+    "typed-css-modules-loader": "0.0.3",
+    "typed-css-modules": "0.1.10"
   }
 }

@@ -1,4 +1,3 @@
-
 import { Observable } from 'dompteuse/observable'
 import flatMapLatest from 'dompteuse/observable/flatMapLatest'
 import pure from 'dompteuse/observable/pure'

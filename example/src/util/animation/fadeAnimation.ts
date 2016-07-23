@@ -1,8 +1,6 @@
 import { Vnode } from 'dompteuse'
 import anime from 'animejs'
-
 import animate from './animation'
-
 
 
 const fadeAnimations = {

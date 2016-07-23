@@ -1,14 +1,17 @@
+import * as styles from './blue.styl'
+
 import { api as router } from 'abyssa'
 import { Component, h, ConnectParams, Message, Messages, Observable } from 'dompteuse'
 import mergeObs from 'dompteuse/observable/merge'
 
-import fadeAnimation from './util/animation/fadeAnimation'
+import fadeAnimation from '../util/animation/fadeAnimation'
 import green from './green'
-import appStore, { AppState, IncrementBlue } from './appStore'
-import { merge } from './util/obj'
-import select from './util/select'
-import observeAjax from './util/ajax'
-import * as promise from './util/promise'
+import appStore, { AppState, IncrementBlue } from '../appStore'
+import { merge } from '../util/obj'
+import select from '../widget/select'
+import link from '../widget/link'
+import observeAjax from '../util/ajax'
+import * as promise from '../util/promise'
 
 
 export default function() {
@@ -91,9 +94,9 @@ function render(props: void, state: State) {
   return (
     h('div', [
       h('h1', 'Blue screen'),
-      h('a', { attrs: { href: greenHref, 'data-nav': 'mousedown' } }, 'Green'),
-      h('a', { attrs: { href: redHref, 'data-nav': 'mousedown' } }, 'Red'),
-      h('div.increment', [
+      link({ href: greenHref, label: 'Green' }),
+      link({ href: redHref, label: 'Red' }),
+      h('div', { props: { className: styles.increment } }, [
         'Count: ' + state.count,
         h('button', { events: { onClick: increment } }, 'Increment')
       ]),
@@ -108,7 +111,7 @@ function getChildren(state: State) {
   if (route === 'app.blue') return [h('span', 'I am blue')]
   if (route === 'app.blue.green') return [green()]
   if (route === 'app.blue.red') return [
-    h('div.red', { key: 'red' }, [
+    h('div', { key: 'red', props: { className: styles.red } }, [
       h('button', { events: { onClick: refreshSelect } }, 'Refresh select list'),
       h('br'),
       select({

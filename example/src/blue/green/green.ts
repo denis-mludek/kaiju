@@ -1,9 +1,12 @@
+import * as styles from './green.styl'
+
+styles
+
 import { Component, h, Message, ConnectParams } from 'dompteuse'
 import update from 'immupdate'
-
-import appStore from './appStore'
-import { merge } from './util/obj'
-import popup, * as Popup from './util/popup'
+import appStore from '../../appStore'
+import { merge } from '../../util/obj'
+import popup, * as Popup from '../../widget/popup'
 
 
 export default function() {

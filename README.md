@@ -362,12 +362,6 @@ import { sliding2 } from 'dompteuse/observable/sliding'
 on(sliding2(props), (state, [newProps, oldProps]) => ...)
 ```
 
-
-### defaultProps
-
-Optional `Object` (upper type of props)  
-An object with some of the prop keys that should be used if the parent do not specify all the props keys.
-
 ### initState
 
 Mandatory `Object`  

@@ -1,8 +1,8 @@
+const styles = require('./popup.styl')
 
 import { h, Component, Vnode, Message, NoArgMessage, ConnectParams, patch } from 'dompteuse'
 import anime from 'animejs'
-
-import { findParentByClass } from './dom'
+import { findParentByAttr } from '../../util/dom'
 
 
 // Popups are rendered in their own top-level container for clean separation of layers.
@@ -34,7 +34,7 @@ function connect({ on, props, msg }: ConnectParams<Props, void>) {
   })
 
   on(msg.listenAt('#popups', overlayClick), (state, evt) => {
-    if (!findParentByClass('popup', evt.target as Element))
+    if (!findParentByAttr('data-popup', evt.target as Element))
       msg.sendToParent(props().onClose())
   })
 }
@@ -46,7 +46,6 @@ function render(props: Props) {
   return (
     h('div', {
       content,
-      attrs: { 'data-popup': true },
       hook: { insert, postpatch, destroy }
     })
   )
@@ -80,8 +79,17 @@ function destroy(vnode: Vnode) {
 
 function popupWithContent(content: Array<Vnode>) {
   return (
-    h('div.overlay', { hook: animationHook, events: { onClick: overlayClick } }, [
-      h('div.popup', content)
+    h('div', {
+      key: 'popup-content',
+      props: { className: styles.overlay },
+      hook: animationHook,
+      events: { onClick: overlayClick } }, [
+
+      h('div', {
+        props: { className: styles.popup },
+        attrs: { 'data-popup': true }
+      }, content)
+
     ])
   )
 }

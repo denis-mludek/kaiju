@@ -1,6 +1,7 @@
 import './logger'
 
 import { startApp } from 'dompteuse'
+
 import app from './app'
 import forceProps from './util/forceProps'
 

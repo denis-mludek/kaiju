@@ -1,8 +1,9 @@
-
 import { Vnode } from 'dompteuse'
 
-// Update the element properties even if the vnode value did not change (but the Element's value did)
+
+// Updates the element properties even if the vnode value did not change (but the Element's value did)
 // https://github.com/paldepind/snabbdom/issues/53
+// Mostly useful when trying to force-prevent-default by writing back.
 
 function updateProps(oldVnode: Vnode, vnode: Vnode) {
   let key: string

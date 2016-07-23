@@ -1,8 +1,9 @@
+const styles = require('./select.styl')
+
 import update from 'immupdate'
 import { Component, h, Message, ConnectParams, Vnode } from 'dompteuse'
 import anime from 'animejs'
-
-import { merge } from './obj'
+import { merge } from '../../util/obj'
 
 
 export default function<T>(props: Props<T>) {
@@ -74,7 +75,7 @@ function getDropdownEl(props: Props<any>, opened: boolean) {
   const dropdownEls = itemEls || loaderEl
 
   return dropdownEls
-    ? h('ul.dropdown', { hook: animationHook }, dropdownEls)
+    ? h('ul', { props: { className: styles.dropdown }, hook: animationHook }, dropdownEls)
     : ''
 }
 

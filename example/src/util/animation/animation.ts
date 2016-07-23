@@ -1,7 +1,4 @@
-
-import { h } from 'dompteuse'
-import { Vnode } from 'dompteuse'
-
+import { h, Vnode } from 'dompteuse'
 import { Set } from '../obj'
 
 

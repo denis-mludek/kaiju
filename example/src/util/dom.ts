@@ -1,7 +1,7 @@
 
-export function findParentByClass(className: string, from: Element) {
-  while (from && from.classList) {
-    if (from.classList.contains(className)) return from
+export function findParentByAttr(attr: string, from: Element) {
+  while (from && from.getAttribute) {
+    if (from.getAttribute(attr)) return from
     from = from.parentElement
   }
 }
