@@ -29,6 +29,6 @@ module.exports = {
   devtool: 'inline-source-map',
 
   plugins: [
-    new ExtractTextPlugin('style.css'),
+    new ExtractTextPlugin('style.css')
   ]
 }

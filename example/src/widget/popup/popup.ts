@@ -1,4 +1,4 @@
-const styles = require('./popup.styl')
+import * as styles from './popup.styl'
 
 import { h, Component, Vnode, Message, NoArgMessage, ConnectParams, patch } from 'dompteuse'
 import anime from 'animejs'

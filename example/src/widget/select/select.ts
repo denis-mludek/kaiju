@@ -1,4 +1,4 @@
-const styles = require('./select.styl')
+import * as styles from './select.styl'
 
 import update from 'immupdate'
 import { Component, h, Message, ConnectParams, Vnode } from 'dompteuse'

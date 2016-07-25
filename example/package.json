@@ -5,7 +5,8 @@
 
   "scripts": {
     "build": "webpack -p --config build/prod.js",
-    "watch": "webpack --watch --config build/watch.js"
+    "watch": "webpack --watch --config build/watch.js",
+    "watch-sync": "browser-sync start --files \"public/**\" --proxy localhost:8000 & npm run watch"
   },
 
   "dependencies": {

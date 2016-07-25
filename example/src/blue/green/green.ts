@@ -1,6 +1,4 @@
-import * as styles from './green.styl'
-
-styles
+require('./green.styl')
 
 import { Component, h, Message, ConnectParams } from 'dompteuse'
 import update from 'immupdate'
