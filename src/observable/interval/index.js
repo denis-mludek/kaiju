@@ -1,9 +1,9 @@
 
-import Observable from '../'
+import Observable from '../create'
 
 
 export default function interval(time) {
-  return Observable.create(add => {
+  return Observable(add => {
     const intervalId = setInterval(add, time)
     return () => clearInterval(intervalId)
   })

@@ -1,9 +1,9 @@
 
-import Observable from '../'
+import Observable from '../create'
 
 
 export default function debounce(wait, source) {
-  return Observable.create(add => {
+  return Observable(add => {
     const debouncedAdd = debounceFunction(wait, add)
     const unsubscribe = source.subscribe(debouncedAdd)
 

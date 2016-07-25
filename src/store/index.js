@@ -1,5 +1,4 @@
-
-import Observable from '../observable'
+import Observable from '../observable/create'
 import log from '../lib/log'
 
 
@@ -16,7 +15,7 @@ export default function GlobalStore(initialState, registerHandlers) {
   const on = (msg, fn) => { handlers[msg._id] = fn }
   registerHandlers(on)
 
-  store.state = Observable.create(add => {
+  store.state = Observable(add => {
     add(initialState)
 
     store.send = function(message) {

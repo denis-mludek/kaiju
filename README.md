@@ -261,6 +261,16 @@ import debounce from 'dompteuse/observable/debounce'
 
 To see observables in action, check the [example's ajax abstraction](https://github.com/AlexGalays/dompteuse/tree/master/example/src/util/ajax.ts) and [its usage](https://github.com/AlexGalays/dompteuse/tree/master/example/src/blue.ts#L58)
 
+
+## Bulk importing
+
+If you are using a module bundler that can do tree shaking when working with ES6 modules or simply don't care about the (small) extra size, you can import all observable related operators with one import statement:  
+
+```javascript
+import { create, debounce, delay } from 'dompteuse/observable'
+```
+
+
 <a name="globalStores"></a>
 ## Global stores
 

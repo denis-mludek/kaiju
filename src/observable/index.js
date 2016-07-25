@@ -1,66 +1,15 @@
 
-import log from '../lib/log'
+export { default as create } from './create'
 
-
-function create(activate) {
-  const subscribers = []
-
-  let unsubscribe
-  let lastValue = UNSET
-  let lastName
-  let _name
-
-  function add(val, name) {
-    lastValue = val
-    lastName = name
-    pushNewValue(val, subscribers, _name || name)
-  }
-
-  function subscribe(cb) {
-    // The first subscriber activate the observable (laziness)
-    if (subscribers.length === 0)
-      unsubscribe = activate(add)
-
-    subscribers.push(cb)
-
-    if (lastValue !== UNSET)
-      cb(lastValue, _name || lastName)
-
-    return function _unsubscribe() {
-      const index = subscribers.indexOf(cb)
-
-      if (index > -1) {
-        subscribers.splice(index, 1)
-
-        if (subscribers.length === 0)
-          unsubscribe && unsubscribe()
-      }
-    }
-  }
-
-  const observable = function() {
-    return (lastValue === UNSET ? undefined : lastValue)
-  }
-
-  observable.subscribe = subscribe
-
-  observable.named = name => {
-    _name = name
-    return observable
-  }
-
-  return observable
-}
-
-function pushNewValue(value, subscribers, name) {
-  for (let i = 0; i < subscribers.length; i++) {
-    subscribers[i](value, name)
-  }
-}
-
-// Marker
-const UNSET = {}
-
-const Observable = { create }
-
-export default Observable
+export { default as debounce } from './debounce'
+export { default as delay } from './delay'
+export { default as filter } from './filter'
+export { default as flatMapLatest } from './flatMapLatest'
+export { default as fromPromise } from './fromPromise'
+export { default as interval } from './interval'
+export { default as map } from './map'
+export { default as merge } from './merge'
+export { default as partition } from './partition'
+export { default as pure } from './pure'
+export { default as sliding } from './sliding'
+export { default as throttle } from './throttle'

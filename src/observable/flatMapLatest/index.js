@@ -1,9 +1,9 @@
 
-import Observable from '../'
+import Observable from '../create'
 
 
 export default function flatMapLatest(mapper, source) {
-  return Observable.create(add => {
+  return Observable(add => {
     let currentUnsub
 
     const unsubSource = source.subscribe(val => {

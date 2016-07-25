@@ -1,7 +1,7 @@
 
-import Observable from '../'
+import Observable from '../create'
 
 
 export default function pure(value) {
-  return Observable.create(add => add(value)).named('pure')
+  return Observable(add => add(value)).named('pure')
 }

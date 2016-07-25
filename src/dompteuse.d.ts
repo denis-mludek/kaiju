@@ -25,8 +25,7 @@ export function startApp<S>(options: {
 
 // Observables
 
-import { ObservableObject, Observable, ObservableWithInitialValue } from './observable'
-export var Observable: ObservableObject
+import { Observable, ObservableWithInitialValue } from './observable'
 
 
 // Components

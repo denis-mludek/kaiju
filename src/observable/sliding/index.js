@@ -1,5 +1,5 @@
 
-import Observable from '../'
+import Observable from '../create'
 
 
 export function sliding2(source) {
@@ -9,7 +9,7 @@ export function sliding2(source) {
 export default function sliding(size, source) {
   let window = []
 
-  return Observable.create(add => {
+  return Observable(add => {
     return source.subscribe((val, name) => {
       window = [val].concat(window)
       window = window.slice(0, size)

@@ -1,9 +1,9 @@
 
-import Observable from '../'
+import Observable from '../create'
 
 
 export default function throttle(wait, source) {
-  return Observable.create(add => {
+  return Observable(add => {
     const throttledAdd = throttleFunction(wait, add)
     const unsubscribe = source.subscribe(throttledAdd)
 

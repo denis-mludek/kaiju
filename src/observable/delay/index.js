@@ -1,9 +1,9 @@
 
-import Observable from '../'
+import Observable from '../create'
 
 
 export default function delay(delayValue, source) {
-  return Observable.create(add => {
+  return Observable(add => {
     const currentTimeouts = []
 
     const unsubSource = source.subscribe((val, name) => {

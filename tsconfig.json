@@ -11,6 +11,7 @@
 	],
 	"files": [
 		"src/dompteuse.d.ts",
+		"src/observable/create.d.ts",
 		"src/observable/debounce/index.d.ts",
 		"src/observable/delay/index.d.ts",
 		"src/observable/filter/index.d.ts",

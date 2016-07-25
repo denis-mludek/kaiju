@@ -1,11 +1,11 @@
 
-import Observable from '../'
+import Observable from '../create'
 import genericPartition from '../partition'
 import map from '../map'
 
 
 export default function fromPromise(promise) {
-  return Observable.create(add => {
+  return Observable(add => {
     let active = true
 
     promise.then(
