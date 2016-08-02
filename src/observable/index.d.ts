@@ -3,6 +3,7 @@ import debounce from './debounce'
 import delay from './delay'
 import filter from './filter'
 import flatMapLatest from './flatMapLatest'
+import fromEvent from './fromEvent'
 import fromPromise from './fromPromise'
 import interval from './interval'
 import map from './map'
@@ -20,6 +21,7 @@ export {
   delay,
   filter,
   flatMapLatest,
+  fromEvent,
   fromPromise,
   interval,
   map,

@@ -16,6 +16,7 @@
 		"src/observable/delay/index.d.ts",
 		"src/observable/filter/index.d.ts",
 		"src/observable/flatMapLatest/index.d.ts",
+		"src/observable/fromEvent/index.d.ts",
 		"src/observable/fromPromise/index.d.ts",
 		"src/observable/index.d.ts",
 		"src/observable/interval/index.d.ts",

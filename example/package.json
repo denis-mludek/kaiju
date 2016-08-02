@@ -11,7 +11,7 @@
 
   "dependencies": {
     "typescript": "beta",
-    "dompteuse": "0.8.0",
+    "dompteuse": "0.8.1",
     "snabbdom": "0.4.2",
     "abyssa": "7.2.10",
     "immupdate": "0.2.0",

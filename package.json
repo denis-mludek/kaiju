@@ -1,6 +1,6 @@
 {
   "name": "dompteuse",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "main": "dompteuse",
   "typings": "dompteuse.d.ts",
   "description": "Virtual dom, observables / streams and isolated components",
