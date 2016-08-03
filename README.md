@@ -1,4 +1,4 @@
-# dompteuse
+# Kaiju
 
 ![© DC Comics](http://i171.photobucket.com/albums/u320/boubiyeah/Original_Catwoman_Design_zpsokgquwmu.jpg)
 
@@ -23,12 +23,12 @@ Fast Virtual DOM components with Reactive updating.
   * [Message](#api-message)
   * [patch](#api-patch)
   * [logging](#api-logging)
-* [Full TS Example](https://github.com/AlexGalays/dompteuse/tree/master/example/src)
+* [Full TS Example](https://github.com/AlexGalays/kaiju/tree/master/example/src)
 
 <a name="componentization"></a>
 # Components: step by step guide
 
-`dompteuse` adds the concept of encapsulated components to `snabbdom`'s pure functional virtual dom.  
+`kaiju` adds the concept of encapsulated components to `snabbdom`'s pure functional virtual dom.  
 Standard Virtual nodes and components are composed to build a `Vnode` tree that can scale in size and complexity.
 A `Vnode` is what you get when calling `snabbdom`'s `h` function for instance.
 
@@ -47,7 +47,7 @@ Note: typescript will be used in the examples, however the library also works ju
 1) Here is the simplest component definition one can write:  
 
 ```javascript
-import { Component, h } from 'dompteuse'
+import { Component, h } from 'kaiju'
 
 export default function() {
   return Component({ name: 'button', initState, connect, render })
@@ -68,7 +68,7 @@ Now, that isn't terribly useful because we really want our component to be state
 
 
 ```javascript
-import { Component, h, Message, ConnectParams } from 'dompteuse'
+import { Component, h, Message, ConnectParams } from 'kaiju'
 import { merge } from './util/object' // Fictitious
 
 
@@ -118,7 +118,7 @@ every time the message is sent.
 This is very useful because observables can be composed easily:  
 
 ```javascript
-import debounce from 'dompteuse/observable/debounce'
+import debounce from 'kaiju/observable/debounce'
 
 function connect({ on, msg }: ConnectParams<{}, State>) {
   const clicks = debounce(1000, msg.listen(Click))
@@ -136,7 +136,7 @@ In a tree of `Vnodes`, parents must be able to influence the rendering of their 
 3) For that purpose, we introduce props:
 
 ```javascript
-import { Component, h, Message, ConnectParams } from 'dompteuse'
+import { Component, h, Message, ConnectParams } from 'kaiju'
 import { merge } from './util/object' // Fictitious
 
 
@@ -186,7 +186,7 @@ When composing components, you must choose which component should own which piec
 
 
 ```javascript
-import { Component, h, Message, ConnectParams } from 'dompteuse'
+import { Component, h, Message, ConnectParams } from 'kaiju'
 import { merge } from './util/object' // Fictitious
 
 
@@ -235,7 +235,7 @@ function returning a `Vnode` or Array of `Vnodes`.
 <a name="observables"></a>
 # Observables
 
-`dompteuse` comes with an implementation of observables (also known as streams) so that components can more easily declare
+`kaiju` comes with an implementation of observables (also known as streams) so that components can more easily declare
 how their state should change based on user input and any other observable changes in the application.  
 
 Observables are an optional abstraction: If you are more confident with just sending messages around, you can do that too.
@@ -256,7 +256,7 @@ The characteristics of this observable implementation are:
 All combinators can be found under `lib/observable`, for instance to import `debounce`:
 
 ```javascript
-import debounce from 'dompteuse/observable/debounce'
+import debounce from 'kaiju/observable/debounce'
 ```
 
 To see observables in action, check the [example's ajax abstraction](https://github.com/AlexGalays/dompteuse/tree/master/example/src/util/ajax.ts) and [its usage](https://github.com/AlexGalays/dompteuse/tree/master/example/src/blue.ts#L58)
@@ -267,7 +267,7 @@ To see observables in action, check the [example's ajax abstraction](https://git
 If you are using a module bundler that can do tree shaking when working with ES6 modules or simply don't care about the (small) extra size, you can import all observable related operators with one import statement:  
 
 ```javascript
-import { create, debounce, delay } from 'dompteuse/observable'
+import { create, debounce, delay } from 'kaiju/observable'
 ```
 
 
@@ -298,8 +298,8 @@ That leaves global state, which can be updated from anywhere and is accessed fro
 Example:  
 ```javascript
 
-import { Message } from 'dompteuse'
-import GlobalStore from 'dompteuse/store'
+import { Message } from 'kaiju'
+import GlobalStore from 'kaiju/store'
 import merge from './util/obj/merge' // Fictitious
 
 
@@ -367,7 +367,7 @@ Note 1: props and state are separated exactly like in `React` as it works great.
 Note 2: If you wish to compute some state based on whether some part of the props changed (similar to using `componentWillReceiveProps` in react) you can use the sliding2 combinator:  
 
 ```javascript
-import { sliding2 } from 'dompteuse/observable/sliding'
+import { sliding2 } from 'kaiju/observable/sliding'
 
 on(sliding2(props), (state, [newProps, oldProps]) => ...)
 ```

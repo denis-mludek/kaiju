@@ -1,6 +1,6 @@
 require('./green.styl')
 
-import { Component, h, Message, ConnectParams } from 'dompteuse'
+import { Component, h, Message, ConnectParams } from 'kaiju'
 import update from 'immupdate'
 import appStore from '../../appStore'
 import { merge } from '../../util/obj'

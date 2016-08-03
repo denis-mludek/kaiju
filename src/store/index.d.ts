@@ -1,5 +1,5 @@
 
-import { Message, NoArgMessage, MessagePayload } from '../dompteuse'
+import { Message, NoArgMessage, MessagePayload } from '../main'
 import { ObservableWithInitialValue, Observable } from '../observable'
 
 

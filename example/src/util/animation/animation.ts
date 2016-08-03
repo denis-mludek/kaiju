@@ -1,4 +1,4 @@
-import { h, Vnode } from 'dompteuse'
+import { h, Vnode } from 'kaiju'
 import { Set } from '../obj'
 
 

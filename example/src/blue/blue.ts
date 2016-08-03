@@ -1,7 +1,7 @@
 import * as styles from './blue.styl'
 
 import { api as router } from 'abyssa'
-import { Component, h, ConnectParams, Message, Messages } from 'dompteuse'
+import { Component, h, ConnectParams, Message, Messages } from 'kaiju'
 
 import fadeAnimation from '../util/animation/fadeAnimation'
 import green from './green'

@@ -4,5 +4,6 @@ node_modules
 /observable
 /store
 /lib
-dompteuse.js
-dompteuse.d.ts
+main.js
+main.d.ts
+*.log

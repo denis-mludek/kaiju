@@ -1,7 +1,7 @@
 require('./layout.styl')
 
 import { api as router } from 'abyssa'
-import { Component, h, ConnectParams } from 'dompteuse'
+import { Component, h, ConnectParams } from 'kaiju'
 
 import appStore, { IncrementBlue } from '../appStore'
 import fadeAnimation from '../util/animation/fadeAnimation'

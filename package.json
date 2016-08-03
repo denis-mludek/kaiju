@@ -1,11 +1,11 @@
 {
-  "name": "dompteuse",
-  "version": "0.8.1",
-  "main": "dompteuse",
-  "typings": "dompteuse.d.ts",
+  "name": "kaiju",
+  "version": "0.9.1",
+  "main": "main",
+  "typings": "main.d.ts",
   "description": "Virtual dom, observables / streams and isolated components",
   "keywords": ["virtual dom", "vdom", "model", "stream", "observable", "component", "framework"],
-  "homepage": "https://github.com/AlexGalays/dompteuse/",
+  "homepage": "https://github.com/AlexGalays/kaiju/",
 
   "author": {
     "name": "Alexandre Galays",
@@ -14,7 +14,7 @@
 
   "repository": {
     "type": "git",
-    "url": "https://github.com/AlexGalays/dompteuse/"
+    "url": "https://github.com/AlexGalays/kaiju/"
   },
 
   "devDependencies": {
@@ -29,7 +29,7 @@
     "copy-typings": "cd src && find . -name '*.d.ts' | cpio -pdm ../temp",
     "babel": "node node_modules/babel-cli/bin/babel.js src --out-dir temp",
     "copy-lib-to-root": "cp -r temp/. .",
-    "copy-lib-to-example": "cp -rf temp/. example/node_modules/dompteuse",
+    "copy-lib-to-example": "cp -rf temp/. example/node_modules/kaiju",
     "delete-temp-folder": "rm -rf temp",
     "build": "npm run copy-typings && npm run babel && npm run copy-lib-to-root && npm run delete-temp-folder",
     "example-dev": "npm run copy-typings && npm run babel && npm run copy-lib-to-root && npm run copy-lib-to-example && npm run delete-temp-folder"
@@ -39,7 +39,7 @@
     "observable",
     "store",
     "lib",
-    "dompteuse.js",
-    "dompteuse.d.ts"
+    "main.js",
+    "main.d.ts"
   ]
 }

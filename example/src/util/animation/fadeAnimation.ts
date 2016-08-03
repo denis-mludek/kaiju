@@ -1,4 +1,4 @@
-import { Vnode } from 'dompteuse'
+import { Vnode } from 'kaiju'
 import anime from 'animejs'
 import animate from './animation'
 

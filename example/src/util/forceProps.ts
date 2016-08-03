@@ -1,5 +1,4 @@
-import { Vnode } from 'dompteuse'
-
+import { Vnode } from 'kaiju'
 
 // Updates the element properties even if the vnode value did not change (but the Element's value did)
 // https://github.com/paldepind/snabbdom/issues/53

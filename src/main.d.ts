@@ -71,7 +71,7 @@ export function Component<P, S>(options: {
   render: (props: P, state: S) => Vnode
 }): Vnode
 
-// dompteuse internals
+// Internals
 
 export var log: {
 

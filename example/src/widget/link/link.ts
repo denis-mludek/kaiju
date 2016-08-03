@@ -1,6 +1,6 @@
 import * as styles from './link.styl'
 
-import { h } from 'dompteuse'
+import { h } from 'kaiju'
 
 
 interface LinkProps {

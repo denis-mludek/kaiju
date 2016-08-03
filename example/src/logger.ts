@@ -1,4 +1,4 @@
-import { log } from 'dompteuse'
+import { log } from 'kaiju'
 
 log.render = true
 log.message = true

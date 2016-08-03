@@ -1,6 +1,6 @@
 import './logger'
 
-import { startApp } from 'dompteuse'
+import { startApp } from 'kaiju'
 
 import app from './app'
 import forceProps from './util/forceProps'

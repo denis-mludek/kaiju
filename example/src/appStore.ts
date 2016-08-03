@@ -1,7 +1,7 @@
 import { StateWithParams, Router, State } from 'abyssa'
 import update from 'immupdate'
-import { Message } from 'dompteuse'
-import GlobalStore from 'dompteuse/store'
+import { Message } from 'kaiju'
+import GlobalStore from 'kaiju/store'
 
 
 export const IncrementBlue = Message('IncrementBlue')

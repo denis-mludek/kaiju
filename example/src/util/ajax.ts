@@ -1,5 +1,5 @@
-import { Observable, flatMapLatest, pure, map, merge } from 'dompteuse/observable'
-import fromPromise, { partition } from 'dompteuse/observable/fromPromise'
+import { Observable, flatMapLatest, pure, map, merge } from 'kaiju/observable'
+import fromPromise, { partition } from 'kaiju/observable/fromPromise'
 
 
 interface Options<A, B> {

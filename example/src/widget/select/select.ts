@@ -1,7 +1,7 @@
 import * as styles from './select.styl'
 
 import update from 'immupdate'
-import { Component, h, Message, ConnectParams, Vnode } from 'dompteuse'
+import { Component, h, Message, ConnectParams, Vnode } from 'kaiju'
 import anime from 'animejs'
 import { merge } from '../../util/obj'
 

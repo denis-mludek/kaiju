@@ -1,6 +1,6 @@
 import * as styles from './popup.styl'
 
-import { h, Component, Vnode, Message, NoArgMessage, ConnectParams, patch } from 'dompteuse'
+import { h, Component, Vnode, Message, NoArgMessage, ConnectParams, patch } from 'kaiju'
 import anime from 'animejs'
 import { findParentByAttr } from '../../util/dom'
 

@@ -1,5 +1,5 @@
 {
-  "name": "ts-dompteuse-example",
+  "name": "ts-kaiju-example",
   "version": "0.0.1",
   "private": true,
 
@@ -11,7 +11,7 @@
 
   "dependencies": {
     "typescript": "beta",
-    "dompteuse": "0.8.1",
+    "kaiju": "0.9.1",
     "snabbdom": "0.4.2",
     "abyssa": "7.2.10",
     "immupdate": "0.2.0",
