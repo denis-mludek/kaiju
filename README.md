@@ -1,28 +1,30 @@
 # Kaiju
 
-![© DC Comics](http://i171.photobucket.com/albums/u320/boubiyeah/Original_Catwoman_Design_zpsokgquwmu.jpg)
+![logo](https://s-media-cache-ak0.pinimg.com/236x/b4/c5/20/b4c5200e59fceaf6a5a92c11a77db95f.jpg)
 
 Fast Virtual DOM components with Reactive updating.
 
 - Fast, thanks to [snabbdom](https://github.com/paldepind/snabbdom), aggressive component rendering isolation and async RAF rendering
 - Global and local state can optionally use Observables for greater composition
 - No JS `class` / `this` nonsense
-- Tiny size in KB (slow-network-friendly, parsed quickly)
+- Tiny size in KB
 - Comes with useful logs
 - First class support for typescript (very typesafe)
 
 
 # Content
-* [Components: step by step guide](#componentization)
-* [Observables](#observables)
-* [Global stores](#globalStores)
+* [Concepts](#componentization)
+  * [Components: step by step guide](#componentization)
+  * [Observables](#observables)
+  * [Global stores](#globalStores)
 * [API](#api)
-  * [Component](#api-component)
-  * [h](#api-h)
-  * [startApp](#api-startApp)
-  * [Message](#api-message)
-  * [patch](#api-patch)
-  * [logging](#api-logging)
+  * [Creating a Vnode with h](#api-h)
+  * [Creating a component](#api-component)
+  * [Altering the DOM from a component/Vnode tree](#api-startApp)
+    * [startApp](#api-startApp)
+    * [patch](#api-patch)
+  * [Message: Intra and inter component communication](#api-message)
+  * [Logging data changes and render timing](#api-logging)
 * [Full TS Example](https://github.com/AlexGalays/kaiju/tree/master/example/src)
 
 <a name="componentization"></a>
@@ -34,7 +36,7 @@ A `Vnode` is what you get when calling `snabbdom`'s `h` function for instance.
 
 A component is simply a function that takes an option object as an argument and returns a `Vnode` ready to be used inside its parent children, i.e, this is a valid array of `Vnodes`:  
 
-```javascript
+```ts
 [
   h('div'),
   myComponent({ someProp: 33 }),
@@ -46,7 +48,7 @@ Note: typescript will be used in the examples, however the library also works ju
 
 1) Here is the simplest component definition one can write:  
 
-```javascript
+```ts
 import { Component, h } from 'kaiju'
 
 export default function() {
@@ -67,9 +69,8 @@ Now, that isn't terribly useful because we really want our component to be state
 2) Let's add some state, and make it change over time:  
 
 
-```javascript
+```ts
 import { Component, h, Message, ConnectParams } from 'kaiju'
-import { merge } from './util/object' // Fictitious
 
 
 export default function() {
@@ -85,11 +86,11 @@ function initState() {
 }
 
 
-const Click = Message('Click')
+const click = Message('click')
 
 
 function connect({ on }: ConnectParams<{}, State>) {
-  on(Click, state => ({ text: 'clicked' }))
+  on(click, state => ({ text: 'clicked' }))
 }
 
 
@@ -98,16 +99,16 @@ function render(props: {}, state: State) {
 }
 ```
 
-Now we created a `Message` named Click that is locally sent to our component whenever the user click on the button.  
+Now we created a `Message` named Click that is locally sent to our component whenever the user clicks on the button.  
 We handle that message in `connect` and return the new state of our component. The component will then redraw with that new state.  
 
-Using explicit Messages instead of callbacks to update our state brings consistency with other kinds of (external) state management and make state debugging easier since messages can be logged (see [logging](#api-logging)).  
+Using explicit Messages instead of callbacks to update our state brings consistency with other kinds of (external) state management and makes state debugging easier since messages can be traced and logged (see [logging](#api-logging)).  
 
 
-In the above code, `on(Click)` is in fact a shortcut for `on(msg.listen(Click))`.
+In the above code, `on(click)` is in fact a shortcut for `on(msg.listen(click))`.
 
 Here's the longer form:
-```javascript
+```ts
 function connect({ on, msg }: ConnectParams<{}, State>) {
   on(msg.listen(Click), state => ({ text: 'clicked' }))
 }
@@ -115,13 +116,13 @@ function connect({ on, msg }: ConnectParams<{}, State>) {
 
 What `msg.listen(Click)` returns is an [Observable](#observables) that emits new values (the payload of each message)
 every time the message is sent.  
-This is very useful because observables can be composed easily:  
+This is very useful because observables can easily be composed:  
 
-```javascript
+```ts
 import debounce from 'kaiju/observable/debounce'
 
 function connect({ on, msg }: ConnectParams<{}, State>) {
-  const clicks = debounce(1000, msg.listen(Click))
+  const clicks = debounce(1000, msg.listen(click))
 
   on(clicks, state => ({ text: 'clicked' }))
 }
@@ -131,13 +132,12 @@ Now, the state is only updated if we stopped clicking for 1 second.
 
 
 Our component now has an internal state and we know how to update it. But it's also completely opaque from the outside!  
-In a tree of `Vnodes`, parents must be able to influence the rendering of their children.
+In a tree of `Vnodes`, parents must often be able to influence the rendering of their children.
 
 3) For that purpose, we introduce props:
 
-```javascript
+```ts
 import { Component, h, Message, ConnectParams } from 'kaiju'
-import { merge } from './util/object' // Fictitious
 
 
 export default function(props: Props) {
@@ -158,11 +158,11 @@ function initState(initProps: Props) {
 }
 
 
-const Click = Message('Click')
+const click = Message('click')
 
 
 function connect({ on }: ConnectParams<Props, State>) {
-  on(Click, state => ({ text: 'clicked' }))
+  on(click, state => ({ text: 'clicked' }))
 }
 
 
@@ -177,17 +177,16 @@ function render(props: Props, state: State) {
 ```
 
 Now our parent can render the component with more control: It can set the default text that should be displayed initially, but also
-directly set the paragraph text of the `p` tag.  
+directly sets the paragraph text of the `p` tag.  
 
-When composing components, you must choose which component should own which piece of state. Disregarding global state (which has a use, see [Global store](#globalStores)) for a second, local state can reside in a component or any of its parent hierarchy.
+When composing components, you must choose which component should own which piece of state. Disregarding global state (which has a use, see [Global store](#globalStores)) for now, local state can reside in a component or any of its parent hierarchy.
 
 
 4) Let's see how we can move the previous button `text` state one level up, so that the component parent can directly set it:  
 
 
-```javascript
+```ts
 import { Component, h, Message, ConnectParams } from 'kaiju'
-import { merge } from './util/object' // Fictitious
 
 
 export default function(props: Props) {
@@ -207,11 +206,11 @@ function initState() {
 }
 
 
-const Click = Message('Click')
+const click = Message('click')
 
 
 function connect({ on, props, msg }: ConnectParams<Props, State>) {
-  on(Click, (_, event) => msg.sendToParent(props().onClick(event)))
+  on(click, (_, event) => msg.sendToParent(props().onClick(event)))
 }
 
 
@@ -227,6 +226,7 @@ function render(props: Props, state: State) {
 ```
 
 We now delegate and send a message to our direct parent component so that it can, in turn, listen to that message from its `connect` function and update its own state.
+Note: The child component could send the same Message to its parent (delegation) but we choose to go with a `onClick` property to increase cohesion and typesafety.
 
 At this point, the component is no longer stateful and providing it didn't have any other state, should be refactored to a simple
 function returning a `Vnode` or Array of `Vnodes`.
@@ -238,35 +238,35 @@ function returning a `Vnode` or Array of `Vnodes`.
 `kaiju` comes with an implementation of observables (also known as streams) so that components can more easily declare
 how their state should change based on user input and any other observable changes in the application.  
 
-Observables are an optional abstraction: If you are more confident with just sending messages around, you can do that too.
+Observables are completely optional: If you are more confident with just sending messages around every time the state should update, you can do that too.
 
 The characteristics of this observable implementation are:
 
 * Tiny abstraction, fast
 * Has a functional style: all combinators are standalone functions that won't be compiled in your code if you don't import them
-* Multicast: All observables are aware that multiple subscribers may be interested
+* Multicast: All observables are aware that multiple subscribers may be present
 * The last value of an observable can be read by invoking the observable as a function
 * Synchronous: Easier to reason about and friendlier stack traces
 * No error handling/swallowing: No need for it since this observable implementation is synchronous
-* No notion of an observable's end/completion for simplicity sake and since we have just two kinds of observables: never ending ones, and ones that are tied to a component's lifecycle
-* Lazy resource management: An observable only activate if there is at least one subscriber
-* If the observable already hold a value, any subscribe function will be called immediately upon registration
+* No notion of an observable's end/completion for simplicity sake and since we really only have two kinds of observables: never ending ones (global state), and the ones that are tied to a particular component's lifecycle
+* Lazy resource management: An observable only activates if there is at least one subscriber
+* If the observable already holds a value, any subscribe function will be called immediately upon registration
 
 
 All combinators can be found under `lib/observable`, for instance to import `debounce`:
 
-```javascript
+```ts
 import debounce from 'kaiju/observable/debounce'
 ```
 
-To see observables in action, check the [example's ajax abstraction](https://github.com/AlexGalays/dompteuse/tree/master/example/src/util/ajax.ts) and [its usage](https://github.com/AlexGalays/dompteuse/tree/master/example/src/blue.ts#L58)
+To see observables in action, check the [example's ajax abstraction](https://github.com/AlexGalays/kaiju/tree/master/example/src/util/ajax.ts) and [its usage](https://github.com/AlexGalays/kaiju/tree/master/example/src/blue.ts#L58)
 
 
 ## Bulk importing
 
-If you are using a module bundler that can do tree shaking when working with ES6 modules or simply don't care about the (small) extra size, you can import all observable related operators with one import statement:  
+If you are using a module bundler that can do tree shaking when working with ES6 modules or simply don't care about the (small) extra size, you can import all observable operators with only one import statement:  
 
-```javascript
+```ts
 import { create, debounce, delay } from 'kaiju/observable'
 ```
 
@@ -282,21 +282,21 @@ You typically want to keep very transient state as local as possible so that it 
 <br />
 **Example of typical local state**
 * Whether a select dropdown is opened
-* The component has focus
+* Whether the component is focused
 * Which grid row is highlighted
-* Basically any state that resets if the user navigate away then come back
+* Basically any state that resets if the user navigates away then comes back
 
 Additionally, keeping state that is only useful to one screen should be kept inside the top-most component of that screen and no higher.  
 
-That leaves global state, which can be updated from anywhere and is accessed from multiple screens.  
+That just leaves global state, which can be updated from anywhere and is accessed from multiple screens.  
 <br />
 **Example of typical global state**
-* The current route
+* The current url route
 * User preferences
-* Any raw domain data that will be mapped/filtered/transformed in the different screens (if you're caching these)
+* Any cached, raw domain data that will be mapped/filtered/transformed in the different screens
 
 Example:  
-```javascript
+```ts
 
 import { Message } from 'kaiju'
 import GlobalStore from 'kaiju/store'
@@ -332,7 +332,7 @@ function initialState() {
 
 function connect({ on }: ConnectParams<{}, State>) {
   on(userStore.state, (state, user) => {
-    // 'Copy' the global user name into our local component state to make it available to `render`
+    // Copies the global user name into our local component state to make it available to `render`
     return merge(state, { userName: user.name })
   })
 }
@@ -346,8 +346,38 @@ userStore.send(setUserName('Monique'))
 <a name="api"></a>
 # API
 
+
+<a name="api-h"></a>
+## Creating a Vnode with h
+
+Creates a `Vnode`  
+This is proxied to [snabbdom's h](https://github.com/paldepind/snabbdom/blob/master/h.js) so we can add our type definitions transparently.
+
+```ts
+import { h } from 'kaiju'
+h('div', 'hello')
+```
+On top of the `snabbdom` modules you may feed to `startApp`, an extra module is always installed by `kaiju`: `events`.  
+
+```ts
+
+import { Message } from 'kaiju'
+
+const someMessage = Message<Event>('someMessage')
+
+// Send a message to the enclosing component on click
+h('div', { events: { onClick: someMessage } })
+
+// Or prepare the message to be sent with an argument.
+// This is more efficient than creating a closure on every render.
+const anotherMessage = Message<{x: number}>('anotherMessage')
+
+h('div', { events: { onClick: anotherMessage.with({ x: 3 }) } })
+```
+
+
 <a name="api-component"></a>
-## Component
+## Creating a component
 
 The `Component` factory function takes an object with the following properties:  
 
@@ -361,12 +391,12 @@ It is also used for logging purposes, so it is usually just the name of the comp
 
 Optional `Object`  
 An object representing all the properties passed by our parent.
-Typically props either represent state that is maintained outside the component or properties used to tweak the component's behavior.  
-The `render` function will be called if the props object changed shallowly (any of its property references changed), hence it's a good practice to use a flat object.
+Typically props either represents state that is maintained outside the component or properties used to tweak the component's behavior.  
+The `render` function will be called if the props object changed shallowly (any of its property references changed), hence it's a good practice to try and use a flat object.
 Note 1: props and state are separated exactly like in `React` as it works great. The same design best practices apply.
-Note 2: If you wish to compute some state based on whether some part of the props changed (similar to using `componentWillReceiveProps` in react) you can use the sliding2 combinator:  
+Note 2: If you wish to compute some state or generally perform a side effect based on whether some part of the props changed (similar to using `componentWillReceiveProps` in react) you can use the sliding2 combinator to compare the previous props with the ones:  
 
-```javascript
+```ts
 import { sliding2 } from 'kaiju/observable/sliding'
 
 on(sliding2(props), (state, [newProps, oldProps]) => ...)
@@ -376,6 +406,7 @@ on(sliding2(props), (state, [newProps, oldProps]) => ...)
 
 Mandatory `Object`  
 A function taking the initial props as an argument and returning the starting state.  
+Note: Any synchronous observables further modifying the state in `connect` will effectively change the state used for the first render.
 
 ### connect
 
@@ -391,7 +422,7 @@ Returning the current state or `undefined` in an `on` handler will skip renderin
 
 Full interface:
 
-```javascript
+```ts
 /**
  * Registers an Observable<Value> and call the handler function every time the observable has a new value.
  * The handler is called with the current component state and the new value of the observable.
@@ -414,13 +445,13 @@ Full interface:
 <P>(message: Message<P>, handler: (state: S, payload: P) => S|void): void
 ```
 
-- `msg` is the interface used to send and listen messages.
+- `msg` is the interface used to send and listen to messages.
 
 Full interface:
 
-```javascript
+```ts
 /**
- * Listens for a message sent from immediate Vnodes or component children
+ * Listens for a message sent from local Vnodes or component children
  */
 listen<P>(message: Message<P>): Observable<P>
 
@@ -428,7 +459,7 @@ listen<P>(message: Message<P>): Observable<P>
  * Listens for messages bubbling up to a particular DOM node
  *
  * Example:
- * const clicks = msg.listenAt('#page .button', Click)
+ * const clicks = msg.listenAt('#page .button', click)
  */
 listenAt<P>(selector: string, message: Message<P>): Observable<P>
 
@@ -450,6 +481,7 @@ sendToParent<P>(payload: MessagePayload<P>): void
 ```
 
 - `props` An Observable with a new value every time the props passed by our parent changed.
+It is often enough to simply let the `render` function take care of these new props but advanced users may sometimes want to derive some state from props.
 
 Just like with props, a redraw will only get scheduled if the state object changed shallowly.
 
@@ -458,18 +490,18 @@ Just like with props, a redraw will only get scheduled if the state object chang
 
 Mandatory `function(props: Props, state: State): Vnode`  
 
-Returns the Vnode tree based on the props and state.
+Returns the current Vnode tree of the component based on its props and state.
 
 Example:  
 
-```javascript
-import { h, Message } from 'dompteuse'
+```ts
+import { h, Message } from 'kaiju'
 
 interface State {
   text: string
 }
 
-const ButtonClick = Message<number>('ButtonClick')
+const buttonClick = Message<number>('buttonClick')
 
 function render(props: void, state: State) {
   const { text } = state
@@ -478,48 +510,18 @@ function render(props: void, state: State) {
     h('div#text', [
       h('h1', 'Hello'),
       h('p', text),
-      h('button', { events: { onClick: ButtonClick.with(33) } })
+      h('button', { events: { onClick: buttonClick.with(33) } })
     ])
   )
 }
 ```
 
-
-<a name="api-h"></a>
-## h
-
-Creates a `Vnode`  
-This is proxied to [snabbdom's h](https://github.com/paldepind/snabbdom/blob/master/h.js) so we can add our type definitions
-transparently.
-
-```javascript
-import { h } from 'dompteuse'
-h('div', 'hello')
-```
-On top of the `snabbdom` modules you may feed to `startApp`, an extra module is always installed by `dompteuse`: `events`.  
-
-```javascript
-
-import { Message } from 'dompteuse'
-
-const SomeMessage = Message<Event>('SomeMessage')
-
-// Send a message to the enclosing component on click
-h('div', { events: { onClick: SomeMessage } })
-
-// Or prepare the message to be sent with an argument.
-// This is more efficient than creating a closure on every render.
-const AnotherMessage = Message<{x: number}>('AnotherMessage')
-
-h('div', { events: { onClick: AnotherMessage.with({ x: 3 }) } })
-```
-
 <a name="api-startApp"></a>
 ## startApp
 
-Performs the initial render of the app synchronously.
+Installs and performs the initial render of the app synchronously.
 
-```javascript
+```ts
 function startApp<S>(options: {
   app: Vnode // The root Vnode
   elm: HTMLElement // The root element where the app will be rendered
@@ -527,9 +529,9 @@ function startApp<S>(options: {
 }): void
 ```
 
-```javascript
+```ts
 
-import { startApp } from 'dompteuse'
+import { startApp } from 'kaiju'
 import app from './app'
 
 
@@ -543,52 +545,54 @@ const snabbdomModules = [
 startApp({ app, snabbdomModules, elm: document.body })
 
 ```
-<a name="api-message"></a>
-## Message
-
-Create a custom application message used to either communicate between components or send to a [GlobalStore](#globalStores).  
-
-```javascript
-import { Message } from 'dompteuse'
-
-// Message taking no arguments
-const Increment = Message('Increment')
-
-// Message taking one argument
-const IncrementBy = Message<number>('IncrementBy')
-```
-
 
 <a name="api-patch"></a>
 ## patch
 
-The `snabbdom` patch function that dompteuse uses. It is made available after the call to `startApp`.
-This can be used to create some advanced components with their own internal patching needs.
+The `snabbdom` [patch function](https://github.com/paldepind/snabbdom#patch) that kaiju uses. It is made available after the app was created with `startApp`.
+This can be used to create some advanced components with their own internal patching needs (e.g: Efficient popups, alerts, etc).
 
-```javascript
-import { patch } from 'dompteuse'
+```ts
+import { patch } from 'kaiju'
+```
+
+
+
+<a name="api-message"></a>
+## Message
+
+Creates a custom application message used to either communicate between components or send to a [GlobalStore](#globalStores).  
+
+```ts
+import { Message } from 'kaiju'
+
+// Message taking no arguments
+const increment = Message('increment')
+
+// Message taking one argument
+const incrementBy = Message<number>('incrementBy')
 ```
 
 
 <a name="api-logging"></a>
-## logging
+## Logging data changes and render timing
 
-`dompteuse` has useful logging to help you debug or visualize the data flows.
+`kaiju` has useful logging to help you debug or visualize the data flows.
 
 ![log-example](http://i171.photobucket.com/albums/u320/boubiyeah/Screen%20Shot%202016-07-03%20at%2009.57.40_zpsf3gllchm.png)
 
 By default, nothing is logged, but that can be changed:
 
-```javascript
-import { log } from 'dompteuse'
+```ts
+import { log } from 'kaiju'
 
 log.render = true
 log.message = true
 ```
 
-Additionally, you can specify which component get logged using the component's `name`:
+Additionally, you can specify which component gets logged using the component's `name`:
 
-```javascript
+```ts
 log.render = 'select'
 log.message = 'popup'
 ```
