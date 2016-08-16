@@ -95,11 +95,11 @@ function connect({ on }: ConnectParams<{}, State>) {
 
 
 function render(props: {}, state: State) {
-  return h('button', { events: { onClick: Click } }, state.text)
+  return h('button', { events: { onClick: click } }, state.text)
 }
 ```
 
-Now we created a `Message` named Click that is locally sent to our component whenever the user clicks on the button.  
+Now we created a `Message` named click that is locally sent to our component whenever the user clicks on the button.  
 We handle that message in `connect` and return the new state of our component. The component will then redraw with that new state.  
 
 Using explicit Messages instead of callbacks to update our state brings consistency with other kinds of (external) state management and makes state debugging easier since messages can be traced and logged (see [logging](#api-logging)).  
@@ -110,11 +110,11 @@ In the above code, `on(click)` is in fact a shortcut for `on(msg.listen(click))`
 Here's the longer form:
 ```ts
 function connect({ on, msg }: ConnectParams<{}, State>) {
-  on(msg.listen(Click), state => ({ text: 'clicked' }))
+  on(msg.listen(click), state => ({ text: 'clicked' }))
 }
 ```
 
-What `msg.listen(Click)` returns is an [Observable](#observables) that emits new values (the payload of each message)
+What `msg.listen(click)` returns is an [Observable](#observables) that emits new values (the payload of each message)
 every time the message is sent.  
 This is very useful because observables can easily be composed:  
 
@@ -169,7 +169,7 @@ function connect({ on }: ConnectParams<Props, State>) {
 function render(props: Props, state: State) {
   return (
     h('div', [
-      h('button', { events: { onClick: Click } }, state.text),
+      h('button', { events: { onClick: click } }, state.text),
       h('p', props.paragraph)
     ])
   )
@@ -217,7 +217,7 @@ function connect({ on, props, msg }: ConnectParams<Props, State>) {
 function render(props: Props, state: State) {
   return (
     h('div', [
-      h('button', { events: { onClick: Click } }, props.text),
+      h('button', { events: { onClick: click } }, props.text),
       h('p', props.paragraph)
     ])
   )
