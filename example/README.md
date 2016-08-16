@@ -2,7 +2,7 @@
 Installation:  
 
 ```
-git clone https://github.com/AlexGalays/dompteuse.git
+git clone https://github.com/AlexGalays/kaiju.git
 cd example
 npm install
 npm run watch
