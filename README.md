@@ -141,7 +141,7 @@ import { Component, h, Message, ConnectParams } from 'kaiju'
 
 
 export default function(props: Props) {
-  return Component<{}, State>({ name: 'button', props, initState, connect, render })
+  return Component<Props, State>({ name: 'button', props, initState, connect, render })
 }
 
 interface Props {
@@ -190,7 +190,7 @@ import { Component, h, Message, ConnectParams } from 'kaiju'
 
 
 export default function(props: Props) {
-  return Component<{}, State>({ name: 'button', props, initState, connect, render })
+  return Component<Props, State>({ name: 'button', props, initState, connect, render })
 }
 
 interface Props {
