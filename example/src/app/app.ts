@@ -1,13 +1,15 @@
 require('./layout.styl')
 
-import { api as router } from 'abyssa'
+import { api as router, StateWithParams } from 'abyssa'
 import { Component, h, ConnectParams } from 'kaiju'
 
-import appStore, { IncrementBlue } from '../appStore'
 import fadeAnimation from '../util/animation/fadeAnimation'
 import link from '../widget/link'
 import index from '../index'
 import blue from '../blue'
+import appStore, { incrementBlue } from '../appStore'
+import * as routes from '../router'
+import { merge } from '../util/obj'
 
 
 export default Component<void, State>({ name: 'app', initState, connect, render })
@@ -15,40 +17,49 @@ export default Component<void, State>({ name: 'app', initState, connect, render 
 
 interface State {
   count: number
-  route: string
+  route: routes.RouteWithParams<any>
 }
 
-function readGlobalState() {
-  return {
-    count: appStore.state().blue.count,
-    route: appStore.state().route.fullName
-  }
-}
 
 function initState() {
-  return readGlobalState()
+  return {
+    count: appStore.state().blue.count,
+    route: routes.current()
+  }
 }
 
 
 function connect({ on }: ConnectParams<void, State>) {
-  on(appStore.state, readGlobalState)
+  on(appStore.state, (state, app) => merge(state, { count: app.blue.count }))
+  on(routes.current, (state, route) => merge(state, { route }))
 }
 
 
 function render(props: void, state: State) {
+  const { route } = state
+
   return h('div', [
     h('header', [
-      link({ href: router.link('app.index'), label: 'Index' }),
-      link({ href: router.link('app.blue', { id: 33 }), label: 'Blue' }),
+      link({
+        route: routes.index,
+        label: 'Index',
+        isActive: route.is(routes.index)
+      }),
+      link({
+        route: routes.blue,
+        params: { id: '33' },
+        label: 'Blue',
+        isActive: route.isIn(routes.blue)
+      }),
       String(state.count)
     ]),
     fadeAnimation('main', getChildren(state.route))
   ])
 }
 
-function getChildren(route: string) {
-  if (route === 'app.index') return [index()]
-  if (route.indexOf('app.blue') === 0) return [blue()]
+function getChildren(route: routes.RouteWithParams<any>) {
+  if (route.is(routes.index)) return [index()]
+  if (route.isIn(routes.blue)) return [blue()]
   return []
 }
 

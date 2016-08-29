@@ -1,48 +1,35 @@
 import { StateWithParams, Router, State } from 'abyssa'
-import update from 'immupdate'
+import update, { updateKey } from 'immupdate'
 import { Message } from 'kaiju'
 import GlobalStore from 'kaiju/store'
+import * as obj from './util/obj'
+
+/* appStore has all the global state of our app.
+   It could be split into multiple stores if it became bloated, though it probably never should */
 
 
-export const IncrementBlue = Message('IncrementBlue')
-export const RouteChanged = Message<StateWithParams>('RouteChanged')
+export const incrementBlue = Message('incrementBlue')
+export const routeChanged = Message<StateWithParams>('routeChanged')
 
 
 export interface AppState {
-  route: StateWithParams,
   blue: {
     count: number
   }
 }
 
-const router = Router({
-  app: State('', {}, {
-    index: State('', {}),
-    blue: State('blue/:id', {}, {
-      green: State('green', {}),
-      red: State('red', {})
-    })
-  })
-})
-.configure({ urlSync: 'hash' })
-.init()
-
 const initState: AppState = {
-  route: router.current(),
   blue: { count: 0 }
 }
 
 const store = GlobalStore<AppState>(initState, on => {
-  on(IncrementBlue, state =>
-    update(state, { blue: { count: (c: number) => c + 1 } })
-  )
 
-  on(RouteChanged, (state, route) =>
-    update(state, { route })
-  )
+  on(incrementBlue, state => {
+    const count = state.blue.count
+    return updateKey(state, 'blue.count', count + 1)
+  })
+
 })
-
-router.transition.on('ended', state => store.send(RouteChanged(state)))
 
 
 export default store

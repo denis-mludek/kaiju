@@ -10,7 +10,7 @@
 		"src/**/*.d.ts"
 	],
 	"files": [
-		"src/dompteuse.d.ts",
+		"src/main.d.ts",
 		"src/observable/create.d.ts",
 		"src/observable/debounce/index.d.ts",
 		"src/observable/delay/index.d.ts",

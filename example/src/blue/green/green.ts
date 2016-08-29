@@ -3,26 +3,28 @@ require('./green.styl')
 import { Component, h, Message, ConnectParams } from 'kaiju'
 import update from 'immupdate'
 import appStore from '../../appStore'
-import { merge } from '../../util/obj'
 import popup, * as Popup from '../../widget/popup'
+import * as routes from '../../router'
 
 
-export default function() {
-  return Component({ name: 'green', initState, connect, render })
+export default function(props: Props) {
+  return Component<Props, State>({ name: 'green', props, initState, connect, render })
 }
 
 
-interface State {
+interface Props {
   id: string
+}
+
+interface State {
   form: any
   popupOpened: boolean
 }
 
 function initState() {
   return {
-    id: appStore.state().route.params['id'],
     form: {},
-    popupOpened: false
+    popupOpened: !!routes.current().params['popup']
   }
 }
 
@@ -31,26 +33,31 @@ const inputChanged = Message<Event>('inputChanged')
 const showPopup = Message('showPopup')
 
 
-function connect({ on }: ConnectParams<void, State>) {
+function connect({ on }: ConnectParams<Props, State>) {
 
   on(inputChanged, (state, evt) => {
     const { name, value } = evt.target as HTMLInputElement
     const formPatch = { [name]: value.substr(0, 4) }
-
-    update(state, { form: formPatch })
+    return update(state, { form: formPatch })
   })
 
-  on(appStore.state, (state, appState) =>
-    merge(state, { id: appState.route.params['id'] })
-  )
+  on(showPopup, state => {
+    const params = update(routes.current().params, { popup: 'true' })
+    routes.replaceParams(params)
+    return update(state, { popupOpened: true })
+  })
 
-  on(showPopup, state => merge(state, { popupOpened: true }))
-  on(Popup.close, state => merge(state, { popupOpened: false }))
+  on(Popup.close, state => {
+    const params = update(routes.current().params, { popup: undefined })
+    routes.replaceParams(params)
+    return update(state, { popupOpened: false })
+  })
 }
 
 
-function render(props: void, state: State) {
-  const { id, form, popupOpened } = state
+function render(props: Props, state: State) {
+  const { id } = props
+  const { form, popupOpened } = state
   const { firstName, lastName } = form
 
   const popupEl = popupOpened ? helloPopup() : ''

@@ -36,4 +36,4 @@ export interface ObservableWithInitialValue<T> extends Observable<T> {
  * This function must return a function that will be called when the last subscriber unregisters itself from the observable.
  * Use this as an opportunity to clean up the observable.
  */
-export default function create<T>(add: (val: T) => () => void): Observable<T>
+export default function create<T>(activate: (add: (t: T) => void) => () => void): Observable<T>

@@ -13,8 +13,9 @@
     "typescript": "beta",
     "kaiju": "0.9.1",
     "snabbdom": "0.4.2",
-    "abyssa": "7.2.10",
+    "abyssa": "8.0.2",
     "immupdate": "0.2.0",
+    "classnames": "2.2.5",
     "animejs": "git@github.com:AlexGalays/anime.git#master"
   },
 

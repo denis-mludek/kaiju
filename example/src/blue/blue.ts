@@ -5,7 +5,8 @@ import { Component, h, ConnectParams, Message, Messages } from 'kaiju'
 
 import fadeAnimation from '../util/animation/fadeAnimation'
 import green from './green'
-import appStore, { AppState, IncrementBlue } from '../appStore'
+import appStore, { AppState, incrementBlue } from '../appStore'
+import * as routes from '../router'
 import { merge } from '../util/obj'
 import select from '../widget/select'
 import link from '../widget/link'
@@ -20,27 +21,20 @@ export default function() {
 
 interface State {
   count: number
-  route: string
-  id: string
+  route: routes.RouteWithParams<routes.BlueParams>
   users: Array<string>
   selectedUser?: string
   loading: boolean
 }
 
 function initState() {
-  return mergeGlobalState({
+  return {
+    count: appStore.state().blue.count,
+    route: routes.current(),
     users: [],
     loading: false,
     selectedUser: undefined
-  }, appStore.state())
-}
-
-function mergeGlobalState<S>(partialState: S, appState: AppState) {
-  return merge(partialState, {
-    count: appState.blue.count,
-    route: appState.route.fullName,
-    id: appState.route.params['id']
-  })
+  }
 }
 
 
@@ -51,9 +45,11 @@ const refreshSelect = Message('refreshSelect')
 
 function connect({ on, props, msg }: ConnectParams<void, State>) {
 
-  on(increment, _ => appStore.send(IncrementBlue()))
+  on(increment, _ => appStore.send(incrementBlue()))
 
-  on(appStore.state, mergeGlobalState)
+  on(appStore.state, (state, appState) => merge(state, { count: appState.blue.count }))
+
+  on(routes.current, (state, route) => merge(state, { route }))
 
   on(userChange, (state, user) => merge(state, { selectedUser: user }))
 
@@ -85,16 +81,24 @@ function getUserData() {
 
 
 function render(props: void, state: State) {
-  const { id, route } = state
-
-  const greenHref = router.link('app.blue.green', { id })
-  const redHref = router.link('app.blue.red', { id })
+  const { route } = state
+  const id = route.params['id']
 
   return (
     h('div', [
       h('h1', 'Blue screen'),
-      link({ href: greenHref, label: 'Green' }),
-      link({ href: redHref, label: 'Red' }),
+      link({
+        route: routes.green,
+        params: { id },
+        label: 'Green',
+        isActive: route.isIn(routes.green)
+      }),
+      link({
+        route: routes.red,
+        params: { id },
+        label: 'Red',
+        isActive: route.isIn(routes.red)
+      }),
       h('div', { props: { className: styles.increment } }, [
         'Count: ' + state.count,
         h('button', { events: { onClick: increment } }, 'Increment')
@@ -107,9 +111,9 @@ function render(props: void, state: State) {
 function getChildren(state: State) {
   const { route, selectedUser, users, loading } = state
 
-  if (route === 'app.blue') return [h('span', 'I am blue')]
-  if (route === 'app.blue.green') return [green()]
-  if (route === 'app.blue.red') return [
+  if (route.is(routes.blue)) return [h('span', 'I am the blue screen index')]
+  if (route.isIn(routes.green)) return [green({ id: route.params['id'] })]
+  if (route.isIn(routes.red)) return [
     h('div', { key: 'red', props: { className: styles.red } }, [
       h('button', { events: { onClick: refreshSelect } }, 'Refresh select list'),
       h('br'),
