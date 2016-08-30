@@ -3,7 +3,6 @@ import * as styles from './select.styl'
 import update from 'immupdate'
 import { Component, h, Message, ConnectParams, Vnode } from 'kaiju'
 import anime from 'animejs'
-import { merge } from '../../util/obj'
 
 
 export default function<T>(props: Props<T>) {
@@ -34,8 +33,8 @@ const itemSelected = Message<any>('itemSelected')
 
 
 function connect({ on, props, msg }: ConnectParams<Props<any>, State>) {
-  on(open, state => merge(state, { opened: true }))
-  on(close, state => merge(state, { opened: false }))
+  on(open, state => update(state, { opened: true }))
+  on(close, state => update(state, { opened: false }))
   on(itemSelected, (state, item) => msg.sendToParent(props().onChange(item)))
 }
 

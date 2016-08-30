@@ -2,12 +2,12 @@ import * as styles from './blue.styl'
 
 import { api as router } from 'abyssa'
 import { Component, h, ConnectParams, Message, Messages } from 'kaiju'
+import update from 'immupdate'
 
 import fadeAnimation from '../util/animation/fadeAnimation'
 import green from './green'
 import appStore, { AppState, incrementBlue } from '../appStore'
 import * as routes from '../router'
-import { merge } from '../util/obj'
 import select from '../widget/select'
 import link from '../widget/link'
 import observeAjax from '../util/ajax'
@@ -47,11 +47,11 @@ function connect({ on, props, msg }: ConnectParams<void, State>) {
 
   on(increment, _ => appStore.send(incrementBlue()))
 
-  on(appStore.state, (state, appState) => merge(state, { count: appState.blue.count }))
+  on(appStore.state, (state, appState) => update(state, { count: appState.blue.count }))
 
-  on(routes.current, (state, route) => merge(state, { route }))
+  on(routes.current, (state, route) => update(state, { route }))
 
-  on(userChange, (state, user) => merge(state, { selectedUser: user }))
+  on(userChange, (state, user) => update(state, { selectedUser: user }))
 
   const ajax = observeAjax({
     name: 'users',
@@ -60,11 +60,11 @@ function connect({ on, props, msg }: ConnectParams<void, State>) {
     ajax: getUserData
   })
 
-  on(ajax.data, (state, users) => merge(state, { users }))
+  on(ajax.data, (state, users) => update(state, { users }))
 
-  on(ajax.error, (state, err) => merge(state, { users: [] }))
+  on(ajax.error, (state, err) => update(state, { users: [] }))
 
-  on(ajax.loading, (state, loading) => merge(state, { loading }))
+  on(ajax.loading, (state, loading) => update(state, { loading }))
 }
 
 function getUserData() {

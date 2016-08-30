@@ -2,6 +2,7 @@ require('./layout.styl')
 
 import { api as router, StateWithParams } from 'abyssa'
 import { Component, h, ConnectParams } from 'kaiju'
+import update from 'immupdate'
 
 import fadeAnimation from '../util/animation/fadeAnimation'
 import link from '../widget/link'
@@ -9,7 +10,6 @@ import index from '../index'
 import blue from '../blue'
 import appStore, { incrementBlue } from '../appStore'
 import * as routes from '../router'
-import { merge } from '../util/obj'
 
 
 export default Component<void, State>({ name: 'app', initState, connect, render })
@@ -30,8 +30,8 @@ function initState() {
 
 
 function connect({ on }: ConnectParams<void, State>) {
-  on(appStore.state, (state, app) => merge(state, { count: app.blue.count }))
-  on(routes.current, (state, route) => merge(state, { route }))
+  on(appStore.state, (state, app) => update(state, { count: app.blue.count }))
+  on(routes.current, (state, route) => update(state, { route }))
 }
 
 
