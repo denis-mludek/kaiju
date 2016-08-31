@@ -1,4 +1,3 @@
-import { create, ObservableWithInitialValue } from 'kaiju/observable'
 import { makeRouter, Route, RouteWithParams } from './util/router'
 
 // Re-export for convenience, so we don't have to also import the abstract router util

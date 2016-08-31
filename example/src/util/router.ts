@@ -1,5 +1,5 @@
 
-import { StateWithParams, Router, State, RouterAPI, ConfigOptions, StateMap, api } from 'abyssa'
+import { Router, State, ConfigOptions, StateMap } from 'abyssa'
 import { create, ObservableWithInitialValue } from 'kaiju/observable'
 
 import * as arr from './array'

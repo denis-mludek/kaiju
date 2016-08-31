@@ -1,12 +1,11 @@
 import * as styles from './blue.styl'
 
-import { api as router } from 'abyssa'
-import { Component, h, ConnectParams, Message, Messages } from 'kaiju'
+import { Component, h, ConnectParams, Message } from 'kaiju'
 import update from 'immupdate'
 
 import fadeAnimation from '../util/animation/fadeAnimation'
 import green from './green'
-import appStore, { AppState, incrementBlue } from '../appStore'
+import appStore, { incrementBlue } from '../appStore'
 import * as routes from '../router'
 import select from '../widget/select'
 import link from '../widget/link'
@@ -43,7 +42,7 @@ const userChange = Message<string>('userChange')
 const refreshSelect = Message('refreshSelect')
 
 
-function connect({ on, props, msg }: ConnectParams<void, State>) {
+function connect({ on, msg }: ConnectParams<void, State>) {
 
   on(increment, _ => appStore.send(incrementBlue()))
 

@@ -4,7 +4,8 @@
   "private": true,
 
   "scripts": {
-    "build": "webpack -p --config build/prod.js",
+    "lint": "node_modules/tslint/bin/tslint -c build/tslint.json 'src/**/*.ts'",
+    "build": "npm run lint && webpack -p --config build/prod.js",
     "watch": "webpack --watch --config build/watch.js",
     "watch-sync": "browser-sync start --files \"public/**\" --proxy localhost:8000 & npm run watch"
   },
@@ -14,7 +15,7 @@
     "kaiju": "0.9.1",
     "snabbdom": "0.4.2",
     "abyssa": "8.0.2",
-    "immupdate": "0.2.0",
+    "immupdate": "0.3.0",
     "classnames": "2.2.5",
     "animejs": "git@github.com:AlexGalays/anime.git#master"
   },
@@ -28,6 +29,7 @@
     "stylus": "0.54.5",
     "extract-text-webpack-plugin": "1.0.1",
     "typed-css-modules-loader": "0.0.3",
-    "typed-css-modules": "0.1.10"
+    "typed-css-modules": "0.1.10",
+    "tslint": "3.15.1"
   }
 }

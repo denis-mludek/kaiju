@@ -2,7 +2,6 @@ require('./green.styl')
 
 import { Component, h, Message, ConnectParams } from 'kaiju'
 import update from 'immupdate'
-import appStore from '../../appStore'
 import popup, * as Popup from '../../widget/popup'
 import * as routes from '../../router'
 

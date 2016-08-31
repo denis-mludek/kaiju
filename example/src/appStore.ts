@@ -1,8 +1,7 @@
-import { StateWithParams, Router, State } from 'abyssa'
-import update, { updateKey } from 'immupdate'
+import { StateWithParams } from 'abyssa'
+import { updateKey } from 'immupdate'
 import { Message } from 'kaiju'
 import GlobalStore from 'kaiju/store'
-import * as obj from './util/obj'
 
 /* appStore has all the global state of our app.
    It could be split into multiple stores if it became bloated, though it probably never should */
@@ -22,7 +21,7 @@ const initState: AppState = {
   blue: { count: 0 }
 }
 
-const store = GlobalStore<AppState>(initState, on => {
+export default GlobalStore<AppState>(initState, on => {
 
   on(incrementBlue, state => {
     const count = state.blue.count
@@ -30,6 +29,3 @@ const store = GlobalStore<AppState>(initState, on => {
   })
 
 })
-
-
-export default store

@@ -1,6 +1,5 @@
 require('./layout.styl')
 
-import { api as router, StateWithParams } from 'abyssa'
 import { Component, h, ConnectParams } from 'kaiju'
 import update from 'immupdate'
 
@@ -8,7 +7,7 @@ import fadeAnimation from '../util/animation/fadeAnimation'
 import link from '../widget/link'
 import index from '../index'
 import blue from '../blue'
-import appStore, { incrementBlue } from '../appStore'
+import appStore from '../appStore'
 import * as routes from '../router'
 
 
@@ -62,6 +61,3 @@ function getChildren(route: routes.RouteWithParams<any>) {
   if (route.isIn(routes.blue)) return [blue()]
   return []
 }
-
-
-//setInterval(appStore.send.bind(null, IncrementBlue()), 2500)
