@@ -15,7 +15,7 @@ export default function debounce<A>(wait: number, obs: Observable<A>): Observabl
 
 
 /**
- * Debounces a simple function
+ * Util: Debounces a simple function.
  */
 export function debounceFunction<A, R>(wait: number, fn: Function1<A, R>): Function1<A, void> & Cancellable
 export function debounceFunction<A, B, R>(wait: number, fn: Function2<A, B, R>): Function2<A, B, void> & Cancellable

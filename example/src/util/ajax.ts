@@ -3,9 +3,16 @@ import fromPromise, { partition } from 'kaiju/observable/fromPromise'
 
 
 interface Options<A, B> {
+  /** name for logging purposes */
   name: string
+
+  /** The function returning the Promise result of the ajax call */
   ajax: (input: A) => Promise<B>
-  callNow?: boolean
+
+  /** If this property is specified, the ajax function will be called immediately with its value */
+  callNowWith?: A
+
+  /** A trigger observable that should be the source of more ajax calls */
   trigger?: Observable<A>
 }
 
@@ -15,18 +22,24 @@ interface Result<T> {
   loading: Observable<boolean>
 }
 
+/**
+ * Creates a data, error and loading observables out of a one-off or recurrent ajax call
+ */
 export default function observeAjax<A, B>(options: Options<A, B>): Result<B> {
-  let { name, trigger, ajax, callNow } = options
+  let { name, trigger, ajax } = options
 
-  if (!trigger)
-    trigger = triggerNow()
-  else if (callNow)
-    trigger = merge(trigger, triggerNow())
+  const shouldCallNow = 'callNowWith' in options
 
-  const [data, error] = partition(flatMapLatest(arg => fromPromise(ajax(arg)), trigger))
+  const actualTrigger: Observable<A> = (() => {
+    if (trigger && shouldCallNow) return merge(trigger, triggerNow(options.callNowWith))
+    if (trigger && !shouldCallNow) return trigger
+    else return triggerNow(undefined)
+  })()
+
+  const [data, error] = partition(flatMapLatest(arg => fromPromise(ajax(arg)), actualTrigger))
 
   const loading = merge(
-    map(x => true, trigger),
+    map(x => true, actualTrigger),
     map(x => false, data),
     map(x => false, error)
   )
@@ -38,6 +51,6 @@ export default function observeAjax<A, B>(options: Options<A, B>): Result<B> {
   }
 }
 
-function triggerNow(): Observable<any> {
-  return pure(undefined)
+function triggerNow<T>(value: T): Observable<T> {
+  return pure(value)
 }

@@ -9,8 +9,7 @@ import appStore, { incrementBlue } from '../appStore'
 import * as routes from '../router'
 import select from '../widget/select'
 import link from '../widget/link'
-import observeAjax from '../util/ajax'
-import * as promise from '../util/promise'
+import { getUserData } from './data'
 
 
 export default function() {
@@ -52,30 +51,10 @@ function connect({ on, msg }: ConnectParams<void, State>) {
 
   on(userChange, (state, user) => update(state, { selectedUser: user }))
 
-  const ajax = observeAjax({
-    name: 'users',
-    callNow: true,
-    trigger: msg.listen(refreshSelect),
-    ajax: getUserData
-  })
-
-  on(ajax.data, (state, users) => update(state, { users }))
-
-  on(ajax.error, (state, err) => update(state, { users: [] }))
-
-  on(ajax.loading, (state, loading) => update(state, { loading }))
-}
-
-function getUserData() {
-  interface User {
-    name: { first: string, last: string }
-  }
-
-  return promise.delay(2000).then(x => fetch('https://randomuser.me/api/?results=10')
-    .then(res => res.json())
-    .then(json => (json.results as Array<User>).map(user =>
-      `${user.name.first} ${user.name.last}`)
-    ))
+  const users = getUserData(msg, refreshSelect)
+  on(users.data, (state, users) => update(state, { users }))
+  on(users.error, (state, err) => update(state, { users: [] }))
+  on(users.loading, (state, loading) => update(state, { loading }))
 }
 
 

@@ -13,6 +13,9 @@ type Cancellable = { cancel: () => void }
 export default function throttle<A>(time: number, obs: Observable<A>): Observable<A>
 
 
+/**
+ * Util: Throttles a function.
+ */
 export function throttleFunction<A, R>(time: number, fn: Function1<A, R>): Function1<A, void> & Cancellable
 export function throttleFunction<A, B, R>(time: number, fn: Function2<A, B, R>): Function2<A, B, void> & Cancellable
 export function throttleFunction<A, B, C, R>(time: number, fn: Function3<A, B, C, R>): Function3<A, B, C, void> & Cancellable
