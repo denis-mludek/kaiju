@@ -44,7 +44,7 @@ function render({ props, state }: RenderParams<Props<any>, State>) {
   const { opened } = state
 
   const text = (!loading && items.indexOf(selectedItem) > -1) ? selectedItem : ''
-  const dropdownEl = getDropdownEl(props, opened)
+  const dropdownEl = renderDropdownEl(props, opened)
 
   return (
     h('div', [
@@ -58,7 +58,7 @@ function render({ props, state }: RenderParams<Props<any>, State>) {
   )
 }
 
-function getDropdownEl(props: Props<any>, opened: boolean) {
+function renderDropdownEl(props: Props<any>, opened: boolean) {
   const { items, loading } = props
 
   const itemRenderer = props.itemRenderer || ((item: any) => item.toString())
