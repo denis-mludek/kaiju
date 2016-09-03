@@ -1,0 +1,15 @@
+{
+	"compilerOptions": {
+		"target": "es5",
+		"noImplicitAny": true,
+		"strictNullChecks": true
+	},
+	"compileOnSave": false,
+	"atom": {
+		"rewriteTsconfig": false
+	},
+	"filesGlob": [
+		"index.ts",
+    "global.d.ts"
+	]
+}

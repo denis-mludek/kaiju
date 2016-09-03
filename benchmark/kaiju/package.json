@@ -1,0 +1,20 @@
+{
+  "name": "kaiju-benchmark",
+  "version": "0.0.1",
+  "private": true,
+
+  "scripts": {
+    "build": "webpack -p --config webpack.config.js"
+  },
+
+  "dependencies": {
+    "typescript": "beta",
+    "kaiju": "0.10.0",
+    "snabbdom": "0.5.1"
+  },
+
+  "devDependencies": {
+    "webpack": "1.13.1",
+    "ts-loader": "0.7.2"
+  }
+}

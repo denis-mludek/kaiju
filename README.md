@@ -5,6 +5,7 @@
 Fast Virtual DOM components with Reactive updating.
 
 - Fast, thanks to [snabbdom](https://github.com/paldepind/snabbdom), aggressive component rendering isolation and async RAF rendering
+- Changes can easily be animated (also thanks to snabbdom)
 - Global and local state can optionally use Observables for greater composition
 - No JS `class` / `this` nonsense
 - Tiny size in KB
