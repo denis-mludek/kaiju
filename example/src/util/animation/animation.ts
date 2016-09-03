@@ -5,13 +5,13 @@ import { Set } from '../obj'
 /* Container animating its children in and out. children must have keys to be properly differentiated */
 
 export default function animate(animations: Animations) {
-  return function(sel: string, child: Vnode[]) {
+  return function(sel: string, children: Vnode[]) {
     const props: any = {
       key: 'animationHook',
       animations,
       hook: { prepatch }
     }
-    return h(sel, props, child)
+    return h(sel, props, children)
   }
 }
 
