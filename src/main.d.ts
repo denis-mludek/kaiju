@@ -60,6 +60,12 @@ export interface ConnectParams<P, S> {
   msg: Messages
 }
 
+export interface RenderParams<P, S> {
+  props: P
+  state: S
+  msg: Messages
+}
+
 /**
  * Creates a Vnode that has a Component lifecycle.
  */
@@ -68,7 +74,7 @@ export function Component<P, S>(options: {
   props?: P
   initState: (initProps: P) => S
   connect: (params: ConnectParams<P, S>) => void
-  render: (props: P, state: S) => Vnode
+  render: (params: RenderParams<P, S>) => Vnode
 }): Vnode
 
 // Internals

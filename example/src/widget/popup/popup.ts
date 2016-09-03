@@ -1,6 +1,6 @@
 import * as styles from './popup.styl'
 
-import { h, Component, Vnode, Message, NoArgMessage, ConnectParams, patch } from 'kaiju'
+import { h, Component, Vnode, Message, NoArgMessage, ConnectParams, RenderParams, patch } from 'kaiju'
 import anime from 'animejs'
 import { findParentByAttr } from '../../util/dom'
 
@@ -40,7 +40,7 @@ function connect({ on, props, msg }: ConnectParams<Props, void>) {
 }
 
 
-function render(props: Props) {
+function render({ props }: RenderParams<Props, void>) {
   const { content } = props
 
   return (

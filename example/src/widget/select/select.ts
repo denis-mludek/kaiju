@@ -1,7 +1,7 @@
 import * as styles from './select.styl'
 
 import update from 'immupdate'
-import { Component, h, Message, ConnectParams, Vnode } from 'kaiju'
+import { Component, h, Message, ConnectParams, RenderParams, Vnode } from 'kaiju'
 import anime from 'animejs'
 
 
@@ -39,7 +39,7 @@ function connect({ on, props, msg }: ConnectParams<Props<any>, State>) {
 }
 
 
-function render(props: Props<any>, state: State) {
+function render({ props, state }: RenderParams<Props<any>, State>) {
   const { items, selectedItem, loading } = props
   const { opened } = state
 

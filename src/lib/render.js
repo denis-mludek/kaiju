@@ -48,7 +48,7 @@ export function renderComponentSync(component) {
 }
 
 function renderComponent(component, checkRenderQueue) {
-  const { props, state, elm, render, vnode, destroyed } = component
+  const { props, state, messages, elm, render, vnode, destroyed } = component
 
   // Bail if the component is already destroyed.
   // This can happen if the parent renders first and decide a child component should be removed.
@@ -64,7 +64,7 @@ function renderComponent(component, checkRenderQueue) {
   let beforeRender
 
   if (log.render) beforeRender = performance.now()
-  const newVnode = render(props, state)
+  const newVnode = render({ props, state, msg: messages })
 
   let target = vnode
   if (!target) {

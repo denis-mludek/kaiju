@@ -1,6 +1,6 @@
 require('./green.styl')
 
-import { Component, h, Message, ConnectParams } from 'kaiju'
+import { Component, h, Message, ConnectParams, RenderParams } from 'kaiju'
 import update from 'immupdate'
 import popup, * as Popup from '../../widget/popup'
 import * as routes from '../../router'
@@ -54,7 +54,7 @@ function connect({ on }: ConnectParams<Props, State>) {
 }
 
 
-function render(props: Props, state: State) {
+function render({ props, state }: RenderParams<Props, State>) {
   const { id } = props
   const { form, popupOpened } = state
   const { firstName, lastName } = form

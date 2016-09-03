@@ -1,6 +1,6 @@
 import * as styles from './blue.styl'
 
-import { Component, h, ConnectParams, Message } from 'kaiju'
+import { Component, h, ConnectParams, RenderParams, Message } from 'kaiju'
 import update from 'immupdate'
 
 import fadeAnimation from '../util/animation/fadeAnimation'
@@ -57,10 +57,9 @@ function connect({ on, msg }: ConnectParams<void, State>) {
   on(users.loading, (state, loading) => update(state, { loading }))
 }
 
-
-function render(props: void, state: State) {
+function render({ state }: RenderParams<void, State>) {
   const { route } = state
-  const id = route.params['id']
+  const id = route.params.id
 
   return (
     h('div', [

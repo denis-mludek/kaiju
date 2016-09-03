@@ -70,11 +70,11 @@ Now, that isn't terribly useful because we really want our component to be state
 
 
 ```ts
-import { Component, h, Message, ConnectParams } from 'kaiju'
+import { Component, h, Message, ConnectParams, RenderParams } from 'kaiju'
 
 
 export default function() {
-  return Component<{}, State>({ name: 'button', initState, connect, render })
+  return Component<void, State>({ name: 'button', initState, connect, render })
 }
 
 interface State {
@@ -94,7 +94,7 @@ function connect({ on }: ConnectParams<{}, State>) {
 }
 
 
-function render(props: {}, state: State) {
+function render({ state }: RenderParams<void, State>) {
   return h('button', { events: { onClick: click } }, state.text)
 }
 ```
@@ -137,7 +137,7 @@ In a tree of `Vnodes`, parents must often be able to influence the rendering of 
 3) For that purpose, we introduce props:
 
 ```ts
-import { Component, h, Message, ConnectParams } from 'kaiju'
+import { Component, h, Message, ConnectParams, RenderParams } from 'kaiju'
 
 
 export default function(props: Props) {
@@ -166,7 +166,7 @@ function connect({ on }: ConnectParams<Props, State>) {
 }
 
 
-function render(props: Props, state: State) {
+function render({ props, state }: RenderParams<Props, State>) {
   return (
     h('div', [
       h('button', { events: { onClick: click } }, state.text),
@@ -186,11 +186,11 @@ When composing components, you must choose which component should own which piec
 
 
 ```ts
-import { Component, h, Message, ConnectParams } from 'kaiju'
+import { Component, h, Message, ConnectParams, RenderParams } from 'kaiju'
 
 
 export default function(props: Props) {
-  return Component<Props, State>({ name: 'button', props, initState, connect, render })
+  return Component<Props, void>({ name: 'button', props, initState, connect, render })
 }
 
 interface Props {
@@ -199,7 +199,6 @@ interface Props {
   onClick: Message<Event>
 }
 
-interface State {}
 
 function initState() {
   return {}
@@ -214,7 +213,7 @@ function connect({ on, props, msg }: ConnectParams<Props, State>) {
 }
 
 
-function render(props: Props, state: State) {
+function render({ props, state }: RenderParams<Props, void>) {
   return (
     h('div', [
       h('button', { events: { onClick: click } }, props.text),
@@ -226,7 +225,7 @@ function render(props: Props, state: State) {
 ```
 
 We now delegate and send a message to our direct parent component so that it can, in turn, listen to that message from its `connect` function and update its own state.
-Note: The child component could send the same Message to its parent (delegation) but we choose to go with a `onClick` property to increase cohesion and typesafety.
+Note: The child component could send the same Message to its parent (delegation) but we choose to go with a `onClick` property to increase semantics, cohesion and typesafety.
 
 At this point, the component is no longer stateful and providing it didn't have any other state, should be refactored to a simple
 function returning a `Vnode` or Array of `Vnodes`.
@@ -495,7 +494,7 @@ Returns the current Vnode tree of the component based on its props and state.
 Example:  
 
 ```ts
-import { h, Message } from 'kaiju'
+import { h, Message, RenderParams } from 'kaiju'
 
 interface State {
   text: string
@@ -503,7 +502,7 @@ interface State {
 
 const buttonClick = Message<number>('buttonClick')
 
-function render(props: void, state: State) {
+function render({ state }: RenderParams<void, State>) {
   const { text } = state
 
   return (

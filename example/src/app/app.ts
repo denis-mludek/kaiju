@@ -1,6 +1,6 @@
 require('./layout.styl')
 
-import { Component, h, ConnectParams } from 'kaiju'
+import { Component, h, ConnectParams, RenderParams } from 'kaiju'
 import update from 'immupdate'
 
 import fadeAnimation from '../util/animation/fadeAnimation'
@@ -34,7 +34,7 @@ function connect({ on }: ConnectParams<void, State>) {
 }
 
 
-function render(props: void, state: State) {
+function render({ state }: RenderParams<void, State>) {
   const { route } = state
 
   return h('div', [
