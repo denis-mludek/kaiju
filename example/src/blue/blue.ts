@@ -12,14 +12,16 @@ import link from '../widget/link'
 import { getUserData } from './data'
 
 
-export default function() {
-  return Component<void, State>({ name: 'blue', initState, connect, render })
+export default function(props: Props) {
+  return Component<Props, State>({ name: 'blue', initState, connect, props, render })
 }
 
+interface Props {
+  route: routes.RouteWithParams<routes.BlueParams>
+}
 
 interface State {
   count: number
-  route: routes.RouteWithParams<routes.BlueParams>
   users: Array<string>
   selectedUser?: string
   loading: boolean
@@ -28,7 +30,6 @@ interface State {
 function initState() {
   return {
     count: appStore.state().blue.count,
-    route: routes.current(),
     users: [],
     loading: false,
     selectedUser: undefined
@@ -41,13 +42,11 @@ const userChange = Message<string>('userChange')
 const refreshSelect = Message('refreshSelect')
 
 
-function connect({ on, msg }: ConnectParams<void, State>) {
+function connect({ on, msg }: ConnectParams<Props, State>) {
 
   on(increment, _ => appStore.send(incrementBlue()))
 
   on(appStore.state, (state, appState) => update(state, { count: appState.blue.count }))
-
-  on(routes.current, (state, route) => update(state, { route }))
 
   on(userChange, (state, user) => update(state, { selectedUser: user }))
 
@@ -57,8 +56,8 @@ function connect({ on, msg }: ConnectParams<void, State>) {
   on(users.loading, (state, loading) => update(state, { loading }))
 }
 
-function render({ state }: RenderParams<void, State>) {
-  const { route } = state
+function render({ props, state }: RenderParams<Props, State>) {
+  const { route } = props
   const id = route.params.id
 
   return (
@@ -80,13 +79,14 @@ function render({ state }: RenderParams<void, State>) {
         'Count: ' + state.count,
         h('button', { events: { onClick: increment } }, 'Increment')
       ]),
-      fadeAnimation('section', getChildren(state))
+      fadeAnimation('section', getChildren(props, state))
     ])
   )
 }
 
-function getChildren(state: State) {
-  const { route, selectedUser, users, loading } = state
+function getChildren(props: Props, state: State) {
+  const { route } = props
+  const { selectedUser, users, loading } = state
 
   if (route.is(routes.blue)) return [h('span', 'I am the blue screen index')]
   if (route.isIn(routes.green)) return [green({ id: route.params['id'] })]

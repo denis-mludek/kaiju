@@ -58,6 +58,6 @@ function render({ state }: RenderParams<void, State>) {
 
 function getChildren(route: routes.RouteWithParams<any>) {
   if (route.is(routes.index)) return [index()]
-  if (route.isIn(routes.blue)) return [blue()]
+  if (route.isIn(routes.blue)) return [blue({ route })]
   return []
 }

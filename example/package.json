@@ -12,7 +12,7 @@
 
   "dependencies": {
     "typescript": "beta",
-    "kaiju": "0.9.1",
+    "kaiju": "0.10.0",
     "snabbdom": "0.5.1",
     "abyssa": "8.0.2",
     "immupdate": "0.3.0",
