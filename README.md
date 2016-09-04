@@ -488,7 +488,7 @@ Just like with props, a redraw will only get scheduled if the state object chang
 
 ### render
 
-Mandatory `function(props: Props, state: State): Vnode`  
+Mandatory `function({ props, state, msg }: RenderParams<Props, State>): Vnode`  
 
 Returns the current Vnode tree of the component based on its props and state.
 
