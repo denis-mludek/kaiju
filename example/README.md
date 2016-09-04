@@ -1,4 +1,12 @@
 
+This example showcases:
+
+- Typesafe routing
+- Enter/Exit animation of views
+- Custom select/popup components
+- How to do ajax without concurrency issues
+
+
 Installation:  
 
 ```
