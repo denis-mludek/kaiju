@@ -1,6 +1,6 @@
 import * as styles from './popup.styl'
 
-import { h, Component, Vnode, Message, NoArgMessage, ConnectParams, RenderParams, patch } from 'kaiju'
+import { h, Component, Vnode, Message, NoArgMessage, ConnectParams, RenderParams, patch, isFirstRender } from 'kaiju'
 import anime from 'animejs'
 import { findParentByAttr } from '../../util/dom'
 
@@ -82,7 +82,7 @@ function popupWithContent(content: Array<Vnode>) {
     h('div', {
       key: 'popup-content',
       props: { className: styles.overlay },
-      hook: animationHook,
+      hook: isFirstRender() ? undefined : animationHook,
       events: { onClick: overlayClick } }, [
 
       h('div', {

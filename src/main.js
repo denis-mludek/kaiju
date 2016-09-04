@@ -2,7 +2,7 @@
 import snabbdom from 'snabbdom'
 import h from 'snabbdom/h'
 
-import Render, { renderApp } from './lib/render'
+import Render, { renderApp, isFirstRender } from './lib/render'
 import Component from './lib/component'
 import Message from './lib/message'
 import { snabbdomModule } from './lib/events'
@@ -22,6 +22,7 @@ export {
   Message,
   startApp,
   log,
+  isFirstRender,
   patch,
   snabbdom,
   h

@@ -15,6 +15,11 @@ const Render = { patch: undefined }
 export default Render
 
 
+let _isFirstRender = true
+export function isFirstRender() {
+  return _isFirstRender
+}
+
 export function renderApp(app, appElm) {
   logBeginRender()
 
@@ -27,6 +32,8 @@ export function renderApp(app, appElm) {
   appElm.appendChild(appNode.elm)
 
   processRenderQueue()
+
+  _isFirstRender = false
 
   logEndRender()
 }

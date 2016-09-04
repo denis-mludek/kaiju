@@ -226,3 +226,5 @@ export function h(sel: string, dataOrChildren: VnodeData | Array<Node> | string)
 export function h(sel: string, data: VnodeData, children: Array<Node> | string): Vnode
 
 export var patch: PatchFunction
+
+export function isFirstRender(): boolean
