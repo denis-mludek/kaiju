@@ -22,3 +22,4 @@ const router = makeRouter([
 export const current = router.currentRoute
 export const transitionTo = router.transitionTo
 export const replaceParams = router.instance.replaceParams
+export const link = router.instance.link
