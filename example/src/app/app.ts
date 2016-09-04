@@ -3,7 +3,7 @@ require('./layout.styl')
 import { Component, h, ConnectParams, RenderParams } from 'kaiju'
 import update from 'immupdate'
 
-import fadeAnimation from '../util/animation/fadeAnimation'
+import pageAnimation from '../util/animation/page'
 import link from '../widget/link'
 import index from '../index'
 import blue from '../blue'
@@ -52,7 +52,7 @@ function render({ state }: RenderParams<void, State>) {
       }),
       String(state.count)
     ]),
-    fadeAnimation('main', getChildren(state.route))
+    pageAnimation('main', getChildren(state.route))
   ])
 }
 

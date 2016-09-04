@@ -4,9 +4,12 @@ import Vnode from 'snabbdom/vnode'
 import log, { shouldLog } from './log'
 
 let componentsToRender = []
+
 let newComponents = []
 let rendering = false
-let nextRender
+let nextRender = undefined
+let renderBeginTime = undefined
+
 
 const Render = { patch: undefined }
 export default Render
@@ -23,17 +26,34 @@ export function renderApp(app, appElm) {
 
   appElm.appendChild(appNode.elm)
 
+  processRenderQueue()
+
   logEndRender()
 }
 
-export function renderComponentAsync(component) {
+
+export function renderComponentNow(component) {
+  if (componentsToRender.indexOf(component) === -1)
+    componentsToRender.push(component)
+}
+
+/* Optimization of the above function: A new component cannot be possibly found in the render queue */
+export function renderNewComponentNow(component) {
+  componentsToRender.push(component)
+}
+
+export function renderComponentNextFrame(component) {
   if (rendering) {
+    // This is pretty bad but not breaking: It means the developer
+    // synchronously send a message inside a render() function.
+    // Probably just a mistake.
     console.warn('A component tried to re-render while a rendering was already ongoing', component.elm)
     return
   }
 
   // This component is already scheduled for the next redraw.
-  // For instance, this can easily happen while the app's tab is inactive.
+  // For instance, this can happen while the app's tab is inactive,
+  // or when synchronously sending a few messages.
   // Avoids doing more work than necessary when re-activating it.
   if (componentsToRender.indexOf(component) !== -1) return
 
@@ -43,20 +63,12 @@ export function renderComponentAsync(component) {
     nextRender = requestAnimationFrame(renderNow)
 }
 
-export function renderComponentSync(component) {
-  renderComponent(component, true)
-}
-
-function renderComponent(component, checkRenderQueue) {
+function renderComponent(component) {
   const { props, state, messages, elm, render, vnode, destroyed } = component
 
   // Bail if the component is already destroyed.
   // This can happen if the parent renders first and decide a child component should be removed.
   if (destroyed) return
-
-  // The component is going to be rendered later as part of the normal
-  // render process, do not force-render it now.
-  if (checkRenderQueue && componentsToRender.indexOf(component) !== -1) return
 
   const isNew = vnode === undefined
   const { patch } = Render
@@ -94,22 +106,38 @@ function renderNow() {
   logBeginRender()
 
   // Render components in a top-down fashion.
-  // This ensures the rendering order is predictive and props & states are consistent.
+  // This ensures the rendering order is predictive and props/states are consistent.
+  // If we didn't do that, a component could first be rendered following a state change
+  // but then miss out on a props change from its parent.
   componentsToRender.sort((compA, compB) => compA.depth - compB.depth)
-  componentsToRender.forEach(c => renderComponent(c, false))
+  processRenderQueue()
 
   rendering = false
-  componentsToRender = []
 
   newComponents.forEach(c => c.lifecycle.inserted(c))
 
   logEndRender()
 }
 
+function processRenderQueue() {
+  while (componentsToRender.length) {
+    const component = componentsToRender.shift()
+    renderComponent(component)
+    if (component.onFirstRender) component.onFirstRender()
+  }
+  componentsToRender = []
+}
+
 function logBeginRender() {
-  if (log.render) console.log('%cRender - begin', 'color: orange')
+  if (log.render) {
+    renderBeginTime = performance.now()
+    console.log('%cRender - begin', 'color: orange')
+  }
 }
 
 function logEndRender() {
-  if (log.render) console.log('%cRender - end\n\n\n', 'color: orange')
+  if (log.render) {
+    const time = Math.round((performance.now() - renderBeginTime) * 100) / 100
+    console.log(`%cRender - end (${time}ms)\n\n\n`, 'color: orange')
+  }
 }

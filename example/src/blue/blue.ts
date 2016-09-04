@@ -3,7 +3,7 @@ import * as styles from './blue.styl'
 import { Component, h, ConnectParams, RenderParams, Message } from 'kaiju'
 import update from 'immupdate'
 
-import fadeAnimation from '../util/animation/fadeAnimation'
+import sectionAnimation from '../util/animation/section'
 import green from './green'
 import appStore, { incrementBlue } from '../appStore'
 import * as routes from '../router'
@@ -79,7 +79,7 @@ function render({ props, state }: RenderParams<Props, State>) {
         'Count: ' + state.count,
         h('button', { events: { onClick: increment } }, 'Increment')
       ]),
-      fadeAnimation('section', getChildren(props, state))
+      sectionAnimation('section', getChildren(props, state))
     ])
   )
 }

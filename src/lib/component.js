@@ -1,5 +1,5 @@
 import h from 'snabbdom/h'
-import { renderComponentSync, renderComponentAsync } from './render'
+import { renderComponentNextFrame, renderComponentNow, renderNewComponentNow } from './render'
 import { shallowEqual } from './util'
 import Messages from './messages'
 import Observable from '../observable/create'
@@ -83,7 +83,7 @@ function create(_, vnode) {
         !shallowEqual(oldState, newState)
 
       if (shouldRender)
-        renderComponentAsync(component)
+        renderComponentNextFrame(component)
     })
 
     component.subscriptions.push(unsubscribe)
@@ -98,14 +98,19 @@ function create(_, vnode) {
   connect(connectParams)
   connected = true
 
-  // First render
-  // Create and insert the component's content
-  // while its parent is still unattached for better perfs.
-  renderComponentSync(component)
-  component.vnode.elm.__comp__ = component
+  // First render.
+  // Render right after our parent (which is in the middle of a patch)
+  // so that we honour the snabbdom's insert hook,
+  // e.g we get patched into our parent after our parent was added to the document.
+  renderNewComponentNow(component)
 
-  // The component is now attached to the document, activate the messages
-  messages._activate(component.vnode.elm)
+  component.onFirstRender = () => {
+    // Lookup from HTML Element to component
+    component.vnode.elm.__comp__ = component
+
+    // The component is now attached to the document so activate the DOM based messages
+    messages._activate(component.vnode.elm)
+  }
 }
 
 // Store the component depth once it's attached to the DOM so we can render
@@ -136,7 +141,7 @@ function postpatch(oldVnode, vnode) {
     component.lifecycle.propsChanged(newProps)
     component.lifecycle.propsChanging = false
 
-    renderComponentSync(component)
+    renderComponentNow(component)
   }
 }
 
