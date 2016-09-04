@@ -2,7 +2,7 @@ import * as styles from './select.styl'
 
 import update from 'immupdate'
 import { Component, h, Message, ConnectParams, RenderParams, Vnode } from 'kaiju'
-import anime from 'animejs'
+import * as anime from 'animejs'
 
 
 export default function<T>(props: Props<T>) {
@@ -86,19 +86,23 @@ const animationHook = {
   insert: (vnode: Vnode) => {
 
     vnode.elm.style.opacity = '0'
-    anime(vnode.elm, {
+    anime({
+      targets: vnode.elm,
       duration: 140,
       opacity: [0, 1],
-      translateY: ['-10px', '0px']
+      translateY: ['-10px', '0px'],
+      easing: 'easeOutQuad',
     })
   },
 
   remove: (vnode: Vnode, cb: Function) => {
 
-    anime(vnode.elm, {
+    anime({
+      targets: vnode.elm,
       duration: 140,
       opacity: 0,
       translateY: '-10px',
+      easing: 'easeInQuad',
       complete: cb
     })
   }

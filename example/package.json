@@ -12,12 +12,12 @@
 
   "dependencies": {
     "typescript": "beta",
-    "kaiju": "0.10.0",
+    "kaiju": "0.10.2",
     "snabbdom": "0.5.1",
     "abyssa": "8.0.2",
     "immupdate": "0.3.0",
     "classnames": "2.2.5",
-    "animejs": "git@github.com:AlexGalays/anime.git#master"
+    "animejs": "1.1.0"
   },
 
   "devDependencies": {

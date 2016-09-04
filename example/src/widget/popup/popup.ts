@@ -1,7 +1,7 @@
 import * as styles from './popup.styl'
 
 import { h, Component, Vnode, Message, NoArgMessage, ConnectParams, RenderParams, patch, isFirstRender } from 'kaiju'
-import anime from 'animejs'
+import * as anime from 'animejs'
 import { findParentByAttr } from '../../util/dom'
 
 
@@ -82,7 +82,7 @@ function popupWithContent(content: Array<Vnode>) {
     h('div', {
       key: 'popup-content',
       props: { className: styles.overlay },
-      hook: isFirstRender() ? undefined : animationHook,
+      hook: isFirstRender() ? { remove: removeAnimation } : { insert: insertAnimation, remove: removeAnimation },
       events: { onClick: overlayClick } }, [
 
       h('div', {
@@ -94,35 +94,42 @@ function popupWithContent(content: Array<Vnode>) {
   )
 }
 
-const animationHook = {
-  insert: (vnode: Vnode) => {
-    vnode.elm.style.opacity = '0'
-    anime(vnode.elm, {
-      duration: 200,
-      opacity: [0, 1]
-    })
 
-    const popup = vnode.elm.children[0] as HTMLElement
-    popup.style.opacity = '0'
-    anime(popup, {
-      duration: 200,
-      delay: 200,
-      opacity: [0, 1],
-      translateY: ['-20px', '0px']
-    })
-  },
+const insertAnimation = (vnode: Vnode) => {
+  vnode.elm.style.opacity = '0'
+  anime({
+    targets: vnode.elm,
+    duration: 200,
+    opacity: [0, 1],
+    easing: 'easeOutQuad'
+  })
 
-  remove: (vnode: Vnode, cb: Function) => {
-    anime(vnode.elm, {
-      duration: 200,
-      opacity: 0
-    })
+  const popup = vnode.elm.children[0] as HTMLElement
+  popup.style.opacity = '0'
+  anime({
+    targets: popup,
+    duration: 200,
+    delay: 200,
+    opacity: [0, 1],
+    translateY: ['-20px', '0px'],
+    easing: 'easeOutQuad'
+  })
+}
 
-    anime(vnode.elm.children[0], {
-      duration: 200,
-      opacity: 0,
-      translateY: '-20px',
-      complete: cb
-    })
-  }
+const removeAnimation = (vnode: Vnode, cb: Function) => {
+  anime({
+    targets: vnode.elm,
+    duration: 200,
+    opacity: 0,
+    easing: 'easeInQuad',
+  })
+
+  anime({
+    targets: vnode.elm.children[0],
+    duration: 200,
+    opacity: 0,
+    translateY: '-20px',
+    easing: 'easeInQuad',
+    complete: cb
+  })
 }

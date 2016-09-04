@@ -1,12 +1,13 @@
 import { Vnode } from 'kaiju'
-import anime from 'animejs'
+import * as anime from 'animejs'
 import animate from './animation'
 
 
 const sectionAnimations = {
   create: (empty: Vnode, vnode: Vnode) => {
     vnode.elm.style.opacity = '0'
-    anime(vnode.elm, {
+    anime({
+      targets: vnode.elm,
       duration: 300,
       opacity: [0, 1],
       translateY: ['-20px', '0px'],

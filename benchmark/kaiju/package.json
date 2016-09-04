@@ -9,7 +9,7 @@
 
   "dependencies": {
     "typescript": "beta",
-    "kaiju": "0.10.0",
+    "kaiju": "0.10.2",
     "snabbdom": "0.5.1"
   },
 

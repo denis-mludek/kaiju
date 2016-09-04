@@ -1,5 +1,5 @@
 import { Vnode } from 'kaiju'
-import anime from 'animejs'
+import * as anime from 'animejs'
 import animate from './animation'
 
 
@@ -12,7 +12,8 @@ const pageAnimations = {
   create: (empty: Vnode, vnode: Vnode) => {
     vnode.elm.style.display = 'none'
 
-    anime(vnode.elm, {
+    anime({
+      targets: vnode.elm,
       duration: createDuration,
       delay: createDelay,
       opacity: [0, 1],
@@ -23,7 +24,8 @@ const pageAnimations = {
   },
 
   remove: (vnode: Vnode, cb: Function) => {
-    anime(vnode.elm, {
+    anime({
+      targets: vnode.elm,
       duration: removeDuration,
       opacity: [1, 0],
       translateX: ['0px', '40px'],
