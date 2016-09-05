@@ -2,7 +2,9 @@
 
 ![logo](https://s-media-cache-ak0.pinimg.com/236x/b4/c5/20/b4c5200e59fceaf6a5a92c11a77db95f.jpg)
 
-Fast Virtual DOM components with Reactive updating.
+kaiju is a view layer used to build an efficient tree of stateless/stateful components and help you manage that tree data.  
+What kaiju doesn't do: Routing, enforcing a particular routing -> state -> component communication pattern. There are many ways to do that properly, one way is showcased in the [example](https://github.com/AlexGalays/kaiju/tree/master/example/src)  
+
 
 - Fast, thanks to [snabbdom](https://github.com/paldepind/snabbdom), aggressive component rendering isolation and async RAF rendering
 - Changes can easily be animated (also thanks to snabbdom)
@@ -10,8 +12,7 @@ Fast Virtual DOM components with Reactive updating.
 - No JS `class` / `this` nonsense
 - Tiny size in KB
 - Comes with useful logs
-- First class support for typescript (very typesafe)
-
+- First class support for typescript with a particular attention paid to type safety
 
 # Content
 * [Concepts](#componentization)
