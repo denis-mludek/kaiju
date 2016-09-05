@@ -47,12 +47,20 @@ A component is simply a function that takes an option object as an argument and 
 
 Note: typescript will be used in the examples, however the library also works just fine with javascript.
 
-1) Here is the simplest component definition one can write:  
+0) We start with a staless "component"
+
+```ts
+function button() {
+  return h('button')
+}
+```
+
+1) For comparison sake, here is the simplest stateful component definition one can write:  
 
 ```ts
 import { Component, h } from 'kaiju'
 
-export default function() {
+export default function button() {
   return Component({ name: 'button', initState, connect, render })
 }
 
@@ -228,9 +236,27 @@ function render({ props, state }: RenderParams<Props, void>) {
 We now delegate and send a message to our direct parent component so that it can, in turn, listen to that message from its `connect` function and update its own state.
 Note: The child component could send the same Message to its parent (delegation) but we choose to go with a `onClick` property to increase semantics, cohesion and typesafety.
 
-At this point, the component is no longer stateful and providing it didn't have any other state, should be refactored to a simple
-function returning a `Vnode` or Array of `Vnodes`.
+At this point, the component is no longer stateful and providing it didn't have any other state, should be refactored back to a simple function returning a `Vnode`:
 
+```ts
+
+interface Props {
+  text: string
+  paragraph: string
+  onClick: Message<Event>
+}
+
+function button(props: Props) {
+  const { text, paragraph, onClick } = props
+
+  return (
+    h('div', [
+      h('button', { events: { onClick } }, text),
+      h('p', paragraph)
+    ])
+  )
+}
+```
 
 <a name="observables"></a>
 # Observables
