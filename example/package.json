@@ -13,10 +13,9 @@
   "dependencies": {
     "typescript": "beta",
     "kaiju": "0.10.2",
-    "snabbdom": "0.5.1",
+    "snabbdom": "0.5.2",
     "abyssa": "8.0.2",
     "immupdate": "0.3.0",
-    "classnames": "2.2.5",
     "animejs": "1.1.0"
   },
 
