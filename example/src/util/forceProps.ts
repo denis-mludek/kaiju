@@ -2,7 +2,7 @@ import { Vnode } from 'kaiju'
 
 // Updates the element properties even if the vnode value did not change (but the Element's value did)
 // https://github.com/paldepind/snabbdom/issues/53
-// Mostly useful when trying to force-prevent-default by writing back.
+// Mostly useful when trying to force-prevent-default by writing back (some events, like 'input' are not cancellable).
 
 function updateProps(oldVnode: Vnode, vnode: Vnode) {
   let key: string
