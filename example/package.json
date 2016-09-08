@@ -27,8 +27,6 @@
     "stylus-loader": "2.1.1",
     "stylus": "0.54.5",
     "extract-text-webpack-plugin": "1.0.1",
-    "typed-css-modules-loader": "0.0.3",
-    "typed-css-modules": "0.1.10",
     "tslint": "3.15.1"
   }
 }

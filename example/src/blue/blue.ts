@@ -1,4 +1,4 @@
-import * as styles from './blue.styl'
+const styles = require('./blue.styl')
 
 import { Component, h, ConnectParams, RenderParams, Message } from 'kaiju'
 import update from 'immupdate'

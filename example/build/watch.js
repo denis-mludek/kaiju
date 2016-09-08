@@ -3,7 +3,7 @@ var ExtractTextPlugin = require('extract-text-webpack-plugin')
 
 var extractStyl = ExtractTextPlugin.extract(
   'style',
-  'css?modules&localIdentName=[name]-[local]-[hash:base64:5]!typed-css-modules!stylus'
+  'css?modules&localIdentName=[name]-[local]-[hash:base64:5]!stylus'
 )
 
 

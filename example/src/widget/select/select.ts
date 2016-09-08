@@ -1,4 +1,4 @@
-import * as styles from './select.styl'
+const styles = require('./select.styl')
 
 import update from 'immupdate'
 import { Component, h, Message, ConnectParams, RenderParams, Vnode } from 'kaiju'

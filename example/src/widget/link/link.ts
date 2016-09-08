@@ -1,4 +1,4 @@
-import * as styles from './link.styl'
+const styles = require('./link.styl')
 
 import { h } from 'kaiju'
 

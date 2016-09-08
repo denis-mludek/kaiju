@@ -1,5 +1,5 @@
 require('./green.styl')
-import * as styles from './list.styl'
+const styles = require('./list.styl')
 
 import { Component, h, Message, ConnectParams, RenderParams, Hooks } from 'kaiju'
 import update from 'immupdate'

@@ -1,4 +1,4 @@
-import * as styles from './popup.styl'
+const styles = require('./popup.styl')
 
 import { h, Component, Vnode, Message, NoArgMessage, ConnectParams, RenderParams, patch, isFirstRender } from 'kaiju'
 import * as anime from 'animejs'
