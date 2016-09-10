@@ -7,7 +7,7 @@
     "lint": "node_modules/tslint/bin/tslint -c build/tslint.json 'src/**/*.ts'",
     "build": "npm run lint && webpack -p --config build/prod.js",
     "watch": "webpack --watch --config build/watch.js",
-    "watch-sync": "browser-sync start --files \"public/**\" --proxy localhost:8000 & npm run watch"
+    "liveReload": "node build/liveReload"
   },
 
   "dependencies": {
@@ -20,6 +20,7 @@
   },
 
   "devDependencies": {
+    "browser-sync": "2.15.0",
     "webpack": "1.13.1",
     "ts-loader": "0.7.2",
     "css-loader": "0.23.1",
