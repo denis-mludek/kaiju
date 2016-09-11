@@ -2,6 +2,8 @@
 const webpack = require('webpack')
 const bs = require('browser-sync').create()
 const ExtractTextPlugin = require('extract-text-webpack-plugin')
+const chalk = require('chalk')
+
 
 const extractStyl = ExtractTextPlugin.extract(
   'style',
@@ -35,8 +37,21 @@ const compiler = webpack({
 })
 
 compiler.watch({}, function(err, stats) {
-  if (err)
-    return console.error('webpack build error')
+  if (err) {
+    console.error('webpack build error')
+    throw err
+  }
+
+  var jsonStats = stats.toJson()
+  if (jsonStats.errors.length > 0) {
+    console.log('\n\n')
+    console.log(chalk.red('Compilation errors: \n'))
+    console.log(jsonStats.errors.join('\n'))
+    return
+  }
+
+  console.log('\n\n')
+  console.log(chalk.green('Compiled OK \n'))
 
   var changedModules = stats.compilation.modules.filter(module =>
     module.built && module.resource

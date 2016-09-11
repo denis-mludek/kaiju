@@ -11,7 +11,7 @@
   },
 
   "dependencies": {
-    "typescript": "beta",
+    "typescript": "rc",
     "kaiju": "0.10.2",
     "snabbdom": "0.5.2",
     "abyssa": "8.0.2",
@@ -28,6 +28,7 @@
     "stylus-loader": "2.1.1",
     "stylus": "0.54.5",
     "extract-text-webpack-plugin": "1.0.1",
-    "tslint": "3.15.1"
+    "tslint": "3.15.1",
+    "chalk": "1.1.3"
   }
 }

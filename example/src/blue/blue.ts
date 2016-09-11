@@ -7,6 +7,7 @@ import sectionAnimation from '../util/animation/section'
 import green from './green'
 import appStore, { incrementBlue } from '../appStore'
 import * as routes from '../router'
+import { RouteWithParams, BlueParams } from '../router'
 import select from '../widget/select'
 import link from '../widget/link'
 import { getUserData } from './data'
@@ -17,7 +18,7 @@ export default function(props: Props) {
 }
 
 interface Props {
-  route: routes.RouteWithParams<routes.BlueParams>
+  route: RouteWithParams<BlueParams>
 }
 
 interface State {
@@ -75,23 +76,22 @@ function render({ props, state }: RenderParams<Props, State>) {
         label: 'Red',
         isActive: route.isIn(routes.red)
       }),
-      h('div', { props: { className: styles.increment } }, [
+      h(`div.${styles.increment}`, [
         'Count: ' + state.count,
         h('button', { events: { onClick: increment } }, 'Increment')
       ]),
-      sectionAnimation('section', getChildren(props, state))
+      sectionAnimation('section', getChildren(route, state))
     ])
   )
 }
 
-function getChildren(props: Props, state: State) {
-  const { route } = props
+function getChildren(route: RouteWithParams<any>, state: State) {
   const { selectedUser, users, loading } = state
 
   if (route.is(routes.blue)) return [h('span', 'I am the blue screen index')]
-  if (route.isIn(routes.green)) return [green({ id: route.params['id'] })]
+  if (route.isIn(routes.green)) return [green({ route })]
   if (route.isIn(routes.red)) return [
-    h('div', { key: 'red', props: { className: styles.red } }, [
+    h(`div.${styles.red}`, { key: 'red' }, [
       h('button', { events: { onClick: refreshSelect } }, 'Refresh select list'),
       h('br'),
       select({

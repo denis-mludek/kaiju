@@ -49,9 +49,9 @@ function render({ props, state }: RenderParams<Props<any>, State>) {
   return (
     h('div', [
       h('input', {
-        events: { onClick: open, onBlur: close },
         props: { value: text },
-        attrs: { readonly: true, placeholder: 'click me' }
+        attrs: { readonly: true, placeholder: 'click me' },
+        events: { onClick: open, onBlur: close }
       }),
       dropdownEl
     ])
@@ -74,7 +74,7 @@ function renderDropdownEl(props: Props<any>, opened: boolean) {
   const dropdownEls = itemEls || loaderEl
 
   return dropdownEls
-    ? h('ul', { props: { className: styles.dropdown }, hook: animationHook }, dropdownEls)
+    ? h(`ul.${styles.dropdown}`, { hook: animationHook }, dropdownEls)
     : ''
 }
 

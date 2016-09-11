@@ -14,7 +14,7 @@ export default function(props: Props) {
 
 
 interface Props {
-  id: string
+  route: routes.RouteWithParams<routes.GreenParams>
 }
 
 interface State {
@@ -22,10 +22,10 @@ interface State {
   popupOpened: boolean
 }
 
-function initState() {
+function initState(props: Props) {
   return {
     form: {},
-    popupOpened: !!routes.current().params['popup']
+    popupOpened: !!props.route.params['popup']
   }
 }
 
@@ -34,7 +34,7 @@ const inputChanged = Message<Event>('inputChanged')
 const showPopup = Message('showPopup')
 
 
-function connect({ on }: ConnectParams<Props, State>) {
+function connect({ on, props }: ConnectParams<Props, State>) {
 
   on(inputChanged, (state, evt) => {
     const { name, value } = evt.target as HTMLInputElement
@@ -43,13 +43,13 @@ function connect({ on }: ConnectParams<Props, State>) {
   })
 
   on(showPopup, state => {
-    const params = update(routes.current().params, { popup: 'true' })
+    const params = update(props().route.params, { popup: 'true' })
     routes.replaceParams(params)
     return update(state, { popupOpened: true })
   })
 
   on(Popup.close, state => {
-    const params = update(routes.current().params, { popup: undefined })
+    const params = update(props().route.params, { popup: undefined })
     routes.replaceParams(params)
     return update(state, { popupOpened: false })
   })
@@ -57,7 +57,7 @@ function connect({ on }: ConnectParams<Props, State>) {
 
 
 function render({ props, state }: RenderParams<Props, State>) {
-  const { id } = props
+  const { route } = props
   const { form, popupOpened } = state
   const { firstName, lastName } = form
 
@@ -65,7 +65,7 @@ function render({ props, state }: RenderParams<Props, State>) {
 
   return (
     h('div', [
-      `Green (route id = ${id})`,
+      `Green (route id = ${route.params.id})`,
       h('form', [
         input('firstName', firstName, true),
         input('lastName', lastName)

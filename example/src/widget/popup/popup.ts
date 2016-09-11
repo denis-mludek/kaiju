@@ -79,17 +79,14 @@ function destroy(vnode: Vnode) {
 
 function popupWithContent(content: Array<Vnode>) {
   return (
-    h('div', {
+    h(`div.${styles.overlay}`, {
       key: 'popup-content',
-      props: { className: styles.overlay },
       hook: isFirstRender() ? { remove: removeAnimation } : { insert: insertAnimation, remove: removeAnimation },
       events: { onClick: overlayClick } }, [
 
-      h('div', {
-        props: { className: styles.popup },
+      h(`div.${styles.popup}`, {
         attrs: { 'data-popup': true }
       }, content)
-
     ])
   )
 }
