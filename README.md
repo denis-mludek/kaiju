@@ -6,7 +6,8 @@ kaiju is a view layer used to build an efficient tree of stateless/stateful comp
 What kaiju doesn't do: Routing, enforcing a particular routing -> state -> component communication pattern. There are many ways to do that properly, one way is showcased in the [example](https://github.com/AlexGalays/kaiju/tree/master/example/src)  
 
 
-- Fast, thanks to [snabbdom](https://github.com/paldepind/snabbdom), aggressive component rendering isolation and async RAF rendering
+- Data management is streamlined and consistent, whether it's inter-component or intra-component
+- Fast, thanks to [snabbdom](https://github.com/paldepind/snabbdom), aggressive component rendering isolation (a key stroke in one input component should not re-evaluate the whole app) and async RAF rendering
 - Changes can easily be animated (also thanks to snabbdom)
 - Global and local state can optionally use Observables for greater composition
 - No JS `class` / `this` nonsense
