@@ -51,7 +51,7 @@ function render({ props, state }: RenderParams<Props<any>, State>) {
       h('input', {
         props: { value: text },
         attrs: { readonly: true, placeholder: 'click me' },
-        events: { onClick: open, onBlur: close }
+        events: { click: open, blur: close }
       }),
       dropdownEl
     ])
@@ -79,7 +79,7 @@ function renderDropdownEl(props: Props<any>, opened: boolean) {
 }
 
 function renderItem(item: any) {
-  return h('li', { events: { onMouseDown: itemSelected.with(item) } }, item)
+  return h('li', { events: { mousedown: itemSelected.with(item) } }, item)
 }
 
 const animationHook = {

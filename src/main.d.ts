@@ -189,12 +189,38 @@ interface Messages {
 export type PatchFunction = (target: Element | Vnode, vnode: Vnode) => Vnode
 
 
+// The third form is for Message.with(), which will take care of type-safety
 type EventHandler = NoArgMessage | Message<Event> | [ Message<any>, any ]
 
 interface VnodeData {
-	[s: string]: any
   hook?: Hooks
-	events?: { [s: string]: EventHandler }
+	events?: {
+    'blur'?: EventHandler
+    'change'?: EventHandler
+    'click'?: EventHandler
+    'dblclick'?: EventHandler
+    'focus'?: EventHandler
+    'input'?: EventHandler
+    'keydown'?: EventHandler
+    'keypress'?: EventHandler
+    'keyup'?: EventHandler
+    'load'?: EventHandler
+    'mousedown'?: EventHandler
+    'mouseenter'?: EventHandler
+    'mouseleave'?: EventHandler
+    'mousemove'?: EventHandler
+    'mouseout'?: EventHandler
+    'mouseover'?: EventHandler
+    'mouseup'?: EventHandler
+    'mousewheel'?: EventHandler
+    'scroll'?: EventHandler
+    'submit'?: EventHandler
+    'touchcancel'?: EventHandler
+    'touchend'?: EventHandler
+    'touchmove'?: EventHandler
+    'touchstart'?: EventHandler
+  }
+  [s: string]: any
 }
 
 export interface Vnode {
@@ -222,7 +248,8 @@ interface Hooks {
 }
 
 export function h(sel: string): Vnode
-export function h(sel: string, dataOrChildren: VnodeData | Array<Node> | string): Vnode
+export function h(sel: string, children: Array<Node> | string): Vnode
+export function h(sel: string, data: VnodeData): Vnode
 export function h(sel: string, data: VnodeData, children: Array<Node> | string): Vnode
 
 export var patch: PatchFunction

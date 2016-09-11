@@ -78,7 +78,7 @@ function render({ props, state }: RenderParams<Props, State>) {
       }),
       h(`div.${styles.increment}`, [
         'Count: ' + state.count,
-        h('button', { events: { onClick: increment } }, 'Increment')
+        h('button', { events: { click: increment } }, 'Increment')
       ]),
       sectionAnimation('section', getChildren(route, state))
     ])
@@ -92,7 +92,7 @@ function getChildren(route: RouteWithParams<any>, state: State) {
   if (route.isIn(routes.green)) return [green({ route })]
   if (route.isIn(routes.red)) return [
     h(`div.${styles.red}`, { key: 'red' }, [
-      h('button', { events: { onClick: refreshSelect } }, 'Refresh select list'),
+      h('button', { events: { click: refreshSelect } }, 'Refresh select list'),
       h('br'),
       select({
         items: users,

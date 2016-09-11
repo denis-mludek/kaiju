@@ -70,7 +70,7 @@ function render({ props, state }: RenderParams<Props, State>) {
         input('firstName', firstName, true),
         input('lastName', lastName)
       ]),
-      h('button', { events: { onMouseDown: showPopup } }, 'Open popup'),
+      h('button', { events: { mousedown: showPopup } }, 'Open popup'),
       popupEl
     ])
   )
@@ -88,8 +88,8 @@ function input(name: string, value: string, shouldAutoFocus = false) {
         props: { name },
         hook,
         forceProps: { value },
-        events: { onInput: inputChanged }
-      })
+        events: { input: inputChanged }
+      }, '')
     ])
   )
 }
@@ -98,7 +98,7 @@ function helloPopup() {
   const content = [
     h('h2', 'Hello'),
     list({ initialItems: [1, 2, 3] }),
-    h('button', { events: { onClick: Popup.close } }, 'Close')
+    h('button', { events: { click: Popup.close } }, 'Close')
   ]
 
   return popup({ content, onClose: Popup.close })
@@ -130,11 +130,11 @@ const list = (() => {
       h('li', { key: item }, [
         h('span', String(item)),
         h('input', { props: { value: 'bla' } }),
-        h('button', { events: { onClick: deleteRow.with(item) } }, '✕')
+        h('button', { events: { click: deleteRow.with(item) } }, '✕')
       ])
     ))
 
-    return groupFadeAnimation('ul.' + styles.list, itemEls)
+    return groupFadeAnimation(`ul.${styles.list}`, itemEls)
   }
 
   return function(props: Props) {

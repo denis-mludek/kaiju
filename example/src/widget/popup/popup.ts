@@ -82,7 +82,7 @@ function popupWithContent(content: Array<Vnode>) {
     h(`div.${styles.overlay}`, {
       key: 'popup-content',
       hook: isFirstRender() ? { remove: removeAnimation } : { insert: insertAnimation, remove: removeAnimation },
-      events: { onClick: overlayClick } }, [
+      events: { click: overlayClick } }, [
 
       h(`div.${styles.popup}`, {
         attrs: { 'data-popup': true }

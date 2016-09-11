@@ -106,7 +106,7 @@ function connect({ on }: ConnectParams<{}, State>) {
 
 
 function render({ state }: RenderParams<void, State>) {
-  return h('button', { events: { onClick: click } }, state.text)
+  return h('button', { events: { click } }, state.text)
 }
 ```
 
@@ -180,7 +180,7 @@ function connect({ on }: ConnectParams<Props, State>) {
 function render({ props, state }: RenderParams<Props, State>) {
   return (
     h('div', [
-      h('button', { events: { onClick: click } }, state.text),
+      h('button', { events: { click } }, state.text),
       h('p', props.paragraph)
     ])
   )
@@ -227,7 +227,7 @@ function connect({ on, props, msg }: ConnectParams<Props, State>) {
 function render({ props, state }: RenderParams<Props, void>) {
   return (
     h('div', [
-      h('button', { events: { onClick: click } }, props.text),
+      h('button', { events: { click } }, props.text),
       h('p', props.paragraph)
     ])
   )
@@ -253,7 +253,7 @@ function button(props: Props) {
 
   return (
     h('div', [
-      h('button', { events: { onClick } }, text),
+      h('button', { events: { click: onClick } }, text),
       h('p', paragraph)
     ])
   )
@@ -386,6 +386,7 @@ import { h } from 'kaiju'
 h('div', 'hello')
 ```
 On top of the `snabbdom` modules you may feed to `startApp`, an extra module is always installed by `kaiju`: `events`.  
+`events` is like `snabbdom`'s own `on` module except it works with `Messages` instead of just any event handler.  
 
 ```ts
 
@@ -393,14 +394,14 @@ import { Message } from 'kaiju'
 
 const someMessage = Message<Event>('someMessage')
 
-// Send a message to the enclosing component on click
-h('div', { events: { onClick: someMessage } })
+// Send a message to the enclosing component on click and on mousedown
+h('div', { events: { click: someMessage, mousedown: someMessage } })
 
 // Or prepare the message to be sent with an argument.
 // This is more efficient than creating a closure on every render.
 const anotherMessage = Message<{x: number}>('anotherMessage')
 
-h('div', { events: { onClick: anotherMessage.with({ x: 3 }) } })
+h('div', { events: { click: anotherMessage.with({ x: 3 }) } })
 ```
 
 
@@ -538,7 +539,7 @@ function render({ state }: RenderParams<void, State>) {
     h('div#text', [
       h('h1', 'Hello'),
       h('p', text),
-      h('button', { events: { onClick: buttonClick.with(33) } })
+      h('button', { events: { click: buttonClick.with(33) } })
     ])
   )
 }

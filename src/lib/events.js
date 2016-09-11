@@ -15,18 +15,23 @@ function updateEventListeners(oldVnode, vnode) {
     const current = events[name]
     const old = oldEvents && oldEvents[name]
 
-    if (old !== current)
-      vnode.elm[name.toLowerCase()] = function(evt) {
-        const [msg, arg] = Array.isArray(current) ? current : [current, evt]
-        _sendToElement(evt.target, msg(arg))
-      }
+    if (old !== current) {
+      const listenerIsArray = Array.isArray(current)
+
+      // The reference changed but the inner message and payload are the same
+      if (listenerIsArray && old && current[0] === old[0] && current[1] === old[1]) return
+
+      vnode.elm['on' + name] = listenerIsArray
+        ? evt => _sendToElement(evt.target, current[0](current[1]))
+        : evt => _sendToElement(evt.target, current(evt))
+    }
   }
 
   if (!oldEvents) return
 
   for (name in oldEvents) {
     if (events[name] == null)
-      vnode.elm[name.toLowerCase()] = null
+      vnode.elm['on' + name] = null
   }
 }
 
