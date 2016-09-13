@@ -11,8 +11,10 @@ const empty = {}
 export default function Component(options) {
   const { name, props = empty, initState, connect, render } = options
 
+  const key = props.key === undefined ? name : `${name}_${props.key}`
+
   const compProps = {
-    key: name,
+    key,
     hook: { create, postpatch, destroy },
     component: { props, initState, connect, render, key: name },
     attrs: { name }
