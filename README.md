@@ -3,10 +3,9 @@
 ![logo](https://s-media-cache-ak0.pinimg.com/236x/b4/c5/20/b4c5200e59fceaf6a5a92c11a77db95f.jpg)
 
 kaiju is a view layer used to build an efficient tree of stateless/stateful components and help you manage that tree data.  
-What kaiju doesn't do: Routing, enforcing a particular routing -> state -> component communication pattern. There are many ways to do that properly, one way is showcased in the [example](https://github.com/AlexGalays/kaiju/tree/master/example/src)  
 
 
-- Data management is streamlined and consistent, whether it's inter-component or intra-component
+- Data management (local/global/inter-component/intra-component) is unified
 - Fast, thanks to [snabbdom](https://github.com/paldepind/snabbdom), aggressive component rendering isolation (a key stroke in one input component should not re-evaluate the whole app) and async RAF rendering
 - Changes can easily be animated (also thanks to snabbdom)
 - Global and local state can optionally use Observables for greater composition
@@ -49,7 +48,7 @@ A component is simply a function that takes an option object as an argument and 
 
 Note: typescript will be used in the examples, however the library also works just fine with javascript.
 
-0) We start with a staless "component"
+0) We start with a stateless "component"
 
 ```ts
 function button() {
