@@ -5,7 +5,7 @@ import { Observable } from '../'
 /**
  * Either a Promise value or an Error thrown by the promise.
  */
-type Result<T> = { value: T } | { error: any }
+export type Result<T> = { value: T } | { error: any }
 
 /**
  * Creates a new Observable from a Promise. The observable will produce only one value:

@@ -1,5 +1,5 @@
-import { Observable, flatMapLatest, pure, map, merge } from 'kaiju/observable'
-import fromPromise, { partition } from 'kaiju/observable/fromPromise'
+import { Observable } from 'kaiju/observable'
+import { partition } from 'kaiju/observable/fromPromise'
 
 
 interface Options<A, B> {
@@ -28,20 +28,20 @@ interface Result<T> {
 export default function observeAjax<A, B>(options: Options<A, B>): Result<B> {
   let { name, trigger, ajax } = options
 
-  const shouldCallNow = 'callNowWith' in options
+  const hasCallNowWith = 'callNowWith' in options
 
-  const actualTrigger: Observable<A> = (() => {
-    if (trigger && shouldCallNow) return merge(trigger, triggerNow(options.callNowWith))
-    if (trigger && !shouldCallNow) return trigger
-    else return triggerNow(undefined)
+  const actualTrigger = (() => {
+    if (trigger && hasCallNowWith) return Observable.merge(trigger, triggerNow(options.callNowWith!))
+    if (trigger) return trigger
+    else return triggerNow(undefined) as any as Observable<A>
   })()
 
-  const [data, error] = partition(flatMapLatest(arg => fromPromise(ajax(arg)), actualTrigger))
+  const [data, error] = partition(actualTrigger.flatMapLatest(arg => Observable.fromPromise(ajax(arg))))
 
-  const loading = merge(
-    map(x => true, actualTrigger),
-    map(x => false, data),
-    map(x => false, error)
+  const loading = Observable.merge(
+    actualTrigger.map(x => true),
+    data.map(x => false),
+    error.map(x => false)
   )
 
   return {
@@ -52,5 +52,5 @@ export default function observeAjax<A, B>(options: Options<A, B>): Result<B> {
 }
 
 function triggerNow<T>(value: T): Observable<T> {
-  return pure(value)
+  return Observable.pure(value)
 }

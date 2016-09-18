@@ -12,8 +12,8 @@
 
   "dependencies": {
     "typescript": "rc",
-    "kaiju": "0.11.0",
-    "snabbdom": "0.5.2",
+    "kaiju": "0.12.0",
+    "snabbdom": "0.5.3",
     "abyssa": "8.0.2",
     "immupdate": "0.3.0",
     "animejs": "1.1.0"

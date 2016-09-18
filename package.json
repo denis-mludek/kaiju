@@ -1,6 +1,6 @@
 {
   "name": "kaiju",
-  "version": "0.11.0",
+  "version": "0.12.0",
   "main": "main",
   "typings": "main.d.ts",
   "description": "Virtual dom, observables / streams and isolated components",
@@ -23,7 +23,10 @@
     "babel-cli": "6.4.5",
     "babel-preset-es2015": "6.14.0",
     "babel-preset-es2015-loose": "7.0.0",
-    "babel-preset-stage-2": "6.3.13"
+    "babel-preset-stage-2": "6.3.13",
+    "mocha": "^2.2.5",
+    "babel-register": "^6.3.13",
+    "expect": "^1.8.0"
   },
 
   "scripts": {
@@ -33,7 +36,8 @@
     "copy-lib-to-example": "cp -rf temp/. example/node_modules/kaiju",
     "delete-temp-folder": "rm -rf temp",
     "build": "npm run copy-typings && npm run babel && npm run copy-lib-to-root && npm run delete-temp-folder",
-    "example-dev": "npm run copy-typings && npm run babel && npm run copy-lib-to-root && npm run copy-lib-to-example && npm run delete-temp-folder"
+    "example-dev": "npm run copy-typings && npm run babel && npm run copy-lib-to-root && npm run copy-lib-to-example && npm run delete-temp-folder",
+    "test": "mocha --recursive --compilers js:babel-register"
   },
 
   "files": [

@@ -8,6 +8,6 @@ import { Observable } from '../'
 export default function fromEvent(name: string, el: Element): Observable<Event>
 
 /*
- * Listens for delegated DOM events at the specified parent element and for children matching the passed CSS selector.
+ * Listens for delegated DOM events at the specified parent element and for child targets matching the passed CSS selector.
  */
 export default function fromEvent(name: string, el: Element, childSelector: string): Observable<Event>

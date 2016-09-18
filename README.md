@@ -129,10 +129,9 @@ every time the message is sent.
 This is very useful because observables can easily be composed:  
 
 ```ts
-import debounce from 'kaiju/observable/debounce'
 
 function connect({ on, msg }: ConnectParams<{}, State>) {
-  const clicks = debounce(1000, msg.listen(click))
+  const clicks = msg.listen(click)).debounce(1000)
 
   on(clicks, state => ({ text: 'clicked' }))
 }
@@ -271,6 +270,7 @@ The characteristics of this observable implementation are:
 
 * Tiny abstraction, fast
 * Has a functional style: all combinators are standalone functions that won't be compiled in your code if you don't import them
+* Also has an OO style, optionally
 * Multicast: All observables are aware that multiple subscribers may be present
 * The last value of an observable can be read by invoking the observable as a function
 * Synchronous: Easier to reason about and friendlier stack traces
@@ -289,12 +289,14 @@ import debounce from 'kaiju/observable/debounce'
 To see observables in action, check the [example's ajax abstraction](https://github.com/AlexGalays/kaiju/tree/master/example/src/util/ajax.ts) and [its usage](https://github.com/AlexGalays/kaiju/tree/master/example/src/blue.ts#L58)
 
 
-## Bulk importing
+## OO style
 
-If you are using a module bundler that can do tree shaking when working with ES6 modules or simply don't care about the (small) extra size, you can import all observable operators with only one import statement:  
+Importing `kaiju/observable` at least once in your codebase has the benefice of adding all the operators to the Observable object and instances for more convenience:  
 
 ```ts
-import { create, debounce, delay } from 'kaiju/observable'
+import { Observable } from 'kaiju/observable'
+
+const obs = Observable.pure(100).map(x => x * 2).delay(200)
 ```
 
 

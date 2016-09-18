@@ -52,7 +52,7 @@ const nonBubblingEvents = Set(
   'waiting',
 )
 
-const proto = Element.prototype
+const proto = (typeof window !== 'undefined' && Element) ? Element.prototype : {}
 const nativeMatches = proto.matches
   || proto.matchesSelector
   || proto.webkitMatchesSelector

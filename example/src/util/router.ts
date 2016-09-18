@@ -1,6 +1,6 @@
 
 import { Router, State, ConfigOptions, StateMap } from 'abyssa'
-import { create, ObservableWithInitialValue } from 'kaiju/observable'
+import { Observable, ObservableWithInitialValue } from 'kaiju/observable'
 
 import * as arr from './array'
 
@@ -33,7 +33,7 @@ export function makeRouter(routes: Route<any>[], routerOptions: ConfigOptions) {
   routerOptions && router.configure(routerOptions)
 
   /* Creates an observable of route changes */
-  const currentRoute = create(add => {
+  const currentRoute = Observable(add => {
     router.on('ended', newState => {
       const route = arr.find(routes, route => route.uri === newState.fullName)
       if (!route) throw new Error('should never get there')
