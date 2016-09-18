@@ -7,7 +7,7 @@
     "lint": "node_modules/tslint/bin/tslint -c build/tslint.json 'src/**/*.ts'",
     "build": "npm run lint && webpack -p --config build/prod.js",
     "watch": "webpack --watch --config build/watch.js",
-    "liveReload": "node build/liveReload"
+    "live": "node build/liveReload"
   },
 
   "dependencies": {

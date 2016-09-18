@@ -36,6 +36,12 @@ const compiler = webpack({
   ]
 })
 
+// When a TS module changes, print a message so we know the app is going to get reloaded
+bs.watch('src/**/*.ts').on('change', () => {
+  bs.notify('Code changed, reloading app...', 9999999)
+})
+
+// Webpack watches everything
 compiler.watch({}, function(err, stats) {
   if (err) {
     console.error('webpack build error')
