@@ -3,7 +3,7 @@ import { Message, NoArgMessage, MessagePayload } from '../main'
 import { ObservableWithInitialValue, Observable } from '../observable'
 
 
-interface OnGlobalMessage<S> {
+interface OnMessage<S> {
   /**
    * Registers an Observable<Value> and call the handler function every time the observable has a new value.
    * The handler is called with the current store state and the new value of the observable.
@@ -26,23 +26,28 @@ interface OnGlobalMessage<S> {
   <P>(message: Message<P>, handler: (state: S, payload: P) => S): void
 }
 
-interface GlobalStore<S> {
+interface Store<S> {
   /**
-   * The observable of this global store's state.
+   * The observable of this store's state.
    * This observable always have a value.
    */
   state: ObservableWithInitialValue<S>
 
   /**
-   * Sends a message to this global store.
+   * Sends a message to this store.
    */
   send: <P>(payload: MessagePayload<P>) => void
+
+  /**
+   * Destroys this transient store
+   */
+  destroy(): void
 }
 
 /**
- * Creates a new global store.
+ * Creates a new store.
  */
-export default function GlobalStore<S>(
+export default function Store<S>(
   initialState: S,
-  registerHandlers: (on: OnGlobalMessage<S>) => void
-): GlobalStore<S>
+  registerHandlers: (on: OnMessage<S>) => void
+): Store<S>

@@ -18,7 +18,8 @@ kaiju is a view layer used to build an efficient tree of stateless/stateful comp
 * [Concepts](#componentization)
   * [Components: step by step guide](#componentization)
   * [Observables](#observables)
-  * [Global stores](#globalStores)
+  * [Local vs Global state](#localglobalstate)
+  * [Stores](#stores)
 * [API](#api)
   * [Creating a Vnode with h](#api-h)
   * [Creating a component](#api-component)
@@ -188,10 +189,10 @@ function render({ props, state }: RenderParams<Props, State>) {
 Now our parent can render the component with more control: It can set the default text that should be displayed initially, but also
 directly sets the paragraph text of the `p` tag.  
 
-When composing components, you must choose which component should own which piece of state. Disregarding global state (which has a use, see [Global store](#globalStores)) for now, local state can reside in a component or any of its parent hierarchy.
+When composing components, you must choose which component should own which piece of state. Disregarding global state for now, local state can reside in a component or any of its parent hierarchy.
 
 
-4) Let's see how we can move the previous button `text` state one level up, so that the component parent can directly set it:  
+4) Let's see how we can move the previous button `text` state one level up, so that the component parent can directly change that state:  
 
 
 ```ts
@@ -299,36 +300,47 @@ import { Observable } from 'kaiju/observable'
 const obs = Observable.pure(100).map(x => x * 2).delay(200)
 ```
 
+<a name="localglobalstate"></a>
+## Local state vs Global state
 
-<a name="globalStores"></a>
-## Global stores
+Choosing whether a particular state is local or global, whether it's very local (component leaf) or not so local
+(owned by a component somewhere else in the tree) is an important decision, although it can easily be refactored
+based on new needs.
 
-A construct is provided to easily build push-based global observables in a type-safe manner. This is entirely optional.    
+You typically want to keep very transient state as local as possible so that it remains encapsulated in a component and do not leak up. Less stateful components are more flexible because their parents can do what they want with that
+component, but more stateful components are more productive, as you can skip having boilerplate to wire the same
+parent state => component props everywhere it's used.  
 
-First, a note on local versus global state:  
-
-You typically want to keep very transient state as local as possible so that it remains encapsulated in a component and do not leak up.  
 <br />
-**Example of typical local state**
+**Example of typically local state**
 * Whether a select dropdown is opened
 * Whether the component is focused
 * Which grid row is highlighted
 * Basically any state that resets if the user navigates away then comes back
 
-Additionally, keeping state that is only useful to one screen should be kept inside the top-most component of that screen and no higher.  
+Additionally, keeping state that is only useful to one screen should be kept inside the top-most component of that screen and no higher. Else, you would have to manually clean up that state when exiting the component.  
 
 That just leaves global state, which can be updated from anywhere and is accessed from multiple screens.  
 <br />
-**Example of typical global state**
+**Example of typically global state**
 * The current url route
 * User preferences
 * Any cached, raw domain data that will be mapped/filtered/transformed in the different screens
+
+
+<a name="stores"></a>
+## Stores
+
+A construct is provided to easily build push-based observables in a type-safe manner. This is entirely optional.  
+
+If you need a piece of state to live outside a component (it's not tied to a particular component's lifecycle), you can either use Observables or Stores.
+The difference is that a Store's state can be updated from the outside via `Messages` and is garanteed to have an initial value whereas an Observable can only be transformed via operators.   
 
 Example:  
 ```ts
 
 import { Message } from 'kaiju'
-import GlobalStore from 'kaiju/store'
+import Store from 'kaiju/store'
 import merge from './util/obj/merge' // Fictitious
 
 
@@ -342,7 +354,7 @@ interface UserState {
 const initialState = { name: 'bob' }
 
 // This exports a store containing an observable ready to be used in a component's connect function
-export default GlobalStore<UserState>(initialState, on => {
+export default Store<UserState>(initialState, on => {
   on(setUserName, (state, name) =>
     merge(state, { name })
   )
@@ -591,7 +603,7 @@ import { patch } from 'kaiju'
 <a name="api-message"></a>
 ## Message
 
-Creates a custom application message used to either communicate between components or send to a [GlobalStore](#globalStores).  
+Creates a custom application message used to either communicate between components or send to a [Store](#stores).  
 
 ```ts
 import { Message } from 'kaiju'
