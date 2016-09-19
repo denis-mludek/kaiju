@@ -193,7 +193,30 @@ export type PatchFunction = (target: Element | Vnode, vnode: Vnode) => Vnode
 type EventHandler = NoArgMessage | Message<Event> | [ Message<any>, any ]
 
 interface VnodeData {
+  key?: string | number
   hook?: Hooks
+  class?: { [index: string]: boolean }
+  styles?: { [index: string]: string }
+  props?: {
+    name?: string
+    value?: string
+    [index: string]: any
+  }
+  attrs?: {
+    id?: string
+    href?: string
+    placeholder?: string
+    type?: string
+    disabled?: boolean
+    checked?: boolean
+    autofocus?: boolean
+    readOnly?: boolean
+    src?: string
+    srcset?: string
+    tabIndex?: number
+    spellcheck?: boolean
+    [index: string]: any
+  }
 	events?: {
     'blur'?: EventHandler
     'change'?: EventHandler
