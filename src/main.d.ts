@@ -222,6 +222,14 @@ interface VnodeData {
     'change'?: EventHandler
     'click'?: EventHandler
     'dblclick'?: EventHandler
+    'drag'?: EventHandler
+    'dragend'?: EventHandler
+    'dragenter'?: EventHandler
+    'dragexit'?: EventHandler
+    'dragleave'?: EventHandler
+    'dragover'?: EventHandler
+    'dragstart'?: EventHandler
+    'drop'?: EventHandler
     'focus'?: EventHandler
     'input'?: EventHandler
     'keydown'?: EventHandler
