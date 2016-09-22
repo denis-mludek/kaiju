@@ -30,7 +30,7 @@ interface State {
 
 function initState() {
   return {
-    count: appStore.state().blue.count,
+    count: undefined!,
     users: [],
     loading: false,
     selectedUser: undefined

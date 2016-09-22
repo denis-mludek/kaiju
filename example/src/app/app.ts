@@ -21,10 +21,7 @@ interface State {
 
 
 function initState() {
-  return {
-    count: appStore.state().blue.count,
-    route: routes.current()
-  }
+  return {} as State
 }
 
 
