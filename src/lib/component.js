@@ -22,7 +22,9 @@ export default function Component(options) {
 
   // An empty placeholder is returned, and that's all our parent is going to see.
   // Each component handles its own internal rendering.
-  return h('component', compProps)
+  const compVnode = h('component', compProps)
+  compProps.component.compVnode = compVnode
+  return compVnode
 }
 
 // Called when the component is created but isn't yet attached to the DOM
@@ -34,7 +36,6 @@ function create(_, vnode) {
 
   // Internal callbacks
   component.lifecycle = {
-    inserted,
     rendered
   }
 
@@ -112,13 +113,13 @@ function create(_, vnode) {
 
     // The component is now attached to the document so activate the DOM based messages
     messages._activate(component.vnode.elm)
-  }
-}
 
-// Store the component depth once it's attached to the DOM so we can render
-// component hierarchies in a predictive (top -> down) manner.
-function inserted(component) {
-  component.depth = getDepth(component.vnode.elm)
+    // Store the component depth once it's attached to the DOM so we can render
+    // component hierarchies in a predictive (top -> down) manner.
+    component.depth = getDepth(component.vnode.elm)
+
+    component.onFirstRender = undefined
+  }
 }
 
 // Called on every parent re-render, this is where the props passed by the component's parent may have changed.
@@ -154,7 +155,7 @@ function rendered(component, newVnode) {
   // Lift any 'remove' hook to our placeholder vnode for it to be called
   // as the placeholder is all our parent vnode knows about.
   const hook = newVnode.data.hook && newVnode.data.hook.remove
-  if (hook) component.placeholder.data.hook.remove = hook
+  if (hook) component.compVnode.data.hook.remove = hook
 }
 
 function destroy(vnode) {

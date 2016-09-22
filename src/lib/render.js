@@ -5,7 +5,6 @@ import log, { shouldLog } from './log'
 
 let componentsToRender = []
 
-let newComponents = []
 let rendering = false
 let nextRender = undefined
 let renderBeginTime = undefined
@@ -26,8 +25,6 @@ export function renderApp(app, appElm) {
   const el = document.createElement('div')
   const emptyVnode = Vnode('div', { key: '_init' }, [], undefined, el)
   const appNode = Render.patch(emptyVnode, app)
-
-  newComponents.forEach(c => c.lifecycle.inserted(c))
 
   appElm.appendChild(appNode.elm)
 
@@ -101,14 +98,12 @@ function renderComponent(component) {
   }
 
   component.lifecycle.rendered(component, newVnode)
-  if (isNew) newComponents.push(component)
 }
 
 function renderNow() {
   rendering = true
 
   nextRender = undefined
-  newComponents = []
 
   logBeginRender()
 
@@ -120,8 +115,6 @@ function renderNow() {
   processRenderQueue()
 
   rendering = false
-
-  newComponents.forEach(c => c.lifecycle.inserted(c))
 
   logEndRender()
 }
