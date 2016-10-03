@@ -132,7 +132,7 @@ This is very useful because observables can easily be composed:
 ```ts
 
 function connect({ on, msg }: ConnectParams<{}, State>) {
-  const clicks = msg.listen(click)).debounce(1000)
+  const clicks = msg.listen(click).debounce(1000)
 
   on(clicks, state => ({ text: 'clicked' }))
 }
