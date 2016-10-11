@@ -1,7 +1,6 @@
 const styles = require('./popup.styl')
 
 import { h, Component, Vnode, Message, NoArgMessage, ConnectParams, RenderParams, patch, isFirstRender } from 'kaiju'
-import * as anime from 'animejs'
 import { findParentByAttr } from '../../util/dom'
 
 
@@ -9,7 +8,7 @@ import { findParentByAttr } from '../../util/dom'
 let popupContainer = document.getElementById('popups')!
 
 interface Props {
-  content: Array<Vnode>
+  content: Vnode[]
   onClose: NoArgMessage
 }
 
@@ -79,10 +78,12 @@ function destroy(vnode: Vnode) {
 
 function popupWithContent(content: Array<Vnode>) {
   return (
-    h(`div.${styles.overlay}`, {
+    h(`div.${styles.container}`, {
       key: 'popup-content',
       hook: isFirstRender() ? { remove: removeAnimation } : { insert: insertAnimation, remove: removeAnimation },
       events: { click: overlayClick } }, [
+
+      h(`div.${styles.overlay}`),
 
       h(`div.${styles.popup}`, {
         attrs: { 'data-popup': true }
@@ -93,40 +94,29 @@ function popupWithContent(content: Array<Vnode>) {
 
 
 const insertAnimation = (vnode: Vnode) => {
-  vnode.elm.style.opacity = '0'
-  anime({
-    targets: vnode.elm,
-    duration: 200,
-    opacity: [0, 1],
-    easing: 'easeOutQuad'
-  })
+  const [overlay, popup] = vnode.elm.children as any as HTMLElement[]
 
-  const popup = vnode.elm.children[0] as HTMLElement
-  popup.style.opacity = '0'
-  anime({
-    targets: popup,
-    duration: 200,
-    delay: 200,
-    opacity: [0, 1],
-    translateY: ['-20px', '0px'],
-    easing: 'easeOutQuad'
-  })
+  overlay.animate(
+    { opacity: [0, 1] },
+    { duration: 300, easing: 'cubic-bezier(0.2, 0.6, 0.3, 1)' }
+  )
+
+  popup.animate(
+    { transform: ['scale(0.7)', 'scale(1)'], opacity: [0, 1] },
+    { duration: 300, easing: 'cubic-bezier(0.2, 0.6, 0.3, 1)' }
+  )
 }
 
 const removeAnimation = (vnode: Vnode, cb: Function) => {
-  anime({
-    targets: vnode.elm,
-    duration: 200,
-    opacity: 0,
-    easing: 'easeInQuad',
-  })
+  const [overlay, popup] = vnode.elm.children as any as HTMLElement[]
 
-  anime({
-    targets: vnode.elm.children[0],
-    duration: 200,
-    opacity: 0,
-    translateY: '-20px',
-    easing: 'easeInQuad',
-    complete: cb
-  })
+  overlay.animate(
+    { opacity: [1, 0] },
+    { duration: 140, easing: 'linear', fill: 'forwards' }
+  )
+
+  popup.animate(
+    { transform: ['scale(1)', 'scale(0.7)'], opacity: [1, 0] },
+    { duration: 140, easing: 'linear', fill: 'forwards' }
+  ).onfinish = cb
 }

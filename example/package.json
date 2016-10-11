@@ -11,12 +11,11 @@
   },
 
   "dependencies": {
-    "typescript": "rc",
+    "typescript": "2.0.3",
     "kaiju": "0.13.2",
     "snabbdom": "0.5.3",
     "abyssa": "8.0.2",
-    "immupdate": "0.3.0",
-    "animejs": "1.1.0"
+    "immupdate": "0.3.0"
   },
 
   "devDependencies": {

@@ -2,7 +2,6 @@ const styles = require('./select.styl')
 
 import update from 'immupdate'
 import { Component, h, Message, ConnectParams, RenderParams, Vnode } from 'kaiju'
-import * as anime from 'animejs'
 
 
 export default function<T>(props: Props<T>) {
@@ -84,26 +83,16 @@ function renderItem(item: any) {
 
 const animationHook = {
   insert: (vnode: Vnode) => {
-
-    vnode.elm.style.opacity = '0'
-    anime({
-      targets: vnode.elm,
-      duration: 140,
-      opacity: [0, 1],
-      translateY: ['-10px', '0px'],
-      easing: 'easeOutQuad',
-    })
+    vnode.elm.animate(
+      { opacity: [0, 1], transform: ['translateY(-20px)', 'translateY(0)'] },
+      { duration: 300, easing: 'cubic-bezier(0.2, 0.6, 0.3, 1)', fill: 'forwards' }
+    )
   },
 
   remove: (vnode: Vnode, cb: Function) => {
-
-    anime({
-      targets: vnode.elm,
-      duration: 140,
-      opacity: 0,
-      translateY: '-10px',
-      easing: 'easeInQuad',
-      complete: cb
-    })
+    vnode.elm.animate(
+      { opacity: [1, 0], transform: ['translateY(0)', 'translateY(-20px)'] },
+      { duration: 200, easing: 'cubic-bezier(0.2, 0.6, 0.3, 1)', fill: 'forwards' }
+    ).onfinish = cb
   }
 }
