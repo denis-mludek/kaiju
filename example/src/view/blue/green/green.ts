@@ -1,11 +1,13 @@
-require('./green.styl')
-const styles = require('./list.styl')
+const styles = require('./green.styl')
+const listStyles = require('./list.styl')
 
 import { Component, h, Message, ConnectParams, RenderParams, Hooks } from 'kaiju'
 import update from 'immupdate'
-import popup, * as Popup from '../../widget/popup'
-import groupFadeAnimation from '../../util/animation/groupFade'
-import * as routes from '../../router'
+import { editIcon } from '../../../icon'
+import popup, * as Popup from '../../../widget/popup'
+import button from '../../../widget/button'
+import groupFadeAnimation from '../../../util/animation/groupFade'
+import * as routes from '../../../router'
 
 
 export default function(props: Props) {
@@ -70,7 +72,14 @@ function render({ props, state }: RenderParams<Props, State>) {
         input('firstName', firstName, true),
         input('lastName', lastName)
       ]),
-      h('button', { events: { mousedown: showPopup } }, 'Open popup'),
+
+      button({
+        className: styles.popupButton,
+        icon: editIcon(),
+        label: 'Open popup',
+        events: { mousedown: showPopup }
+      }),
+
       popupEl
     ])
   )
@@ -84,7 +93,7 @@ function input(name: string, value: string, shouldAutoFocus = false) {
   return (
     h('label', [
       name,
-      h('input', {
+      h(`input.${styles.input}`, {
         props: { name },
         hook,
         forceProps: { value },
@@ -97,7 +106,7 @@ function input(name: string, value: string, shouldAutoFocus = false) {
 function helloPopup() {
   const content = [
     h('h2', 'Hello'),
-    list({ initialItems: [1, 2, 3] }),
+    list({ initialItems: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] }),
     h('button', { events: { click: Popup.close } }, 'Close')
   ]
 
@@ -134,7 +143,7 @@ const list = (() => {
       ])
     ))
 
-    return groupFadeAnimation(`ul.${styles.list}`, itemEls)
+    return groupFadeAnimation(`ul.${listStyles.list}`, itemEls)
   }
 
   return function(props: Props) {

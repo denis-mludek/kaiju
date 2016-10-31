@@ -1,14 +1,14 @@
-require('./layout.styl')
+require('./app.styl')
 
 import { Component, h, ConnectParams, RenderParams } from 'kaiju'
 import update from 'immupdate'
 
-import pageAnimation from '../util/animation/page'
-import link from '../widget/link'
-import index from '../index'
+import pageAnimation from '../../util/animation/page'
+import link from '../../widget/link'
+import index from '../../index'
 import blue from '../blue'
-import appStore from '../appStore'
-import * as routes from '../router'
+import appStore from '../../appStore'
+import * as routes from '../../router'
 
 
 export default Component<void, State>({ name: 'app', initState, connect, render })

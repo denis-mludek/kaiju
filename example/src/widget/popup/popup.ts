@@ -1,5 +1,4 @@
 const styles = require('./popup.styl')
-
 import { h, Component, Vnode, Message, NoArgMessage, ConnectParams, RenderParams, patch, isFirstRender } from 'kaiju'
 import { findParentByAttr } from '../../util/dom'
 
@@ -76,47 +75,47 @@ function destroy(vnode: Vnode) {
   patch(vnode.data['_popup'], h('div'))
 }
 
-function popupWithContent(content: Array<Vnode>) {
+function popupWithContent(content: Vnode[]) {
   return (
-    h(`div.${styles.container}`, {
+    h(`div.${styles.overlay}`, {
       key: 'popup-content',
       hook: isFirstRender() ? { remove: removeAnimation } : { insert: insertAnimation, remove: removeAnimation },
       events: { click: overlayClick } }, [
 
-      h(`div.${styles.overlay}`),
-
-      h(`div.${styles.popup}`, {
-        attrs: { 'data-popup': true }
-      }, content)
+        h(`div.${styles.popup}`, {
+          attrs: { 'data-popup': true }
+        }, content)
     ])
   )
 }
 
 
 const insertAnimation = (vnode: Vnode) => {
-  const [overlay, popup] = vnode.elm.children as any as HTMLElement[]
+  const overlay = vnode.elm
+  const popup = vnode.elm.firstChild as HTMLElement
+
+  popup.style.visibility = 'hidden'
 
   overlay.animate(
     { opacity: [0, 1] },
-    { duration: 300, easing: 'cubic-bezier(0.2, 0.6, 0.3, 1)' }
+    { duration: 130, easing: 'linear' }
   )
+  .onfinish = () => {
+    popup.style.visibility = 'visible'
+    popup.animate(
+      { transform: ['translateY(-100px)', 'translateY(0)'], opacity: [0, 1] },
+      { duration: 300, easing: 'ease-out' }
+    )
+  }
 
-  popup.animate(
-    { transform: ['scale(0.7)', 'scale(1)'], opacity: [0, 1] },
-    { duration: 300, easing: 'cubic-bezier(0.2, 0.6, 0.3, 1)' }
-  )
 }
 
 const removeAnimation = (vnode: Vnode, cb: Function) => {
-  const [overlay, popup] = vnode.elm.children as any as HTMLElement[]
+  const overlay = vnode.elm
 
   overlay.animate(
     { opacity: [1, 0] },
-    { duration: 140, easing: 'linear', fill: 'forwards' }
+    { duration: 120, easing: 'linear', fill: 'forwards' }
   )
-
-  popup.animate(
-    { transform: ['scale(1)', 'scale(0.7)'], opacity: [1, 0] },
-    { duration: 140, easing: 'linear', fill: 'forwards' }
-  ).onfinish = cb
+  .onfinish = cb
 }

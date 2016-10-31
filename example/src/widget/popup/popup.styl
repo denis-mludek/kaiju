@@ -1,29 +1,22 @@
 
-
-.container {
-  position: fixed
-  top: 0
-  left: 0
-  right: 0
-  bottom: 0
-}
-
 .overlay {
-  position: absolute
+  position: fixed
+  text-align: center
+  overflow-y: auto
   top: 0
   left: 0
   right: 0
   bottom: 0
   background: rgba(0, 0, 0, 0.5)
-  overflow-y: scroll
   padding-bottom: 40px
   transform: translateZ(0) // Layerize
 }
 
 .popup {
+  display: inline-block
   width: 300px
   margin-top: 40px
-  margin-left: 22px
+  text-align: left
   padding: 20px
   border-radius: 4px
   background: pink

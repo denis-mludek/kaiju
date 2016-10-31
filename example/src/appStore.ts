@@ -21,7 +21,7 @@ const initState: AppState = {
   blue: { count: 0 }
 }
 
-export default Store<AppState>(initState, on => {
+export default Store(initState, on => {
 
   on(incrementBlue, state => {
     const count = state.blue.count

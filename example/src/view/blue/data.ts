@@ -1,6 +1,6 @@
 import { NoArgMessage, Messages } from 'kaiju'
-import observeAjax from '../util/ajax'
-import * as promise from '../util/promise'
+import observeAjax from '../../util/ajax'
+import * as promise from '../../util/promise'
 
 
 export function getUserData<P>(msg: Messages, trigger: NoArgMessage) {

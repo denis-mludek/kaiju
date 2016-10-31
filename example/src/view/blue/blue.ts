@@ -3,13 +3,13 @@ const styles = require('./blue.styl')
 import { Component, h, ConnectParams, RenderParams, Message } from 'kaiju'
 import update from 'immupdate'
 
-import sectionAnimation from '../util/animation/section'
+import sectionAnimation from '../../util/animation/section'
 import green from './green'
-import appStore, { incrementBlue } from '../appStore'
-import * as routes from '../router'
-import { RouteWithParams, BlueParams } from '../router'
-import select from '../widget/select'
-import link from '../widget/link'
+import appStore, { incrementBlue } from '../../appStore'
+import * as routes from '../../router'
+import { RouteWithParams, BlueParams } from '../../router'
+import select from '../../widget/select'
+import link from '../../widget/link'
 import { getUserData } from './data'
 
 

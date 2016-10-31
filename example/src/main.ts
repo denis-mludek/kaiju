@@ -2,7 +2,7 @@ import './logger'
 
 import { startApp } from 'kaiju'
 
-import app from './app'
+import app from './view/app'
 import forceProps from './util/forceProps'
 
 
