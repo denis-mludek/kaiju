@@ -27,11 +27,11 @@ const overlayClick = Message<Event>('overlayClick')
 // Listen for messages inside the popup container, and redispatch at the Popup launcher level.
 function connect({ on, props, msg }: ConnectParams<Props, void>) {
 
-  on(msg.listenAt('#popups', close), () => {
+  on(msg.listenAt(popupContainer, close), () => {
     msg.sendToParent(props().onClose())
   })
 
-  on(msg.listenAt('#popups', overlayClick), (state, evt) => {
+  on(msg.listenAt(popupContainer, overlayClick), (state, evt) => {
     if (!findParentByAttr('data-popup', evt.target as Element))
       msg.sendToParent(props().onClose())
   })

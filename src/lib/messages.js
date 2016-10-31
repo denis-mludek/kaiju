@@ -21,9 +21,9 @@ Messages.prototype.listen = function(messageType) {
   }).named(messageType._name)
 }
 
-Messages.prototype.listenAt = function(nodeSelector, messageType) {
+Messages.prototype.listenAt = function(selectorOrEl, messageType) {
   return Observable(add => {
-    const el = document.querySelector(nodeSelector)
+    const el = selectorOrEl instanceof Element ? selectorOrEl : document.querySelector(selectorOrEl)
     if (!el) return
 
     el.__subs__ = el.__subs__ || []

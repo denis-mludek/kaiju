@@ -154,7 +154,7 @@ interface Messages {
    * Example:
    * const clicks = msg.listenAt('#page .button', Click)
    */
-  listenAt<P>(selector: string, message: Message<P>): Observable<P>
+  listenAt<P>(selector: string | Element, message: Message<P>): Observable<P>
 
   /**
    * Listens for messages bubbling up to a particular DOM node
@@ -162,7 +162,7 @@ interface Messages {
    * Example:
    * const clicks = msg.listenAt('#page .button', Click)
    */
-  listenAt(selector: string, message: NoArgMessage): Observable<void>
+  listenAt(selector: string | Element, message: NoArgMessage): Observable<void>
 
   /**
    * Sends a message to self. Note: Messages should not be sent synchronously from an on() handler.

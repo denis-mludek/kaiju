@@ -1,7 +1,7 @@
 require('./app.styl')
 
 import { Component, h, ConnectParams, RenderParams } from 'kaiju'
-import update from 'immupdate'
+import update, { replace } from 'immupdate'
 
 import pageAnimation from '../../util/animation/page'
 import link from '../../widget/link'
@@ -27,7 +27,7 @@ function initState() {
 
 function connect({ on }: ConnectParams<void, State>) {
   on(appStore.state, (state, app) => update(state, { count: app.blue.count }))
-  on(routes.current, (state, route) => update(state, { route }))
+  on(routes.current, (state, route) => update(state, { route: replace(route) }))
 }
 
 
