@@ -6,6 +6,8 @@ This example showcases:
 - Custom select/popup components
 - How to do ajax without concurrency issues
 
+The example is deployed [here](http://alexgalays.github.io/kaiju/example/public/#/blue)
+
 
 Installation:  
 
