@@ -8,6 +8,7 @@ import popup, * as Popup from '../../../widget/popup'
 import button from '../../../widget/button'
 import groupFadeAnimation from '../../../util/animation/groupFade'
 import * as routes from '../../../router'
+import { RouteWithParams } from '../../../router'
 
 
 export default function(props: Props) {
@@ -16,13 +17,14 @@ export default function(props: Props) {
 
 
 interface Props {
-  route: routes.RouteWithParams<routes.GreenParams>
+  route: RouteWithParams<typeof routes.green.params>
 }
 
 interface State {
   form: any
   popupOpened: boolean
 }
+
 
 function initState(props: Props) {
   return {

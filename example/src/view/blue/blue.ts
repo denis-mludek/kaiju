@@ -7,7 +7,7 @@ import sectionAnimation from '../../util/animation/section'
 import green from './green'
 import appStore, { incrementBlue } from '../../appStore'
 import * as routes from '../../router'
-import { RouteWithParams, BlueParams } from '../../router'
+import { RouteWithParams } from '../../router'
 import select from '../../widget/select'
 import link from '../../widget/link'
 import { getUserData } from './data'
@@ -17,8 +17,9 @@ export default function(props: Props) {
   return Component<Props, State>({ name: 'blue', initState, connect, props, render })
 }
 
+
 interface Props {
-  route: RouteWithParams<BlueParams>
+  route: RouteWithParams<typeof routes.blue.params>
 }
 
 interface State {
@@ -27,6 +28,7 @@ interface State {
   selectedUser?: string
   loading: boolean
 }
+
 
 function initState() {
   return {

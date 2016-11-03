@@ -13,7 +13,7 @@ interface LinkProps<P> {
 }
 
 export default function link<P>({ route, params, label, isActive = false }: LinkProps<P>) {
-  const href = makeLink(route.uri, params)
+  const href = makeLink(route.fullName, params)
 
   return (
     h('a', {

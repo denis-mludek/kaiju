@@ -9,6 +9,7 @@ import index from '../../index'
 import blue from '../blue'
 import appStore from '../../appStore'
 import * as routes from '../../router'
+import { RouteWithParams } from '../../router'
 
 
 export default Component<void, State>({ name: 'app', initState, connect, render })
@@ -16,7 +17,7 @@ export default Component<void, State>({ name: 'app', initState, connect, render 
 
 interface State {
   count: number
-  route: routes.RouteWithParams<any>
+  route: RouteWithParams<any>
 }
 
 
@@ -53,7 +54,7 @@ function render({ state }: RenderParams<void, State>) {
   ])
 }
 
-function getChildren(route: routes.RouteWithParams<any>) {
+function getChildren(route: RouteWithParams<any>) {
   if (route.is(routes.index)) return [index()]
   if (route.isIn(routes.blue)) return [blue({ route })]
   return []

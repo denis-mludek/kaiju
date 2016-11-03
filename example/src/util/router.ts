@@ -1,17 +1,21 @@
 
 import { Router, State, ConfigOptions, StateMap } from 'abyssa'
 import { Observable, ObservableWithInitialValue } from 'kaiju/observable'
-
 import * as arr from './array'
 
+/* More typesafe, abstraction using abyssa */
 
-/* More typesafe, stateless abstraction using abyssa */
 
+/* A static route definition */
 export interface Route<P> {
   uri: string
   path: string
+  parent?: Route<any>
+  fullName: string
+  params: P // This will never be filled; just there to read the type of the params
 }
 
+/* A materialized route at runtime, complete with actual parsed params */
 export interface RouteWithParams<P> {
   route: Route<P>
   params: P
@@ -24,8 +28,18 @@ export interface RouteWithParams<P> {
 }
 
 export function makeRouter(routes: Route<any>[], routerOptions: ConfigOptions) {
-  const routesObj = routes.reduce((obj, route) => {
-    obj[route.uri] = State(route.uri, {})
+  const rootStates = routes.filter(r => !r.parent)
+
+  function getStateChildren(route: Route<any>): StateMap {
+    return routes.filter(r => r.parent === route).reduce((obj, childRoute) => {
+      obj[childRoute.path] = State(childRoute.uri, {}, getStateChildren(childRoute))
+      return obj
+    }, {} as StateMap)
+  }
+
+  const routesObj = rootStates.reduce((obj, route) => {
+    const children = getStateChildren(route)
+    obj[route.path] = State(route.uri, {}, children)
     return obj
   }, {} as StateMap)
 
@@ -35,7 +49,7 @@ export function makeRouter(routes: Route<any>[], routerOptions: ConfigOptions) {
   /* Creates an observable of route changes */
   const currentRoute = Observable(add => {
     router.on('ended', newState => {
-      const route = arr.find(routes, route => route.uri === newState.fullName)
+      const route = arr.find(routes, route => route.fullName === newState.fullName)
       if (!route) throw new Error('should never get there')
       add(makeRouteWithParams(route, newState.params))
     })
@@ -62,7 +76,15 @@ export function makeRouter(routes: Route<any>[], routerOptions: ConfigOptions) {
 
 export function Route<P>(uri: string): Route<P> {
   const path = uri.split('?')[0]
-  return { uri, path }
+  return { uri, path, fullName: path } as any
+}
+
+export function RouteWithParent<PP>(parent: Route<PP>) {
+  return function<P>(uri: string): Route<P & PP> {
+    const path = uri.split('?')[0]
+    const fullName = `${parent.fullName}.${path}`
+    return { uri, path, parent, fullName } as any
+  }
 }
 
 
@@ -70,7 +92,14 @@ function makeRouteWithParams(route: Route<any>, params: any) {
   return {
     route,
     params,
-    is: (otherRoute: Route<any>) => route.path === otherRoute.path,
-    isIn: (parentRoute: Route<any>) => route.path.indexOf(parentRoute.path) === 0
+    is: (otherRoute: Route<any>) => route.fullName === otherRoute.fullName,
+    isIn: (parentRoute: Route<any>) => {
+      let parent = route
+      while (parent) {
+        if (parent === parentRoute) return true
+        parent = parent.parent!
+      }
+      return false
+    }
   }
 }
