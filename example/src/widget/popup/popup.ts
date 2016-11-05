@@ -1,5 +1,5 @@
 const styles = require('./popup.styl')
-import { h, Component, Vnode, Message, NoArgMessage, ConnectParams, RenderParams, patch, isFirstRender } from 'kaiju'
+import { h, Component, VNode, Message, NoArgMessage, ConnectParams, RenderParams, patch, isFirstRender } from 'kaiju'
 import { findParentByAttr } from '../../util/dom'
 
 
@@ -7,7 +7,7 @@ import { findParentByAttr } from '../../util/dom'
 let popupContainer = document.getElementById('popups')!
 
 interface Props {
-  content: Vnode[]
+  content: VNode[]
   onClose: NoArgMessage
 }
 
@@ -49,7 +49,7 @@ function render({ props }: RenderParams<Props, void>) {
   )
 }
 
-function insert(vnode: Vnode) {
+function insert(vnode: VNode) {
   let target = popupContainer.children[0]
 
   if (!target) {
@@ -62,7 +62,7 @@ function insert(vnode: Vnode) {
   patch(target, popup)
 }
 
-function postpatch(oldVnode: Vnode, vnode: Vnode) {
+function postpatch(oldVNode: VNode, vnode: VNode) {
   const oldPopup = vnode.data['_popup']
   const newPopup = popupWithContent(vnode.data['content'])
 
@@ -71,11 +71,11 @@ function postpatch(oldVnode: Vnode, vnode: Vnode) {
   patch(oldPopup, newPopup)
 }
 
-function destroy(vnode: Vnode) {
+function destroy(vnode: VNode) {
   patch(vnode.data['_popup'], h('div'))
 }
 
-function popupWithContent(content: Vnode[]) {
+function popupWithContent(content: VNode[]) {
   return (
     h(`div.${styles.overlay}`, {
       key: 'popup-content',
@@ -90,7 +90,7 @@ function popupWithContent(content: Vnode[]) {
 }
 
 
-const insertAnimation = (vnode: Vnode) => {
+const insertAnimation = (vnode: VNode) => {
   const overlay = vnode.elm
   const popup = vnode.elm.firstChild as HTMLElement
 
@@ -110,7 +110,7 @@ const insertAnimation = (vnode: Vnode) => {
 
 }
 
-const removeAnimation = (vnode: Vnode, cb: Function) => {
+const removeAnimation = (vnode: VNode, cb: Function) => {
   const overlay = vnode.elm
 
   overlay.animate(

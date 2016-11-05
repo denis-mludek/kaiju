@@ -1,7 +1,7 @@
 const styles = require('./select.styl')
 
 import update from 'immupdate'
-import { Component, h, Message, ConnectParams, RenderParams, Vnode } from 'kaiju'
+import { Component, h, Message, ConnectParams, RenderParams, VNode } from 'kaiju'
 
 
 export default function<T>(props: Props<T>) {
@@ -83,14 +83,14 @@ function renderItem(item: string) {
 }
 
 const animationHook = {
-  insert: (vnode: Vnode) => {
+  insert: (vnode: VNode) => {
     vnode.elm.animate(
       { opacity: [0, 1], transform: ['translateY(-20px)', 'translateY(0)'] },
       { duration: 300, easing: 'cubic-bezier(0.2, 0.6, 0.3, 1)', fill: 'forwards' }
     )
   },
 
-  remove: (vnode: Vnode, cb: Function) => {
+  remove: (vnode: VNode, cb: Function) => {
     vnode.elm.animate(
       { opacity: [1, 0], transform: ['translateY(0)', 'translateY(-20px)'] },
       { duration: 200, easing: 'cubic-bezier(0.2, 0.6, 0.3, 1)', fill: 'forwards' }

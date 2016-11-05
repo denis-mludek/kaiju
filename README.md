@@ -21,9 +21,9 @@ kaiju is a view layer used to build an efficient tree of stateless/stateful comp
   * [Local vs Global state](#localglobalstate)
   * [Stores](#stores)
 * [API](#api)
-  * [Creating a Vnode with h](#api-h)
+  * [Creating a VNode with h](#api-h)
   * [Creating a component](#api-component)
-  * [Altering the DOM from a component/Vnode tree](#api-startApp)
+  * [Altering the DOM from a component/VNode tree](#api-startApp)
     * [startApp](#api-startApp)
     * [patch](#api-patch)
   * [Message: Intra and inter component communication](#api-message)
@@ -34,10 +34,10 @@ kaiju is a view layer used to build an efficient tree of stateless/stateful comp
 # Components: step by step guide
 
 `kaiju` adds the concept of encapsulated components to `snabbdom`'s pure functional virtual dom.  
-Standard Virtual nodes and components are composed to build a `Vnode` tree that can scale in size and complexity.
-A `Vnode` is what you get when calling `snabbdom`'s `h` function for instance.
+Standard Virtual nodes and components are composed to build a `VNode` tree that can scale in size and complexity.
+A `VNode` is what you get when calling `snabbdom`'s `h` function for instance.
 
-A component is simply a function that takes an option object as an argument and returns a `Vnode` ready to be used inside its parent children, i.e, this is a valid array of `Vnodes`:  
+A component is simply a function that takes an option object as an argument and returns a `VNode` ready to be used inside its parent children, i.e, this is a valid array of `VNodes`:  
 
 ```ts
 [
@@ -75,7 +75,7 @@ function render() {
 }
 ```
 
-Now, that isn't terribly useful because we really want our component to be stateful, else we would just use a regular `Vnode` object.
+Now, that isn't terribly useful because we really want our component to be stateful, else we would just use a regular `VNode` object.
 
 2) Let's add some state, and make it change over time:  
 
@@ -142,7 +142,7 @@ Now, the state is only updated if we stopped clicking for 1 second.
 
 
 Our component now has an internal state and we know how to update it. But it's also completely opaque from the outside!  
-In a tree of `Vnodes`, parents must often be able to influence the rendering of their children.
+In a tree of `VNodes`, parents must often be able to influence the rendering of their children.
 
 3) For that purpose, we introduce props:
 
@@ -237,7 +237,7 @@ function render({ props, state }: RenderParams<Props, void>) {
 We now delegate and send a message to our direct parent component so that it can, in turn, listen to that message from its `connect` function and update its own state.
 Note: The child component could send the same Message to its parent (delegation) but we choose to go with a `onClick` property to increase semantics, cohesion and typesafety.
 
-At this point, the component is no longer stateful and providing it didn't have any other state, should be refactored back to a simple function returning a `Vnode`:
+At this point, the component is no longer stateful and providing it didn't have any other state, should be refactored back to a simple function returning a `VNode`:
 
 ```ts
 
@@ -389,9 +389,9 @@ userStore.send(setUserName('Monique'))
 
 
 <a name="api-h"></a>
-## Creating a Vnode with h
+## Creating a VNode with h
 
-Creates a `Vnode`  
+Creates a `VNode`  
 This is proxied to [snabbdom's h](https://github.com/paldepind/snabbdom/blob/master/h.js) so we can add our type definitions transparently.
 
 ```ts
@@ -426,7 +426,7 @@ The `Component` factory function takes an object with the following properties:
 ### name
 
 Mandatory `String`  
-This is the standard Virtual DOM `key` used in the diffing algorithm to uniquely identify this `Vnode`.
+This is the standard Virtual DOM `key` used in the diffing algorithm to uniquely identify this `VNode`.
 It is also used for logging purposes, so it is usually just the name of the component.
 
 ### props
@@ -493,7 +493,7 @@ Full interface:
 
 ```ts
 /**
- * Listens for a message sent from local Vnodes or component children
+ * Listens for a message sent from local VNodes or component children
  */
 listen<P>(message: Message<P>): Observable<P>
 
@@ -530,9 +530,9 @@ Just like with props, a redraw will only get scheduled if the state object chang
 
 ### render
 
-Mandatory `function({ props, state, msg }: RenderParams<Props, State>): Vnode`  
+Mandatory `function({ props, state, msg }: RenderParams<Props, State>): VNode`  
 
-Returns the current Vnode tree of the component based on its props and state.
+Returns the current VNode tree of the component based on its props and state.
 
 Example:  
 
@@ -565,7 +565,7 @@ Installs and performs the initial render of the app synchronously.
 
 ```ts
 function startApp<S>(options: {
-  app: Vnode // The root Vnode
+  app: VNode // The root VNode
   elm: HTMLElement // The root element where the app will be rendered
   snabbdomModules: any[] // The snabbdom modules that should be active during patching
 }): void

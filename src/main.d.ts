@@ -17,7 +17,7 @@
  *  startApp({ app, snabbdomModules, elm: document.body })
  */
 export function startApp<S>(options: {
-  app: Vnode
+  app: VNode
   snabbdomModules: any[]
   elm: Element
 }): void
@@ -67,15 +67,15 @@ export interface RenderParams<P, S> {
 }
 
 /**
- * Creates a Vnode that has a Component lifecycle.
+ * Creates a VNode that has a Component lifecycle.
  */
 export function Component<P, S>(options: {
   name: string
   props?: P
   initState: (initProps: P) => S
   connect: (params: ConnectParams<P, S>) => void
-  render: (params: RenderParams<P, S>) => Vnode
-}): Vnode
+  render: (params: RenderParams<P, S>) => VNode
+}): VNode
 
 // Internals
 
@@ -139,12 +139,12 @@ interface MessagePayload<P> {
 
 interface Messages {
   /**
-   * Listens for a message sent from immediate Vnodes or component children
+   * Listens for a message sent from immediate VNodes or component children
    */
   listen<P>(message: Message<P>): Observable<P>
 
   /**
-   * Listens for a message sent from immediate Vnodes or component children
+   * Listens for a message sent from immediate VNodes or component children
    */
   listen(message: NoArgMessage): Observable<void>
 
@@ -184,15 +184,15 @@ interface Messages {
 // snabbdom
 
 /**
- * Patches the right Vnode into the left Vnode or Element (if it's the first patch)
+ * Patches the right VNode into the left VNode or Element (if it's the first patch)
  */
-export type PatchFunction = (target: Element | Vnode, vnode: Vnode) => Vnode
+export type PatchFunction = (target: Element | VNode, vnode: VNode) => VNode
 
 
 // The third form is for Message.with(), which will take care of type-safety
 type EventHandler = NoArgMessage | Message<Event> | [ Message<any>, any ]
 
-interface VnodeData {
+interface VNodeData {
   key?: string | number
   hook?: Hooks
   class?: { [index: string]: boolean }
@@ -254,34 +254,34 @@ interface VnodeData {
   [s: string]: any
 }
 
-export interface Vnode {
+export interface VNode {
   sel: string
-  data: VnodeData
-  children?: Array<Vnode>
+  data: VNodeData
+  children?: Array<VNode>
   text?: string
   elm: HTMLElement
   key?: string
 }
 
-type Node = Vnode | string
+type Node = VNode | string
 
 interface Hooks {
   pre?: () => void
-  init?: (node: Vnode) => void
-  create?: (emptyNode: any, node: Vnode) => void
-  insert?: (node: Vnode) => void
-  prepatch?: (oldVnode: Vnode, node: Vnode) => void
-  update?: (oldVnode: Vnode, node: Vnode) => void
-  postpatch?: (oldVnode: Vnode, node: Vnode) => void
-  destroy?: (node: Vnode) => void
-  remove?: (node: Vnode, cb: () => void) => void
+  init?: (node: VNode) => void
+  create?: (emptyNode: any, node: VNode) => void
+  insert?: (node: VNode) => void
+  prepatch?: (oldVNode: VNode, node: VNode) => void
+  update?: (oldVNode: VNode, node: VNode) => void
+  postpatch?: (oldVNode: VNode, node: VNode) => void
+  destroy?: (node: VNode) => void
+  remove?: (node: VNode, cb: () => void) => void
   post?: () => void
 }
 
-export function h(sel: string): Vnode
-export function h(sel: string, children: Array<Node> | string): Vnode
-export function h(sel: string, data: VnodeData): Vnode
-export function h(sel: string, data: VnodeData, children: Array<Node> | string): Vnode
+export function h(sel: string): VNode
+export function h(sel: string, children: Array<Node> | string): VNode
+export function h(sel: string, data: VNodeData): VNode
+export function h(sel: string, data: VNodeData, children: Array<Node> | string): VNode
 
 export var patch: PatchFunction
 

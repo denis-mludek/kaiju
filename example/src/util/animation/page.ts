@@ -1,11 +1,11 @@
-import { Vnode } from 'kaiju'
+import { VNode } from 'kaiju'
 import animate from './animation'
 
 
 let onRemoved: Function
 
 const pageAnimations = {
-  create: (empty: Vnode, vnode: Vnode) => {
+  create: (empty: VNode, vnode: VNode) => {
     vnode.elm.style.display = 'none'
 
     onRemoved = () => {
@@ -17,7 +17,7 @@ const pageAnimations = {
     }
   },
 
-  remove: (vnode: Vnode, cb: Function) => {
+  remove: (vnode: VNode, cb: Function) => {
     vnode.elm.animate(
       { opacity: [1, 0], transform: ['translateX(0)', 'translateX(30px)'] },
       { duration: 150, easing: 'linear', fill: 'forwards' }

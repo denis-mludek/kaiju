@@ -1,10 +1,10 @@
 const styles = require('./button.styl')
-import { h, Vnode, EventHandler } from 'kaiju'
+import { h, VNode, EventHandler } from 'kaiju'
 import { addClassName } from '../../util/vnode'
 
 
 interface Props {
-  icon?: Vnode
+  icon?: VNode
   label?: string
   className?: string
   events?: { mousedown: EventHandler }
