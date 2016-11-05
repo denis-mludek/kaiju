@@ -17,7 +17,7 @@ export default Component<void, State>({ name: 'app', initState, connect, render 
 
 interface State {
   count: number
-  route: RouteWithParams<any>
+  route: RouteWithParams<{}>
 }
 
 
@@ -54,7 +54,7 @@ function render({ state }: RenderParams<void, State>) {
   ])
 }
 
-function getChildren(route: RouteWithParams<any>) {
+function getChildren(route: RouteWithParams<{}>) {
   if (route.is(routes.index)) return [index()]
   if (route.isIn(routes.blue)) return [blue({ route })]
   return []

@@ -6,7 +6,7 @@ import { Set } from '../obj'
 
 export default function animate(animations: Animations) {
   return function(sel: string, children: Vnode[]) {
-    const props: any = {
+    const props = {
       key: 'animationHook',
       animations,
       hook: { prepatch }

@@ -87,7 +87,7 @@ function render({ props, state }: RenderParams<Props, State>) {
   )
 }
 
-function getChildren(route: RouteWithParams<any>, state: State) {
+function getChildren(route: RouteWithParams<{}>, state: State) {
   const { selectedUser, users, loading } = state
 
   if (route.is(routes.blue)) return [h('span', 'I am the blue screen index')]

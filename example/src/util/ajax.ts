@@ -18,7 +18,7 @@ interface Options<A, B> {
 
 interface Result<T> {
   data: Observable<T>,
-  error: Observable<any>,
+  error: Observable<{}>,
   loading: Observable<boolean>
 }
 

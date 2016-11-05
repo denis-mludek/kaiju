@@ -10,7 +10,7 @@ import * as arr from './array'
 export interface Route<P> {
   uri: string
   path: string
-  parent?: Route<any>
+  parent?: Route<{}>
   fullName: string
   params: P // This will never be filled; just there to read the type of the params
 }
@@ -27,10 +27,10 @@ export interface RouteWithParams<P> {
   isIn<T>(parent: Route<T>): this is RouteWithParams<T>
 }
 
-export function makeRouter(routes: Route<any>[], routerOptions: ConfigOptions) {
+export function makeRouter(routes: Route<{}>[], routerOptions: ConfigOptions) {
   const rootStates = routes.filter(r => !r.parent)
 
-  function getStateChildren(route: Route<any>): StateMap {
+  function getStateChildren(route: Route<{}>): StateMap {
     return routes.filter(r => r.parent === route).reduce((obj, childRoute) => {
       obj[childRoute.path] = State(childRoute.uri, {}, getStateChildren(childRoute))
       return obj
@@ -55,7 +55,7 @@ export function makeRouter(routes: Route<any>[], routerOptions: ConfigOptions) {
     })
     return () => {}
   })
-  .named('routeChange') as ObservableWithInitialValue<RouteWithParams<any>>
+  .named('routeChange') as ObservableWithInitialValue<RouteWithParams<{}>>
 
   /* Consumes the observable immediately and indefinitely, so it gets its initial value and never stop observing the router */
   currentRoute.subscribe(x => x)
@@ -88,12 +88,12 @@ export function RouteWithParent<PP>(parent: Route<PP>) {
 }
 
 
-function makeRouteWithParams(route: Route<any>, params: any) {
+function makeRouteWithParams(route: Route<{}>, params: {}) {
   return {
     route,
     params,
-    is: (otherRoute: Route<any>) => route.fullName === otherRoute.fullName,
-    isIn: (parentRoute: Route<any>) => {
+    is: (otherRoute: Route<{}>) => route.fullName === otherRoute.fullName,
+    isIn: (parentRoute: Route<{}>) => {
       let parent = route
       while (parent) {
         if (parent === parentRoute) return true

@@ -21,7 +21,7 @@ interface Props {
 }
 
 interface State {
-  form: any
+  form: Obj<string>
   popupOpened: boolean
 }
 

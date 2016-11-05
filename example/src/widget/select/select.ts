@@ -28,21 +28,24 @@ function initState() {
 
 const open = Message('open')
 const close = Message('close')
-const itemSelected = Message<any>('itemSelected')
+const itemSelected = Message<{}>('itemSelected')
 
 
-function connect({ on, props, msg }: ConnectParams<Props<any>, State>) {
+function connect({ on, props, msg }: ConnectParams<Props<{}>, State>) {
   on(open, state => update(state, { opened: true }))
   on(close, state => update(state, { opened: false }))
   on(itemSelected, (state, item) => msg.sendToParent(props().onChange(item)))
 }
 
 
-function render({ props, state }: RenderParams<Props<any>, State>) {
-  const { items, selectedItem, loading } = props
+function render({ props, state }: RenderParams<Props<{}>, State>) {
+  const { items, selectedItem, itemRenderer, loading } = props
   const { opened } = state
 
-  const text = (!loading && items.indexOf(selectedItem) > -1) ? selectedItem : ''
+  const text = (!loading && items.indexOf(selectedItem) > -1)
+    ? itemRenderer ? itemRenderer(selectedItem) : selectedItem.toString()
+    : ''
+
   const dropdownEl = renderDropdownEl(props, opened)
 
   return (
@@ -57,13 +60,11 @@ function render({ props, state }: RenderParams<Props<any>, State>) {
   )
 }
 
-function renderDropdownEl(props: Props<any>, opened: boolean) {
-  const { items, loading } = props
-
-  const itemRenderer = props.itemRenderer || ((item: any) => item.toString())
+function renderDropdownEl(props: Props<{}>, opened: boolean) {
+  const { items, loading, itemRenderer } = props
 
   const itemEls = opened && !loading
-    ? items.map(itemRenderer).map(renderItem)
+    ? (itemRenderer ? items.map(itemRenderer) : items).map(renderItem)
     : undefined
 
   const loaderEl = opened && loading
@@ -77,7 +78,7 @@ function renderDropdownEl(props: Props<any>, opened: boolean) {
     : ''
 }
 
-function renderItem(item: any) {
+function renderItem(item: string) {
   return h('li', { events: { mousedown: itemSelected.with(item) } }, item)
 }
 

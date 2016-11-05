@@ -6,8 +6,8 @@ import { Vnode } from 'kaiju'
 
 function updateProps(oldVnode: Vnode, vnode: Vnode) {
   let key: string
-  let cur: any
-  let old: any
+  let cur: Obj<any> | undefined
+  let old: Obj<any> | undefined
   const elm: any = vnode.elm
   const props = vnode.data['forceProps'] || {}
 
