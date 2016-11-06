@@ -18,6 +18,7 @@ kaiju is a view layer used to build an efficient tree of stateless/stateful comp
 * [Concepts](#componentization)
   * [Components: step by step guide](#componentization)
   * [Observables](#observables)
+  * [Component lifecycle](#componentLifecycle)
   * [Local vs Global state](#localglobalstate)
   * [Stores](#stores)
 * [API](#api)
@@ -292,13 +293,165 @@ To see observables in action, check the [example's ajax abstraction](https://git
 
 ## OO style
 
-Importing `kaiju/observable` at least once in your codebase has the benefice of adding all the operators to the Observable object and instances for more convenience:  
+Importing `kaiju/observable` at least once in your codebase has the benefit of adding all the operators to the Observable object and instances for more convenience:  
 
 ```ts
 import { Observable } from 'kaiju/observable'
 
 const obs = Observable.pure(100).map(x => x * 2).delay(200)
 ```
+
+<a name="componentLifecycle"></a>
+# Component lifecycle
+
+## Creation
+- 1) The component is now included in the application VNode tree for the first time
+- 2) `initState()` is called with the initial props
+- 3) `connect()` is called. Observables are plugged into the component, if they already hold state synchronously, the 
+component's initial state is updated immediately.
+- 4) `render()` is called for the first time
+
+Both `initState` and `render` are called only once when the component first appears.
+
+## Update
+- At any point in time, the component will re-render if either is true:  
+  - The parent rerenders the component with **changed** props (shallow compare)
+  - An Observable registered in `connect` is updated, and an **updated** state (shallow compare) is returned in its handler.
+
+Synchronously sending a message to the component in its `render` method is forbidden to avoid loops.
+
+## Destroy
+When some parent is removed from the tree or when the component's direct parent stops including the component in its render method, the component gets destroyed. `render` will never be called again and all the `Observables` are unregistered from.
+
+Additionally, for any of these phases, the snabbdom [hooks](https://github.com/snabbdom/snabbdom#hooks) can be used on any VNode returned in `render`
+
+## If I want to
+
+**Initiate the component state from the initial props**
+
+Return the init state in `initState`:  
+```ts
+function initState(props: Props) {
+   return { enabled: props.isEnabledByDefault }
+}
+```
+
+**Continuously compute a part of the component state from its props (e.g perf optimization)**
+
+Derive some state from the props Observable in `connect`:  
+
+```ts
+function connect({ on, props }: ConnectParams<Props, State>) {
+   on(props, (state, newProps) => ({ statePart: expensiveOperation(newProps) }))
+}
+```
+There is no need to also derive the state in `initState`, since `props` is
+an observable that always have an initial value (the handler will be called synchronously in `connect`).
+
+**Recompute the component state if its props changed in a specific way**
+
+This is a specialization of the above that avoid doing unnecessary work.
+We just have to remember the last props and compare it with the new ones:  
+
+```ts
+function connect({ on, props }: ConnectParams<Props, State>) {
+   on(props.sliding(2), (state, [newProps, oldProps]) => {
+      if (!oldProps || newProps.expr !== oldProps.expr)
+        return ({ expr: parseExpr(newProps) })
+   })
+}
+```
+Note however that for inexpensive computations, it is generally advised to simply do it in `render` as it's then easier to guarantee props, state and view are in sync.
+
+**Perform a side effect when the component is added or removed**
+
+Use a snabbdom hook.  
+Note: refrain from sending a message in those hooks, it is generally a design smell.  
+
+`create` is called before the element is added to the DOM,  
+`insert` is called after the element is added the DOM,  
+`remove` is called when the node's direct parent removes this node,  
+`destroy` is called when this node is directly or indirectly being removed from the vnode tree.  
+
+```ts
+function render() {
+   return (
+     h('div', { hook: { create: enterAnimation, remove: exitAnimation } })
+   )
+}
+```
+
+**Alter the DOM when the component was rendered**
+
+Use the `postpatch` snabbdom hook.  
+
+```ts
+function render() {
+   return (
+     h('div', { hook: { postpatch: fiddleWithTheDOMBehindYourBack } })
+   )
+}
+```
+
+
+**Clean up a setInterval or remove a DOM event listener when the component is removed**
+Good news everyone! You don't need to, if you use observables.  
+Observables are automatically cleaned up when the component is removed.  
+
+```ts
+function connect({ on }: ConnectProps<Props, State>) {
+  const polling = Observable.interval(2000)
+  on(polling, state => {
+    // This handler will not be called once the component is removed
+    callSomeAjax()
+  })
+  
+  on(Observable.fromEvent('click', document.body), (state, evt) => {
+    // This handler will not be called once the component is removed (the event handler is removed)
+  })
+}
+```
+
+As an intellectual exercice, this is what happens under the hood:   
+
+```ts
+import Observable from 'kaiju/observable'
+
+function connect({ on }: ConnectProps<Props, State>) {
+  const observeDestruction = Observable(_ => () => {
+    /* This is the cleanup function that is called when there are no longer any subscribers to the observable. It will be  called when the component gets removed, provided the component was the sole subscriber */
+  })
+  on(observeDestruction, () => {})
+}
+```
+
+**Store some info in the current component for later use**  
+e.g
+**Instantiate/destroy a vanillaJS widget when the component is added/removed**  
+
+A context object representing the current component instance is created and passed to `connect` and `render`.
+Note: context is unlogged, mutable state; minimize its use.  
+
+Assuming we found some vanillaJS widget named `widget.Map` that has a `create` and `destroy` method:  
+```ts
+type Context = { map: {...}, init: Function, destroy: Function }
+
+function connect({ context }: RenderParams<Props, State> & { context: Context }) {
+  // Optional: We cache the init/destroy hooks so that render don't keep on creating new functions
+  context.init = (_, node: VNode) => { context.map = widget.Map.create(node.elm) }
+  context.destroy = () => { context.map.destroy() }
+}
+
+function render({ props, state, context }: RenderParams<Props, State> & { context: Context }) {
+  return (
+    h('div', { hook: {
+      create: context.init,
+      destroy: context.destroy
+    }})
+  )
+}
+```
+
 
 <a name="localglobalstate"></a>
 ## Local state vs Global state
@@ -308,7 +461,7 @@ Choosing whether a particular state is local or global, whether it's very local 
 based on new needs.
 
 You typically want to keep very transient state as local as possible so that it remains encapsulated in a component and do not leak up. Less stateful components are more flexible because their parents can do what they want with that
-component, but more stateful components are more productive, as you can skip having boilerplate to wire the same
+component, but stateful components are more productive and less error prone, as you can skip having boilerplate to wire the same
 parent state => component props everywhere it's used.  
 
 <br />
