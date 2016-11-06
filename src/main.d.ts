@@ -58,12 +58,14 @@ export interface ConnectParams<P, S> {
   on: RegisterMessages<S>
   props: ObservableWithInitialValue<P>
   msg: Messages
+  context: {}
 }
 
 export interface RenderParams<P, S> {
   props: P
   state: S
   msg: Messages
+  context: {}
 }
 
 /**

@@ -40,11 +40,13 @@ function create(_, vnode) {
   }
 
   const messages = new Messages()
+  const context = {}
 
   component.state = initState(props)
   component.elm = vnode.elm
   component.messages = messages
   component.subscriptions = []
+  component.context = context
 
   const propsObservable = Observable(add => {
     add(component.props)
@@ -95,7 +97,8 @@ function create(_, vnode) {
   const connectParams = {
     on: onObservable,
     props: propsObservable,
-    msg: messages
+    msg: messages,
+    context
   }
 
   connect(connectParams)
