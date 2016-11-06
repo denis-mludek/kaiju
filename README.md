@@ -320,7 +320,7 @@ Both `initState` and `render` are called only once when the component first appe
 
 Synchronously sending a message to the component in its `render` method is forbidden to avoid loops.
 
-## Destroy
+## Destruction
 When some parent is removed from the tree or when the component's direct parent stops including the component in its render method, the component gets destroyed. `render` will never be called again and all the `Observables` are unregistered from.
 
 Additionally, for any of these phases, the snabbdom [hooks](https://github.com/snabbdom/snabbdom#hooks) can be used on any VNode returned in `render`
@@ -394,7 +394,7 @@ function render() {
 ```
 
 
-**Clean up a setInterval or remove a DOM event listener when the component is removed**
+**Clean up a setInterval or remove a DOM event listener when the component is removed**  
 Good news everyone! You don't need to, if you use observables.  
 Observables are automatically cleaned up when the component is removed.  
 
@@ -419,17 +419,19 @@ import Observable from 'kaiju/observable'
 
 function connect({ on }: ConnectProps<Props, State>) {
   const observeDestruction = Observable(_ => () => {
-    /* This is the cleanup function that is called when there are no longer any subscribers to the observable. It will be  called when the component gets removed, provided the component was the sole subscriber */
+    /* This is the cleanup function that is called when there are no longer any subscribers  
+       to the observable. It will be  called when the component gets removed,  
+       provided the component was the sole subscriber */
   })
   on(observeDestruction, () => {})
 }
 ```
 
 **Store some info in the current component for later use**  
-e.g
+e.g  
 **Instantiate/destroy a vanillaJS widget when the component is added/removed**  
 
-A context object representing the current component instance is created and passed to `connect` and `render`.
+A context object representing the current component instance is created and passed to `connect` and `render`.  
 Note: context is unlogged, mutable state; minimize its use.  
 
 Assuming we found some vanillaJS widget named `widget.Map` that has a `create` and `destroy` method:  
