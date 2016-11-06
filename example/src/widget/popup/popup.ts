@@ -4,7 +4,9 @@ import { findParentByAttr } from '../../util/dom'
 
 
 // Popups are rendered in their own top-level container for clean separation of layers.
-let popupContainer = document.getElementById('popups')!
+const popupLayer = document.getElementById('popupLayer')!
+popupLayer.appendChild(document.createElement('div'))
+
 
 interface Props {
   content: VNode[]
@@ -27,14 +29,15 @@ const overlayClick = Message<Event>('overlayClick')
 // Listen for messages inside the popup container, and redispatch at the Popup launcher level.
 function connect({ on, props, msg }: ConnectParams<Props, void>) {
 
-  on(msg.listenAt(popupContainer, close), () => {
+  on(msg.listenAt(popupLayer, close), () => {
     msg.sendToParent(props().onClose())
   })
 
-  on(msg.listenAt(popupContainer, overlayClick), (state, evt) => {
+  on(msg.listenAt(popupLayer, overlayClick), (state, evt) => {
     if (!findParentByAttr('data-popup', evt.target as Element))
       msg.sendToParent(props().onClose())
   })
+
 }
 
 
@@ -50,16 +53,8 @@ function render({ props }: RenderParams<Props, void>) {
 }
 
 function insert(vnode: VNode) {
-  let target = popupContainer.children[0]
-
-  if (!target) {
-    target = document.createElement('div')
-    popupContainer.appendChild(target)
-  }
-
   const popup = vnode.data['_popup'] = popupWithContent(vnode.data['content'])
-
-  patch(target, popup)
+  patch(popupLayer.children[0], popup)
 }
 
 function postpatch(oldVNode: VNode, vnode: VNode) {
@@ -71,8 +66,9 @@ function postpatch(oldVNode: VNode, vnode: VNode) {
   patch(oldPopup, newPopup)
 }
 
+const emptyVNode = h('div')
 function destroy(vnode: VNode) {
-  patch(vnode.data['_popup'], h('div'))
+  patch(vnode.data['_popup'], emptyVNode)
 }
 
 function popupWithContent(content: VNode[]) {
@@ -98,13 +94,13 @@ const insertAnimation = (vnode: VNode) => {
 
   overlay.animate(
     { opacity: [0, 1] },
-    { duration: 130, easing: 'linear' }
+    { duration: 150, easing: 'ease-out' }
   )
   .onfinish = () => {
     popup.style.visibility = 'visible'
     popup.animate(
       { transform: ['translateY(-100px)', 'translateY(0)'], opacity: [0, 1] },
-      { duration: 300, easing: 'ease-out' }
+      { duration: 240, easing: 'ease-out' }
     )
   }
 

@@ -1,4 +1,3 @@
-
 import { Set } from './util'
 import { _sendToElement } from './messages'
 

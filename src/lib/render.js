@@ -1,6 +1,5 @@
-
 import h from 'snabbdom/h'
-import Vnode from 'snabbdom/vnode'
+import VNode from 'snabbdom/vnode'
 import log, { shouldLog } from './log'
 
 let componentsToRender = []
@@ -22,11 +21,7 @@ export function isFirstRender() {
 export function renderApp(app, appElm) {
   logBeginRender()
 
-  const el = document.createElement('div')
-  const emptyVnode = Vnode('div', { key: '_init' }, [], undefined, el)
-  const appNode = Render.patch(emptyVnode, app)
-
-  appElm.appendChild(appNode.elm)
+  patchInto(appElm, app)
 
   processRenderQueue()
 
@@ -80,16 +75,9 @@ function renderComponent(component) {
   let beforeRender
 
   if (log.render) beforeRender = performance.now()
-  const newVnode = render({ props, state, msg: messages })
 
-  let target = vnode
-  if (!target) {
-    const div = document.createElement('div')
-    elm.appendChild(div)
-    target = Vnode('div', { key: '_init' }, [], undefined, div)
-  }
-
-  patch(target, newVnode)
+  const newVNode = render({ props, state, msg: messages })
+  patchInto(vnode || elm, newVNode)
 
   if (shouldLog(log.render, component.key)) {
     const renderTime = Math.round((performance.now() - beforeRender) * 100) / 100
@@ -97,7 +85,7 @@ function renderComponent(component) {
       'font-weight: bold', renderTime + ' ms', '| props: ', props, '| state: ',state)
   }
 
-  component.lifecycle.rendered(component, newVnode)
+  component.lifecycle.rendered(component, newVNode)
 }
 
 function renderNow() {
@@ -139,5 +127,21 @@ function logEndRender() {
   if (log.render) {
     const time = Math.round((performance.now() - renderBeginTime) * 100) / 100
     console.log(`%cRender - end (${time}ms)\n\n\n`, 'color: orange')
+  }
+}
+
+function patchInto(target, node) {
+  const isVNode = !!target.elm
+
+  // Update
+  if (isVNode) {
+    return Render.patch(target, node)
+  }
+  // Creation inside an element container
+  else {
+    const el = document.createElement('div')
+    target.appendChild(el)
+    const elNode = VNode('div', { key: '_init' }, [], undefined, el)
+    return Render.patch(elNode, node)
   }
 }

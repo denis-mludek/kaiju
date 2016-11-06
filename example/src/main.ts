@@ -13,4 +13,4 @@ const snabbdomModules = [
   forceProps
 ]
 
-startApp({ app, snabbdomModules, elm: document.getElementById('screens')! })
+startApp({ app, snabbdomModules, elm: document.getElementById('screenLayer')! })

@@ -1,4 +1,3 @@
-
 import Observable from '../observable/create'
 
 
