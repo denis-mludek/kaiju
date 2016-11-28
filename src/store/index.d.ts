@@ -9,24 +9,24 @@ interface OnMessage<S> {
    * The handler is called with the current store state and the new value of the observable.
    * Returning the current state in the handler is a no-op.
    */
-  <T>(observable: Observable<T>, handler: (state: S, value: T) => S): void
+  <T>(observable: Observable<T>, handler: (state: S, value: T) => S|void): void
 
   /**
    * Registers a Message and call the handler function every time the message is sent.
    * The handler is called with the current store state.
    * Returning the current state in the handler is a no-op.
    */
-  (message: NoArgMessage, handler: (state: S) => S): void
+  (message: NoArgMessage, handler: (state: S) => S|void): void
 
   /**
    * Registers a Message and call the handler function every time the message is sent.
    * The handler is called with the current store state and the payload of the message.
    * Returning the current state in the handler is a no-op.
    */
-  <P>(message: Message<P>, handler: (state: S, payload: P) => S): void
+  <P>(message: Message<P>, handler: (state: S, payload: P) => S|void): void
 }
 
-interface Store<S> {
+export interface Store<S> {
   /**
    * The observable of this store's state.
    * This observable always have a value.
@@ -44,10 +44,16 @@ interface Store<S> {
   destroy(): void
 }
 
+interface StoreOptions {
+  name?: string
+  log?: boolean
+}
+
 /**
  * Creates a new store.
  */
 export default function Store<S>(
   initialState: S,
-  registerHandlers: (on: OnMessage<S>) => void
+  registerHandlers: (on: OnMessage<S>) => void,
+  options?: StoreOptions
 ): Store<S>

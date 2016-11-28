@@ -40,12 +40,12 @@ describe('Observable', () => {
     pushToObservable(10)
     expect(subscribedValue).toBe(10)
 
-    pushToObservable(20)
+    obs(20)
     expect(subscribedValue).toBe(20)
 
     unsub()
 
-    pushToObservable(30)
+    obs(30)
     expect(subscribedValue).toBe(20)
     expect(obs()).toBe(30)
 

@@ -488,7 +488,7 @@ That just leaves global state, which can be updated from anywhere and is accesse
 
 A construct is provided to easily build push-based observables in a type-safe manner. This is entirely optional.  
 
-If you need a piece of state to live outside a component (it's not tied to a particular component's lifecycle), you can either use Observables or Stores.
+If you need a piece of state to live outside a component (it's not tied to a particular component's lifecycle), or you want your components to only care about presentational logic, you can either use Observables or Stores.
 The difference is that a Store's state can be updated from the outside via `Messages` and is garanteed to have an initial value whereas an Observable can only be transformed via operators.   
 
 Example:  

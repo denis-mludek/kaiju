@@ -2,20 +2,24 @@
 
 export default function Observable(activate) {
 
-  function obs() {
-    return (obs._lastValue === UNSET ? undefined : obs._lastValue)
+  function obs(val) {
+    return arguments.length === 0
+      ? (obs._lastValue === UNSET ? undefined : obs._lastValue)
+      : obs._add(val)
   }
 
   obs._subscribers = []
   obs._activate = activate
   obs._lastValue = UNSET
 
-  // Pre-bind _add as it's called in detached mode
+  // Pre-bind _add as it's called as a detached function
   obs._add = (val, name) => {
     obs._lastValue = val
     obs._parentName = name
 
     pushNewValue(val, obs._subscribers, obs._name || name)
+
+    return obs
   }
 
   const protoKeys = Object.keys(proto)
@@ -35,7 +39,7 @@ export const proto = {
     const { _subscribers, _add, _activate, _name, _parentName } = this
 
     if (_subscribers.length === 0)
-      this._unsubscribe = _activate(_add)
+      if (_activate) this._unsubscribe = _activate(_add)
 
     _subscribers.push(cb)
 

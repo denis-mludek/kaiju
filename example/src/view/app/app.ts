@@ -1,38 +1,51 @@
 require('./app.styl')
 
-import { Component, h, ConnectParams, RenderParams } from 'kaiju'
+import { h, ConnectParams, RenderParams } from 'kaiju'
 import update, { replace } from 'immupdate'
 
 import pageAnimation from '../../util/animation/page'
+import { ComponentWithStores } from '../../util/vnode'
 import link from '../../widget/link'
 import index from '../../index'
 import blue from '../blue'
-import appStore from '../../appStore'
+import createAppStore, { AppStore } from './store'
 import * as routes from '../../router'
 import { RouteWithParams } from '../../router'
 
 
-export default Component<void, State>({ name: 'app', initState, connect, render })
+export default ComponentWithStores<{}, State, Stores>(
+  { name: 'app', initState, connect, render },
+  stores
+)
 
+
+interface Stores {
+  appStore: AppStore
+}
 
 interface State {
   count: number
   route: RouteWithParams<{}>
 }
 
+function stores() {
+  return { appStore: createAppStore() }
+}
 
 function initState() {
   return {} as State
 }
 
 
-function connect({ on }: ConnectParams<void, State>) {
-  on(appStore.state, (state, app) => update(state, { count: app.blue.count }))
+function connect({ on, props }: ConnectParams<Stores, State>) {
+  const store = props().appStore
+
+  on(store.state, (state, app) => update(state, { count: app.blue.count }))
   on(routes.current, (state, route) => update(state, { route: replace(route) }))
 }
 
 
-function render({ state }: RenderParams<void, State>) {
+function render({ props, state }: RenderParams<Stores, State>) {
   const { route } = state
 
   return h('div', [
@@ -50,12 +63,12 @@ function render({ state }: RenderParams<void, State>) {
       }),
       String(state.count)
     ]),
-    pageAnimation('main', getChildren(state.route))
+    pageAnimation('main', getChildren(state.route, props.appStore))
   ])
 }
 
-function getChildren(route: RouteWithParams<{}>) {
+function getChildren(route: RouteWithParams<{}>, appStore: AppStore) {
   if (route.is(routes.index)) return [index()]
-  if (route.isIn(routes.blue)) return [blue({ route })]
+  if (route.isIn(routes.blue)) return [blue({ route, appStore })]
   return []
 }

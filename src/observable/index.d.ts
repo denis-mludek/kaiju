@@ -120,7 +120,7 @@ export { ObservableWithInitialValue } from './create'
  * The fist argument function is called every time the observable goes
  * from inactive (no subscribers) to active (the first subscriber just registered)
  *
- * This function must return a function that will be called when the last subscriber unregisters itself from the observable.
+ * This function can optionally return a function that will be called when the last subscriber unregisters itself from the observable.
  * Use this as an opportunity to clean up the observable.
  */
 export const Observable: ObservableObject

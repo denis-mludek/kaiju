@@ -1,7 +1,7 @@
 const styles = require('./green.styl')
 const listStyles = require('./list.styl')
 
-import { Component, h, Message, ConnectParams, RenderParams, Hooks } from 'kaiju'
+import { Component, h, Message, ConnectParams, RenderParams, Hook } from 'kaiju'
 import update from 'immupdate'
 import { editIcon } from '../../../icon'
 import popup, * as Popup from '../../../widget/popup'
@@ -88,7 +88,7 @@ function render({ props, state }: RenderParams<Props, State>) {
 }
 
 function input(name: string, value: string, shouldAutoFocus = false) {
-  const hook: Hooks | undefined = shouldAutoFocus
+  const hook: Hook | undefined = shouldAutoFocus
     ? { insert: node => node.elm.focus() }
     : undefined
 

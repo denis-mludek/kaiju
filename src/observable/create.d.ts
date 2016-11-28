@@ -17,6 +17,14 @@ export interface Observable<T> {
   (): T | void
 }
 
+interface SourceObservable<T> extends Observable<T> {
+  /**
+   * Sets the value of this observable.
+   * The observable is returned for convenient construction with an initial value.
+   */
+  (value: T): SourceObservable<T>
+}
+
 /**
  * A special observable that is garanteed to have an initial value.
  */
@@ -27,8 +35,10 @@ export interface ObservableWithInitialValue<T> extends Observable<T> {
   (): T
 }
 
+type UnsubFunction = void | (() => void)
+
 export interface ObservableObject {
-  <T>(activate: (add: (t: T) => void) => () => void): Observable<T>
+  <T>(activate?: (add: (t: T) => void) => UnsubFunction): SourceObservable<T>
 }
 
 declare const create: ObservableObject

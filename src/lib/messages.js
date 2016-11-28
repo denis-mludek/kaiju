@@ -55,14 +55,21 @@ Messages.prototype._activate = function(el) {
 }
 
 Messages.prototype._receive = function(msg) {
-  const subs = this.subs
-  if (!subs) return
+  if (!this.el) return
 
-  for (let i = 0; i < subs.length; i++) {
-    const sub = subs[i]
-    if (sub.messageType._id === msg._id)
-      sub.observableAdd(msg.payload)
+  const subs = this.subs
+  if (subs) {
+    for (let i = 0; i < subs.length; i++) {
+      const sub = subs[i]
+      if (sub.messageType._id === msg._id) {
+        sub.observableAdd(msg.payload)
+        return
+      }
+    }
   }
+
+  // Not an observable, delegate to store
+  this.el.__comp__.store.send(msg)
 }
 
 export function _sendToElement(el, msg) {

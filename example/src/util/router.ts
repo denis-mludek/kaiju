@@ -12,10 +12,10 @@ export interface Route<P> {
   path: string
   parent?: Route<{}>
   fullName: string
-  params: P // This will never be filled; just there to read the type of the params
+  params: P // This will never be set; just there to read the type of the params
 }
 
-/* A materialized route at runtime, complete with actual parsed params */
+/* A materialized route at runtime, complete with the actual parsed params */
 export interface RouteWithParams<P> {
   route: Route<P>
   params: P
@@ -26,6 +26,7 @@ export interface RouteWithParams<P> {
   /* Determines whether this route is included in or equal another and refine the params to those of that parent */
   isIn<T>(parent: Route<T>): this is RouteWithParams<T>
 }
+
 
 export function makeRouter(routes: Route<{}>[], routerOptions: ConfigOptions) {
   const rootStates = routes.filter(r => !r.parent)
@@ -55,7 +56,7 @@ export function makeRouter(routes: Route<{}>[], routerOptions: ConfigOptions) {
     })
     return () => {}
   })
-  .named('routeChange') as ObservableWithInitialValue<RouteWithParams<{}>>
+  .named('routeChange') as any as ObservableWithInitialValue<RouteWithParams<{}>>
 
   /* Consumes the observable immediately and indefinitely, so it gets its initial value and never stop observing the router */
   currentRoute.subscribe(x => x)

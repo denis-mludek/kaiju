@@ -68,16 +68,18 @@ export interface RenderParams<P, S> {
   context: {}
 }
 
-/**
- * Creates a VNode that has a Component lifecycle.
- */
-export function Component<P, S>(options: {
+interface ComponentOptions<P, S> {
   name: string
   props?: P
   initState: (initProps: P) => S
   connect: (params: ConnectParams<P, S>) => void
   render: (params: RenderParams<P, S>) => VNode
-}): VNode
+}
+
+/**
+ * Creates a VNode that has a Component lifecycle.
+ */
+export function Component<P, S>(options: ComponentOptions<P, S>): VNode
 
 // Internals
 
@@ -156,7 +158,7 @@ interface Messages {
    * Example:
    * const clicks = msg.listenAt('#page .button', Click)
    */
-  listenAt<P>(selector: string | Element, message: Message<P>): Observable<P>
+  listenAt<P>(target: string | Element, message: Message<P>): Observable<P>
 
   /**
    * Listens for messages bubbling up to a particular DOM node
@@ -164,7 +166,7 @@ interface Messages {
    * Example:
    * const clicks = msg.listenAt('#page .button', Click)
    */
-  listenAt(selector: string | Element, message: NoArgMessage): Observable<void>
+  listenAt(target: string | Element, message: NoArgMessage): Observable<void>
 
   /**
    * Sends a message to self. Note: Messages should not be sent synchronously from an on() handler.
@@ -194,9 +196,12 @@ export type PatchFunction = (target: Element | VNode, vnode: VNode) => VNode
 // The third form is for Message.with(), which will take care of type-safety
 type EventHandler = NoArgMessage | Message<Event> | [ Message<any>, any ]
 
+
 interface VNodeData {
+  reduceRight?: 'weReallyNeedThisToBeAnObjectLiteralAndNotAnArray'
+
   key?: string | number
-  hook?: Hooks
+  hook?: Hook
   class?: { [index: string]: boolean }
   styles?: { [index: string]: string }
   props?: {
@@ -261,13 +266,13 @@ export interface VNode {
   data: VNodeData
   children?: Array<VNode>
   text?: string
-  elm: HTMLElement
+  elm: HTMLElement // This is actually wrong as it could be an SVGElement too. Keep it as a HTMLElement for now for convenience.
   key?: string
 }
 
 type Node = VNode | string
 
-interface Hooks {
+export interface Hook {
   pre?: () => void
   init?: (node: VNode) => void
   create?: (emptyNode: any, node: VNode) => void

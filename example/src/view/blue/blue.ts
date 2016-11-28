@@ -1,62 +1,70 @@
 const styles = require('./blue.styl')
 
-import { Component, h, ConnectParams, RenderParams, Message } from 'kaiju'
+import { h, ConnectParams, RenderParams, Message } from 'kaiju'
 import update from 'immupdate'
 
 import sectionAnimation from '../../util/animation/section'
+import { ComponentWithStores } from '../../util/vnode'
 import green from './green'
-import appStore, { incrementBlue } from '../../appStore'
+import { incrementCounter, AppStore } from '../app/store'
 import * as routes from '../../router'
 import { RouteWithParams } from '../../router'
 import select from '../../widget/select'
 import link from '../../widget/link'
-import { getUserData } from './data'
+import userStore, { Users, UserStore, reloadUsers } from './userStore'
 
 
-export default function(props: Props) {
-  return Component<Props, State>({ name: 'blue', initState, connect, props, render })
+export default function blue(props: ParentProps) {
+  return ComponentWithStores<ParentProps, State, Stores>(
+    { name: 'blue', initState, connect, props, render },
+    stores
+  )
 }
 
-
-interface Props {
+interface ParentProps {
   route: RouteWithParams<typeof routes.blue.params>
+  appStore: AppStore
 }
+
+interface Stores {
+  userStore: UserStore
+}
+
+type Props = ParentProps & Stores
 
 interface State {
   count: number
-  users: Array<string>
+  users: Users
   selectedUser?: string
-  loading: boolean
 }
 
+
+function stores() {
+  return { userStore: userStore() }
+}
 
 function initState() {
   return {
     count: undefined!,
-    users: [],
-    loading: false,
+    users: undefined!,
     selectedUser: undefined
   }
 }
 
 
-const increment = Message('increment')
 const userChange = Message<string>('userChange')
-const refreshSelect = Message('refreshSelect')
 
 
-function connect({ on, msg }: ConnectParams<Props, State>) {
+function connect({ on, props }: ConnectParams<Props, State>) {
+  const { appStore, userStore } = props()
 
-  on(increment, _ => appStore.send(incrementBlue()))
+  on(incrementCounter, _ => appStore.send(incrementCounter()))
 
   on(appStore.state, (state, appState) => update(state, { count: appState.blue.count }))
+  on(userStore.state, (state, users) => update(state, { users }))
+  on(reloadUsers, _ => userStore.send(reloadUsers()))
 
   on(userChange, (state, user) => update(state, { selectedUser: user }))
-
-  const users = getUserData(msg, refreshSelect)
-  on(users.data, (state, users) => update(state, { users }))
-  on(users.error, (state, err) => update(state, { users: [] }))
-  on(users.loading, (state, loading) => update(state, { loading }))
 }
 
 function render({ props, state }: RenderParams<Props, State>) {
@@ -80,7 +88,7 @@ function render({ props, state }: RenderParams<Props, State>) {
       }),
       h(`div.${styles.increment}`, [
         'Count: ' + state.count,
-        h('button', { events: { click: increment } }, 'Increment')
+        h('button', { events: { click: incrementCounter } }, 'Increment')
       ]),
       sectionAnimation('section', getChildren(route, state))
     ])
@@ -88,19 +96,19 @@ function render({ props, state }: RenderParams<Props, State>) {
 }
 
 function getChildren(route: RouteWithParams<{}>, state: State) {
-  const { selectedUser, users, loading } = state
+  const { selectedUser, users } = state
 
   if (route.is(routes.blue)) return [h('span', 'I am the blue screen index')]
   if (route.isIn(routes.green)) return [green({ route })]
   if (route.isIn(routes.red)) return [
     h(`div.${styles.red}`, { key: 'red' }, [
-      h('button', { events: { click: refreshSelect } }, 'Refresh select list'),
+      h('button', { events: { click: reloadUsers } }, 'Refresh select list'),
       h('br'),
       select({
-        items: users,
+        items: users.list,
         selectedItem: selectedUser,
         onChange: userChange,
-        loading
+        loading: users.loading
       })
     ])
   ]

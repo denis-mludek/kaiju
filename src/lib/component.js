@@ -3,6 +3,8 @@ import { renderComponentNextFrame, renderComponentNow, renderNewComponentNow } f
 import { shallowEqual } from './util'
 import Messages from './messages'
 import Observable from '../observable/create'
+import { sliding2 } from '../observable/sliding'
+import Store from '../store'
 import log, { shouldLog } from './log'
 
 
@@ -13,7 +15,7 @@ export default function Component(options) {
 
   const key = props.key === undefined ? name : `${name}_${props.key}`
 
-  const compProps = {
+  const data = {
     key,
     hook: { create, postpatch, destroy },
     component: { props, initState, connect, render, key: name },
@@ -22,8 +24,8 @@ export default function Component(options) {
 
   // An empty placeholder is returned, and that's all our parent is going to see.
   // Each component handles its own internal rendering.
-  const compVnode = h('component', compProps)
-  compProps.component.compVnode = compVnode
+  const compVnode = h('component', data)
+  data.component.compVnode = compVnode
   return compVnode
 }
 
@@ -42,10 +44,8 @@ function create(_, vnode) {
   const messages = new Messages()
   const context = {}
 
-  component.state = initState(props)
   component.elm = vnode.elm
   component.messages = messages
-  component.subscriptions = []
   component.context = context
 
   const propsObservable = Observable(add => {
@@ -57,72 +57,56 @@ function create(_, vnode) {
   // the ObservableWithInitialValue interface contract.
   propsObservable.subscribe(x => x)
 
-  // Message | Observable registration function
-  const onObservable = function(observableOrMessage, fn) {
+  component.store = Store(initState(props), on => {
+    const connectParams = {
+      on,
+      props: propsObservable,
+      msg: messages,
+      context
+    }
 
-    const observable = observableOrMessage._isMessage
-      ? messages.listen(observableOrMessage)
-      : observableOrMessage
+    connect(connectParams)
+    connected = true
 
-    const unsubscribe = observable.subscribe((val, name) => {
-      const oldState = component.state
+    // First render.
+    // Render right after our parent (which is in the middle of a patch)
+    // so that we honour the snabbdom's insert hook,
+    // e.g we get patched into our parent after our parent was added to the document.
+    renderNewComponentNow(component)
 
-      // Do not log synchronous observable changes inside connect()
-      if (connected && shouldLog(log.message, component.key))
-        console.log(`%c${name} %creceived by %c${component.key}`,
-          'color: #C963C1', 'color: black',
-          'font-weight: bold', 'with payload', val)
+    component.onFirstRender = () => {
+      // Lookup from HTML Element to component
+      component.vnode.elm.__comp__ = component
 
-      const newState = fn(oldState, val)
+      // The component is now attached to the document so activate the DOM based messages
+      messages._activate(component.vnode.elm)
 
-      if (newState === undefined) return
+      // Store the component depth once it's attached to the DOM so we can render
+      // component hierarchies in a predictive (top -> down) manner.
+      component.depth = getDepth(component.vnode.elm)
 
-      component.state = newState
+      component.onFirstRender = undefined
+    }
+  }, {
+    name: component.key,
+    log: shouldLog(log.message, component.key)
+  })
 
-      const shouldRender =
-        // synchronous observables triggering before the very first render
-        connected &&
-        // the props observable triggered, a synchronous render is made right after so skip
-        !component.lifecycle.propsChanging &&
-        // null update
-        !shallowEqual(oldState, newState)
+  sliding2(component.store.state).subscribe(([newState, oldState]) => {
 
-      if (shouldRender)
-        renderComponentNextFrame(component)
-    })
+    const shouldRender =
+      // Skip the first notification
+      oldState &&
+      // synchronous observables triggering before the very first render
+      connected &&
+      // the props observable triggered, a synchronous render is made right after so skip
+      !component.lifecycle.propsChanging &&
+      // null update
+      !shallowEqual(oldState, newState)
 
-    component.subscriptions.push(unsubscribe)
-  }
-
-  const connectParams = {
-    on: onObservable,
-    props: propsObservable,
-    msg: messages,
-    context
-  }
-
-  connect(connectParams)
-  connected = true
-
-  // First render.
-  // Render right after our parent (which is in the middle of a patch)
-  // so that we honour the snabbdom's insert hook,
-  // e.g we get patched into our parent after our parent was added to the document.
-  renderNewComponentNow(component)
-
-  component.onFirstRender = () => {
-    // Lookup from HTML Element to component
-    component.vnode.elm.__comp__ = component
-
-    // The component is now attached to the document so activate the DOM based messages
-    messages._activate(component.vnode.elm)
-
-    // Store the component depth once it's attached to the DOM so we can render
-    // component hierarchies in a predictive (top -> down) manner.
-    component.depth = getDepth(component.vnode.elm)
-
-    component.onFirstRender = undefined
-  }
+    if (shouldRender)
+      renderComponentNextFrame(component)
+  })
 }
 
 // Called on every parent re-render, this is where the props passed by the component's parent may have changed.
@@ -166,11 +150,9 @@ function destroy(vnode) {
   comp.vnode.elm.__comp__ = null
 
   destroyVnode(comp.vnode)
-  comp.destroyed = true
+  comp.store.destroy()
 
-  for (let i = 0; i < comp.subscriptions.length; i++) {
-    comp.subscriptions[i]()
-  }
+  comp.destroyed = true
 }
 
 // Destroy our vnode recursively
