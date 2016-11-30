@@ -156,14 +156,15 @@ function destroy(vnode) {
 }
 
 // Destroy our vnode recursively
+// Note: Can't invoke modules' destroy hook as they're hidden in snabbdom's closure.
+// The default modules don't do anything in destroy() anyway.
 function destroyVnode(vnode) {
   const data = vnode.data
 
   if (!data) return
+
   if (data.hook && data.hook.destroy) data.hook.destroy(vnode)
-  // Can't invoke modules' destroy hook as they're hidden in snabbdom's closure
   if (vnode.children) vnode.children.forEach(destroyVnode)
-  if (data.vnode) destroyVnode(data.vnode)
 }
 
 function getDepth(elm) {

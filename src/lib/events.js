@@ -34,7 +34,7 @@ function updateEventListeners(oldVnode, vnode) {
   }
 }
 
-export const snabbdomModule = {
+export const eventsModule = {
   create: updateEventListeners,
   update: updateEventListeners
 }
