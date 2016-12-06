@@ -45,18 +45,17 @@ export function makeRouter(routes: Route<{}>[], routerOptions: ConfigOptions) {
   }, {} as StateMap)
 
   const router = Router(routesObj)
-  routerOptions && router.configure(routerOptions)
+  if (routerOptions) router.configure(routerOptions)
 
   /* Creates an observable of route changes */
   const currentRoute = Observable(add => {
     router.on('ended', newState => {
-      const route = arr.find(routes, route => route.fullName === newState.fullName)
+      const route = arr.find(routes, r => r.fullName === newState.fullName)
       if (!route) throw new Error('should never get there')
       add(makeRouteWithParams(route, newState.params))
     })
-    return () => {}
   })
-  .named('routeChange') as any as ObservableWithInitialValue<RouteWithParams<{}>>
+  .named('routeChange') as {} as ObservableWithInitialValue<RouteWithParams<{}>>
 
   /* Consumes the observable immediately and indefinitely, so it gets its initial value and never stop observing the router */
   currentRoute.subscribe(x => x)
@@ -77,14 +76,14 @@ export function makeRouter(routes: Route<{}>[], routerOptions: ConfigOptions) {
 
 export function Route<P>(uri: string): Route<P> {
   const path = uri.split('?')[0]
-  return { uri, path, fullName: path } as any
+  return { uri, path, fullName: path } as {} as Route<P>
 }
 
 export function RouteWithParent<PP>(parent: Route<PP>) {
-  return function<P>(uri: string): Route<P & PP> {
+  return <P>(uri: string) => {
     const path = uri.split('?')[0]
     const fullName = `${parent.fullName}.${path}`
-    return { uri, path, parent, fullName } as any
+    return { uri, path, parent, fullName } as {} as Route<P & PP>
   }
 }
 

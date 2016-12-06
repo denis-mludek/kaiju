@@ -77,13 +77,13 @@ declare module './create' {
     /*
      * Listens for DOM events at the specified element.
      */
-    fromEvent(name: string, el: Element): Observable<Event>
+    fromEvent(name: string, el: Element | EventTarget): Observable<Event>
 
     /*
      * Listens for delegated DOM events at the specified parent element
      * and for child targets matching the passed CSS selector.
      */
-    fromEvent(name: string, el: Element, childSelector: string): Observable<Event>
+    fromEvent(name: string, el: Element | EventTarget, childSelector: string): Observable<Event>
 
     /**
      * Creates a new Observable from a Promise. The observable will produce only one value:

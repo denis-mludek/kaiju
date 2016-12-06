@@ -307,7 +307,7 @@ const obs = Observable.pure(100).map(x => x * 2).delay(200)
 ## Creation
 - 1) The component is now included in the application VNode tree for the first time
 - 2) `initState()` is called with the initial props
-- 3) `connect()` is called. Observables are plugged into the component, if they already hold state synchronously, the 
+- 3) `connect()` is called. Observables are plugged into the component, if they already hold state synchronously, the
 component's initial state is updated immediately.
 - 4) `render()` is called for the first time
 
@@ -405,7 +405,7 @@ function connect({ on }: ConnectProps<Props, State>) {
     // This handler will not be called once the component is removed
     callSomeAjax()
   })
-  
+
   on(Observable.fromEvent('click', document.body), (state, evt) => {
     // This handler will not be called once the component is removed (the event handler is removed)
   })
@@ -567,7 +567,7 @@ h('div', { events: { click: someMessage, mousedown: someMessage } })
 
 // Or prepare the message to be sent with an argument.
 // This is more efficient than creating a closure on every render.
-const anotherMessage = Message<{x: number}>('anotherMessage')
+const anotherMessage = Message<[Event, {x: number}]>('anotherMessage')
 
 h('div', { events: { click: anotherMessage.with({ x: 3 }) } })
 ```
@@ -698,7 +698,7 @@ interface State {
   text: string
 }
 
-const buttonClick = Message<number>('buttonClick')
+const buttonClick = Message<[Event, number]>('buttonClick')
 
 function render({ state }: RenderParams<void, State>) {
   const { text } = state

@@ -18,29 +18,50 @@ interface ComponentWithStoresOptions<P, S, SP> {
   render: (params: RenderParams<P & SP, S>) => VNode
 }
 
-// SP should ideally extend Obj<Store<{}>> but it's then too annoying to write on the call site
-export function ComponentWithStores<P extends Obj<any>, S, SP>(
+export function ComponentWithStores<P extends {}, S, SP extends Obj<Store<{}>>>(
   options: ComponentWithStoresOptions<P, S, SP>,
   storePropsFn: (props: P) => SP): VNode {
 
-  const node = Component<P, S>(options)
+  const result = Component<P, S>(options)
+
+  const hooks = result.data.hook || (result.data.hook = {})
+
+  result.data['ComponentWithStores'] = {
+    previousHooks: {
+      init: hooks.init,
+      postpatch: hooks.postpatch,
+      destroy: hooks.destroy
+    },
+    storePropsFn
+  }
+
+  hooks.init = init
+  hooks.postpatch = postpatch
+  hooks.destroy = destroy
+
+  return result
+}
+
+function init(node: VNode) {
+  const data = node.data['ComponentWithStores']
+  const { storePropsFn, previousHooks } = data
   const props = node.data['component'].props
-  const currentHooks = node.data.hook || (node.data.hook = {})
-  const currentInitHook = currentHooks.init
-  const currentDestroyHook = currentHooks.destroy
+  const stores = data.stores = storePropsFn(props)
+  Object.keys(stores).forEach(storeKey => props[storeKey] = stores[storeKey])
+  if (previousHooks.init) previousHooks.init(node)
+}
 
-  let stores: SP & Obj<Store<{}>>
+function postpatch(oldNode: VNode, newNode: VNode) {
+  const data = oldNode.data['ComponentWithStores']
+  const { stores, previousHooks } = data
+  newNode.data['ComponentWithStores'] = oldNode.data['ComponentWithStores']
+  const props = newNode.data['component'].props
+  Object.keys(stores).forEach(storeKey => props[storeKey] = stores[storeKey])
+  if (previousHooks.postpatch) previousHooks.postpatch(oldNode, newNode)
+}
 
-  currentHooks.init = (node: VNode) => {
-    stores = storePropsFn(props) as any
-    Object.keys(stores).forEach(storeKey => props[storeKey] = stores[storeKey])
-    currentInitHook && currentInitHook(node)
-  }
-
-  currentHooks.destroy = (node: VNode) => {
-    Object.keys(stores).forEach(key => stores[key].destroy())
-    currentDestroyHook && currentDestroyHook(node)
-  }
-
-  return node
+function destroy(node: VNode) {
+  const { stores, previousHooks } = node.data['ComponentWithStores']
+  Object.keys(stores).forEach(key => stores[key].destroy())
+  if (previousHooks.destroy) previousHooks.destroy(node)
 }

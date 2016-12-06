@@ -16,8 +16,5 @@ export default function Message(name) {
 
   message.with = payload => [message, payload]
 
-  // Allows Messages to be used as Object keys with the correct behavior
-  message.toString = () => _id
-
   return message
 }

@@ -5,13 +5,12 @@ import { VNode } from 'kaiju'
 // Mostly useful when trying to force-prevent-default by writing back (some events, like 'input' are not cancellable).
 
 function updateProps(oldVNode: VNode, vnode: VNode) {
-  let key: string
-  let cur: Obj<any> | undefined
-  let old: Obj<any> | undefined
-  const elm: any = vnode.elm
+  let cur: {} | undefined
+  let old: {} | undefined
+  const elm = vnode.elm
   const props = vnode.data['forceProps'] || {}
 
-  for (key in props) {
+  for (const key in props) {
     cur = props[key]
     old = elm[key]
     if (old !== cur) {

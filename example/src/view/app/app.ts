@@ -1,6 +1,7 @@
 require('./app.styl')
 
 import { h, ConnectParams, RenderParams } from 'kaiju'
+import { Store } from 'kaiju/store'
 import update, { replace } from 'immupdate'
 
 import pageAnimation from '../../util/animation/page'
@@ -13,13 +14,13 @@ import * as routes from '../../router'
 import { RouteWithParams } from '../../router'
 
 
-export default ComponentWithStores<{}, State, Stores>(
+export default ComponentWithStores<{}, State, StoreProps>(
   { name: 'app', initState, connect, render },
   stores
 )
 
 
-interface Stores {
+interface StoreProps extends Obj<Store<{}>>  {
   appStore: AppStore
 }
 
@@ -37,7 +38,7 @@ function initState() {
 }
 
 
-function connect({ on, props }: ConnectParams<Stores, State>) {
+function connect({ on, props }: ConnectParams<StoreProps, State>) {
   const store = props().appStore
 
   on(store.state, (state, app) => update(state, { count: app.blue.count }))
@@ -45,7 +46,7 @@ function connect({ on, props }: ConnectParams<Stores, State>) {
 }
 
 
-function render({ props, state }: RenderParams<Stores, State>) {
+function render({ props, state }: RenderParams<StoreProps, State>) {
   const { route } = state
 
   return h('div', [

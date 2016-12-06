@@ -130,13 +130,14 @@ const list = (() => {
     return { items: props.initialItems }
   }
 
-  const deleteRow = Message<number>('deleteRow')
+  const deleteRow = Message<[MouseEvent, number]>('deleteRow')
 
   function connect({ on }: ConnectParams<Props, State>) {
-    on(deleteRow, (state, row) => ({ items: state.items.filter(r => r !== row) }))
+    on(deleteRow, (state, [_, row]) => ({ items: state.items.filter(r => r !== row) }))
   }
 
   function render({ state }: RenderParams<Props, State>) {
+
     const itemEls = state.items.map(item => (
       h('li', { key: item }, [
         h('span', String(item)),
@@ -148,7 +149,7 @@ const list = (() => {
     return groupFadeAnimation(`ul.${listStyles.list}`, itemEls)
   }
 
-  return function(props: Props) {
+  return (props: Props) => {
     return Component<Props, State>({ name: 'list', initState, connect, props, render })
   }
 })()

@@ -1,15 +1,18 @@
 {
-	"compilerOptions": {
-		"target": "es5",
-		"noImplicitAny": true,
-		"strictNullChecks": true
-	},
-	"compileOnSave": false,
-	"atom": {
-		"rewriteTsconfig": false
-	},
-	"filesGlob": [
-		"src/**/*.*",
-		"typings/**/*.d.ts"
-	]
+  "compilerOptions": {
+    "target": "es5",
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  "compileOnSave": false,
+  "atom": {
+    "rewriteTsconfig": false
+  },
+  "filesGlob": [
+    "src/**/*.*",
+    "typings/**/*.d.ts"
+  ]
 }

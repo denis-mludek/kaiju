@@ -10,7 +10,7 @@ export default function<T>(props: Props<T>) {
 
 
 interface Props<T> {
-  items: Array<T>
+  items: T[]
   selectedItem: T
   onChange: Message<T>
   itemRenderer?: (item: T) => string
@@ -28,13 +28,13 @@ function initState() {
 
 const open = Message('open')
 const close = Message('close')
-const itemSelected = Message<{}>('itemSelected')
+const itemSelected = Message<[Event, {}]>('itemSelected')
 
 
 function connect({ on, props, msg }: ConnectParams<Props<{}>, State>) {
   on(open, state => update(state, { opened: true }))
   on(close, state => update(state, { opened: false }))
-  on(itemSelected, (state, item) => msg.sendToParent(props().onChange(item)))
+  on(itemSelected, (state, [_, item]) => msg.sendToParent(props().onChange(item)))
 }
 
 

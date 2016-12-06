@@ -16,7 +16,7 @@
  *
  *  startApp({ app, snabbdomModules, elm: document.body })
  */
-export function startApp<S>(options: {
+export function startApp(options: {
   app: VNode
   snabbdomModules: any[]
   elm: Element
@@ -117,9 +117,9 @@ export interface Message<P> {
   (payload: P): MessagePayload<P>
 
   /**
-   * Used in events: { handlers } to pre-bind the payload of that Message in a memory efficient and typesafe way.
+   * Used in events handlers to pre-bind the payload's data for that Message.
    */
-  with(payload: P): [Message<P>, P]
+   with<Data>(this: Message<[Event, Data]>, data: Data): [this, Data]
 }
 
 /**
@@ -198,6 +198,7 @@ type EventHandler = NoArgMessage | Message<Event> | [ Message<any>, any ]
 
 
 interface VNodeData {
+  /* Tricks structural typing */
   reduceRight?: 'weReallyNeedThisToBeAnObjectLiteralAndNotAnArray'
 
   key?: string | number

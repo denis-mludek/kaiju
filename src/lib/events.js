@@ -21,7 +21,7 @@ function updateEventListeners(oldVnode, vnode) {
       if (listenerIsArray && old && current[0] === old[0] && current[1] === old[1]) return
 
       vnode.elm['on' + name] = listenerIsArray
-        ? evt => _sendToElement(evt.target, current[0](current[1]))
+        ? evt => _sendToElement(evt.target, current[0]([evt, current[1]]))
         : evt => _sendToElement(evt.target, current(evt))
     }
   }

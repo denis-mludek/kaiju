@@ -1,6 +1,7 @@
 const styles = require('./blue.styl')
 
 import { h, ConnectParams, RenderParams, Message } from 'kaiju'
+import { Store } from 'kaiju/store'
 import update from 'immupdate'
 
 import sectionAnimation from '../../util/animation/section'
@@ -15,7 +16,7 @@ import userStore, { Users, UserStore, reloadUsers } from './userStore'
 
 
 export default function blue(props: ParentProps) {
-  return ComponentWithStores<ParentProps, State, Stores>(
+  return ComponentWithStores<ParentProps, State, StoreProps>(
     { name: 'blue', initState, connect, props, render },
     stores
   )
@@ -26,11 +27,11 @@ interface ParentProps {
   appStore: AppStore
 }
 
-interface Stores {
+interface StoreProps extends Obj<Store<{}>> {
   userStore: UserStore
 }
 
-type Props = ParentProps & Stores
+type Props = ParentProps & StoreProps
 
 interface State {
   count: number

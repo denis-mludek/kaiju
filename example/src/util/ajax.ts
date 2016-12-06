@@ -26,7 +26,7 @@ interface Result<I, O> {
  * Creates a data, error and loading observables out of a one-off or recurrent ajax call
  */
 export default function observeAjax<I, O>(options: Options<I, O>): Result<I, O> {
-  let { name, ajax } = options
+  const { name, ajax } = options
 
   const call = Observable<I>()
   const hasCallNowWith = 'callNowWith' in options

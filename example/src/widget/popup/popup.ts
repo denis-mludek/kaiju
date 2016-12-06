@@ -14,7 +14,7 @@ interface Props {
 }
 
 export default function(props: Props) {
-  return Component<Props, void>({ name: 'popup', props, initState, connect, render })
+  return Component<Props, {}>({ name: 'popup', props, initState, connect, render })
 }
 
 function initState() {
@@ -27,7 +27,7 @@ const overlayClick = Message<Event>('overlayClick')
 
 
 // Listen for messages inside the popup container, and redispatch at the Popup launcher level.
-function connect({ on, props, msg }: ConnectParams<Props, void>) {
+function connect({ on, props, msg }: ConnectParams<Props, {}>) {
 
   on(msg.listenAt(popupLayer, close), () => {
     msg.sendToParent(props().onClose())
@@ -41,7 +41,7 @@ function connect({ on, props, msg }: ConnectParams<Props, void>) {
 }
 
 
-function render({ props }: RenderParams<Props, void>) {
+function render({ props }: RenderParams<Props, {}>) {
   const { content } = props
 
   return (

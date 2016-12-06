@@ -30,14 +30,14 @@ export default () => {
 }
 
 
-export function getUserData<P>() {
+export function getUserData() {
 
   function getUsers() {
     interface User {
       name: { first: string, last: string }
     }
 
-    return promise.delay(2000).then(x => fetch('https://randomuser.me/api/?results=10')
+    return promise.delay(2000).then(_ => fetch('https://randomuser.me/api/?results=10')
       .then(res => res.json())
       .then(json => (json.results as Array<User>).map(user =>
         `${user.name.first} ${user.name.last}`)
