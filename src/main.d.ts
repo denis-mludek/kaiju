@@ -30,29 +30,7 @@ import { Observable, ObservableWithInitialValue } from './observable'
 
 // Components
 
-
-interface RegisterMessages<S> {
-  /**
-   * Registers an Observable<Value> and call the handler function every time the observable has a new value.
-   * The handler is called with the current component state and the new value of the observable.
-   * Returning undefined or the current state in the handler is a no-op.
-   */
-  <T>(observable: Observable<T>, handler: (state: S, value: T) => S|void): void
-
-  /**
-   * Registers a Message and call the handler function every time the message is sent.
-   * The handler is called with the current component state.
-   * Returning undefined or the current state in the handler is a no-op.
-   */
-  (message: NoArgMessage, handler: (state: S) => S|void): void
-
-  /**
-   * Registers a Message and call the handler function every time the message is sent.
-   * The handler is called with the current component state and the payload of the message.
-   * Returning undefined or the current state in the handler is a no-op.
-   */
-  <P>(message: Message<P>, handler: (state: S, payload: P) => S|void): void
-}
+import { RegisterMessages } from './store'
 
 export interface ConnectParams<P, S> {
   on: RegisterMessages<S>
@@ -104,7 +82,7 @@ export var log: {
  * A Message taking no payload
  */
 export interface NoArgMessage {
-  (): MessagePayload<void>
+  (): MessagePayload<undefined>
 }
 
 /**
@@ -122,15 +100,26 @@ export interface Message<P> {
    with<Data>(this: Message<[Event, Data]>, data: Data): [this, Data]
 }
 
-/**
- * Creates a new Message type with a debug name. The message carry no payload.
- */
-export function Message(name: string): NoArgMessage
 
-/**
- * Creates a new Message type with a debug name. The message carry one payload.
- */
-export function Message<P>(name: string): Message<P>
+interface MessageObject {
+  /**
+   * Creates a new Message type with a debug name. The message carry no payload.
+   */
+  (name: string): NoArgMessage
+
+  /**
+   * Creates a new Message type with a debug name. The message carry one payload.
+   */
+  <P>(name: string): Message<P>
+
+  /**
+   * A special message sent when another message was not handled
+   */
+  unhandled: Message<MessagePayload<{}>>
+}
+
+export var Message: MessageObject
+
 
 /**
  * The payload of a Message.
@@ -150,7 +139,7 @@ interface Messages {
   /**
    * Listens for a message sent from immediate VNodes or component children
    */
-  listen(message: NoArgMessage): Observable<void>
+  listen(message: NoArgMessage): Observable<undefined>
 
   /**
    * Listens for messages bubbling up to a particular DOM node

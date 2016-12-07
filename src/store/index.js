@@ -1,4 +1,5 @@
 import Observable from '../observable/create'
+import Message from '../lib/message'
 import log from '../lib/log'
 
 
@@ -45,8 +46,8 @@ export default function Store(initialState, registerHandlers, options = empty) {
     }
   }
 
-  function receive(sourceName, handler, arg) {
-    queue.push({ sourceName, handler, arg })
+  function receive(sourceName, handler, arg1, arg2) {
+    queue.push({ sourceName, handler, arg1, arg2 })
 
     if (stack >= 10) throw new Error(`Infinite loop while handling ${sourceName}`)
     if (receiving) return
@@ -57,15 +58,15 @@ export default function Store(initialState, registerHandlers, options = empty) {
 
     try {
       while (queue.length) {
-        const { sourceName, handler, arg } = queue.shift()
+        const { sourceName, handler, arg1, arg2 } = queue.shift()
         stack++
 
         if (shouldLog)
           console.log(`%c${sourceName} %creceived by %c${storeName}`,
             'color: #B31EA6', 'color: black',
-            'font-weight: bold', 'with', arg)
+            'font-weight: bold', 'with', arg1)
 
-        const result = handler(state, arg)
+        const result = handler(state, arg1, arg2)
         if (result !== undefined) state = result
       }
     }
@@ -86,12 +87,13 @@ export default function Store(initialState, registerHandlers, options = empty) {
   registerHandlers(on, msg)
 
   store.send = function(message) {
-    const { _id, _name, payload } = message
+    const { _id, _name, _hasPayload, payload } = message
 
     const handler = handlers[_id]
 
     if (handler) {
-      receive(_name, handler, payload)
+      const [arg1, arg2] = _hasPayload ? [payload, message] : [message, undefined]
+      receive(_name, handler, arg1, arg2)
       return
     }
 
@@ -99,6 +101,13 @@ export default function Store(initialState, registerHandlers, options = empty) {
 
     if (obs) {
       obs(payload)
+      return
+    }
+
+    const unhandled = handlers[Message.unhandled._id]
+
+    if (unhandled) {
+      receive(Message.unhandled._name, unhandled, message)
       return
     }
 

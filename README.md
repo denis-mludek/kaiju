@@ -770,6 +770,21 @@ const increment = Message('increment')
 const incrementBy = Message<number>('incrementBy')
 ```
 
+### Catching unhandled messages
+
+This can be done inside a Store or a component's connect function.  
+For instance, inside a utility component, we could forward any messages we're not interested in to our parent:
+
+```ts
+
+function connect({ on, msg, props }: ConnectParams<Props, State>) {
+
+  on(click, (state, evt) => update(state, { text: 'clicked!' }))
+
+  on(Message.unhandled, (state, message) => msg.sendToParent(message))
+
+}
+```
 
 <a name="api-logging"></a>
 ## Logging data changes and render timing

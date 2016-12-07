@@ -7,7 +7,8 @@ export default function Message(name) {
   const _id = messageId++
 
   function message(payload) {
-    return { _id, _name: name, payload }
+    const _hasPayload = arguments.length !== 0
+    return { _id, _name: name, _hasPayload, payload }
   }
 
   message._id = _id
@@ -18,3 +19,5 @@ export default function Message(name) {
 
   return message
 }
+
+Message.unhandled = Message('unhandled')
