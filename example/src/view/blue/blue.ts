@@ -4,7 +4,7 @@ import { h, ConnectParams, RenderParams, Message } from 'kaiju'
 import { Store } from 'kaiju/store'
 import update from 'immupdate'
 
-import sectionAnimation from '../../util/animation/section'
+import sectionAnimation from '../../widget/animation/section'
 import { ComponentWithStores } from '../../util/vnode'
 import green from './green'
 import { incrementCounter, AppStore } from '../app/store'

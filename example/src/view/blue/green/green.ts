@@ -6,7 +6,7 @@ import update from 'immupdate'
 import { editIcon } from '../../../icon'
 import popup, * as Popup from '../../../widget/popup'
 import button from '../../../widget/button'
-import groupFadeAnimation from '../../../util/animation/groupFade'
+import groupFadeAnimation from '../../../widget/animation/groupFade'
 import * as routes from '../../../router'
 import { RouteWithParams } from '../../../router'
 

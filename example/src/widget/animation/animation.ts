@@ -1,5 +1,5 @@
 import { h, VNode } from 'kaiju'
-import { Set } from '../obj'
+import { Set } from '../../util/obj'
 
 
 /* Container animating its children in and out. children must have keys to be properly differentiated */

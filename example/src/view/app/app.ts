@@ -4,7 +4,7 @@ import { h, ConnectParams, RenderParams } from 'kaiju'
 import { Store } from 'kaiju/store'
 import update, { replace } from 'immupdate'
 
-import pageAnimation from '../../util/animation/page'
+import pageAnimation from '../../widget/animation/page'
 import { ComponentWithStores } from '../../util/vnode'
 import link from '../../widget/link'
 import index from '../../index'
