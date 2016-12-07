@@ -69,7 +69,7 @@ function render({ props, state }: RenderParams<StoreProps, State>) {
 }
 
 function getChildren(route: RouteWithParams<{}>, appStore: AppStore) {
-  if (route.is(routes.index)) return [index()]
   if (route.isIn(routes.blue)) return [blue({ route, appStore })]
+  if (route.is(routes.index)) return [index()]
   return []
 }
