@@ -1,22 +1,29 @@
-import { makeRouter, Route, RouteWithParent, RouteWithParams } from './util/router'
+import { Router, RouteDef, Route as RuntimeRoute } from './util/router'
+import forceProps from './util/forceProps'
+import app from './view/app'
 
-// Re-export for convenience, so we don't have to also import the abstract router util
-export { Route, RouteWithParams }
 
+const snabbdomModules = [
+  require('snabbdom/modules/class'),
+  require('snabbdom/modules/props'),
+  require('snabbdom/modules/attributes'),
+  forceProps
+]
 
-export const index = Route('')
-export const blue = Route<{ id: string }>('blue/:id')
-export const green = RouteWithParent(blue)<{ popup?: string }>('green?popup')
-export const red = RouteWithParent(blue)('red')
+const router = Router({
+  routes: { app: app() },
+  elm: document.querySelector('#screenLayer')!,
+  snabbdomModules,
+  urlSync: 'hash'
+})
 
-const router = makeRouter([
-  index,
-  blue,
-  green,
-  red
-], { urlSync: 'hash' })
+export default router
 
-export const current = router.currentRoute
-export const transitionTo = router.transitionTo
-export const replaceParams = router.instance.replaceParams
-export const link = router.instance.link
+// Skip the first level so that we don't have to write 'app.' everytime
+export const routes = router.routes.app
+
+// We don't actually need to read the Children type of Route; So alias away the second type param for convenience
+type Route<P> = RuntimeRoute<P, {}>
+
+// Re-export for convenience so that we don't have to also import util/router
+export { RouteDef, Route }

@@ -15,7 +15,8 @@ export interface Users {
 
 export type UserStore = StoreType<Users>
 
-export default () => {
+export function UserStore(initId: string) {
+
   const initState = { list: [], loading: false }
 
   return Store<Users>(initState, on => {
@@ -26,7 +27,7 @@ export default () => {
     on(users.loading, (state, loading) => update(state, { loading }))
     on(reloadUsers, () => users.call(undefined))
 
-  }, { name: 'users' })
+  }, { name: 'userStore' })
 }
 
 

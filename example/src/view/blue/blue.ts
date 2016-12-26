@@ -1,117 +1,95 @@
 const styles = require('./blue.styl')
 
-import { h, ConnectParams, RenderParams, Message } from 'kaiju'
-import { Store } from 'kaiju/store'
+import { h, Component, ConnectParams, RenderParams, VNode } from 'kaiju'
 import update from 'immupdate'
 
 import sectionAnimation from '../../widget/animation/section'
-import { ComponentWithStores } from '../../util/vnode'
 import green from './green'
-import { incrementCounter, AppStore } from '../app/store'
-import * as routes from '../../router'
-import { RouteWithParams } from '../../router'
-import select from '../../widget/select'
+import red from './red'
+import { AppStore, incrementCounter } from '../app/store'
+import { routes, RouteDef, Route } from '../../router'
 import link from '../../widget/link'
-import userStore, { Users, UserStore, reloadUsers } from './userStore'
+import { UserStore } from './userStore'
 
 
-export default function blue(props: ParentProps) {
-  return ComponentWithStores<ParentProps, State, StoreProps>(
-    { name: 'blue', initState, connect, props, render },
-    stores
-  )
+type Params = { id: string }
+
+export default function blueRoute(appStore: () => AppStore) {
+  let userStore: UserStore
+
+  return RouteDef('blue/:id', <Params>{}, {
+
+    enter: initRoute => {
+      userStore = UserStore(initRoute.params.id)
+      return (route, child) => blue({ appStore: appStore(), route, child })
+    },
+
+    exit: () => {
+      userStore.destroy()
+    },
+
+    children: {
+      green: green(),
+      red: red(() => userStore)
+    }
+  })
 }
 
-interface ParentProps {
-  route: RouteWithParams<typeof routes.blue.params>
+
+function blue(props: Props) {
+  return Component<Props, State>({ name: 'blue', props, initState, connect, render })
+}
+
+
+interface Props {
+  child: VNode
+  route: Route<Params>
   appStore: AppStore
 }
 
-interface StoreProps extends Obj<Store<{}>> {
-  userStore: UserStore
-}
-
-type Props = ParentProps & StoreProps
-
 interface State {
   count: number
-  users: Users
-  selectedUser?: string
-}
-
-
-function stores() {
-  return { userStore: userStore() }
 }
 
 function initState() {
   return {
-    count: undefined!,
-    users: undefined!,
-    selectedUser: undefined
+    count: undefined!
   }
 }
 
-
-const userChange = Message<string>('userChange')
-
-
 function connect({ on, props }: ConnectParams<Props, State>) {
-  const { appStore, userStore } = props()
+  const { appStore } = props()
 
   on(incrementCounter, _ => appStore.send(incrementCounter()))
 
   on(appStore.state, (state, appState) => update(state, { count: appState.blue.count }))
-  on(userStore.state, (state, users) => update(state, { users }))
-  on(reloadUsers, _ => userStore.send(reloadUsers()))
-
-  on(userChange, (state, user) => update(state, { selectedUser: user }))
 }
 
-function render({ props, state }: RenderParams<Props, State>) {
-  const { route } = props
+
+function render({ props, state }: RenderParams<Props, State>): VNode {
+  const { route, child } = props
   const id = route.params.id
 
   return (
     h('div', [
       h('h1', 'Blue screen'),
       link({
-        route: routes.green,
+        route: routes.blue.green,
         params: { id },
         label: 'Green',
-        isActive: route.isIn(routes.green)
+        isActive: route.isIn(routes.blue.green)
       }),
       link({
-        route: routes.red,
+        route: routes.blue.red,
         params: { id },
         label: 'Red',
-        isActive: route.isIn(routes.red)
+        isActive: route.isIn(routes.blue.red)
       }),
       h(`div.${styles.increment}`, [
         'Count: ' + state.count,
         h('button', { events: { click: incrementCounter } }, 'Increment')
       ]),
-      sectionAnimation('section', getChildren(route, state))
+      sectionAnimation('section', child)
     ])
   )
-}
-
-function getChildren(route: RouteWithParams<{}>, state: State) {
-  const { selectedUser, users } = state
-
-  if (route.is(routes.blue)) return [h('span', 'I am the blue screen index')]
-  if (route.isIn(routes.green)) return [green({ route })]
-  if (route.isIn(routes.red)) return [
-    h(`div.${styles.red}`, { key: 'red' }, [
-      h('button', { events: { click: reloadUsers } }, 'Refresh select list'),
-      h('br'),
-      select({
-        items: users.list,
-        selectedItem: selectedUser,
-        onChange: userChange,
-        loading: users.loading
-      })
-    ])
-  ]
-  return []
 }

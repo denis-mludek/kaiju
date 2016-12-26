@@ -743,14 +743,20 @@ startApp({ app, snabbdomModules, elm: document.body })
 
 ```
 
-<a name="api-patch"></a>
-## patch
+<a name="api-renderInto"></a>
+## renderInto
 
-The `snabbdom` [patch function](https://github.com/paldepind/snabbdom#patch) that kaiju uses. It is made available after the app was created with `startApp`.
-This can be used to create some advanced components with their own internal patching needs (e.g: Efficient popups, alerts, etc).
+This function is made available after the app was created with `startApp`.
+This can be used to create some advanced components with their own internal rendering needs (e.g: Efficient popups, alerts, etc).
 
 ```ts
-import { patch } from 'kaiju'
+import { renderInto, h } from 'kaiju'
+
+// Creates a new div as a child of body
+const currentVdom = renderInto(document.body, h('div'))
+
+// Patch that div so that it becomes a span
+const newVdom = renderInto(currentVdom, h('span'))
 ```
 
 

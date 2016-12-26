@@ -80,7 +80,7 @@ export default function Store(initialState, registerHandlers, options = empty) {
       store.state(state)
   }
 
-  store.state = Observable()(initialState).named(`${storeName} change`)
+  store.state = Observable()(initialState).named(`${storeName}.state`)
   // Eagerly activate (hot)
   store.state.subscribe(x => x)
 

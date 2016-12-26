@@ -27,5 +27,5 @@ export default function() {
       return update(state, { blue: { count: count + 1 } })
     })
 
-  }, { name: 'app' })
+  }, { name: 'appStore' })
 }

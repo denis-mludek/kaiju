@@ -2,6 +2,7 @@ import h from 'snabbdom/h'
 import VNode from 'snabbdom/vnode'
 import log, { shouldLog } from './log'
 
+
 let componentsToRender = []
 
 let rendering = false
@@ -18,19 +19,35 @@ export function isFirstRender() {
   return _isFirstRender
 }
 
-export function renderApp(app, appElm) {
+/**
+ * Generic render function for arbitrary VDOM rendering
+ */
+export function renderVDom(target, vdom) {
+  // Some components are already rendering within an animation frame, piggy back and do it synchronously
+  if (rendering)
+    patchInto(target, vdom)
+  // No component rendering is in progress; just schedule it asap
+  else
+    requestAnimationFrame(() => renderSync(target, vdom))
+}
+
+export function renderSync(target, vdom) {
+  rendering = true
+
   logBeginRender()
 
-  patchInto(appElm, app)
+  patchInto(target, vdom)
 
   processRenderQueue()
 
-  _isFirstRender = false
-
   logEndRender()
+
+  _isFirstRender = false
+  rendering = false
 }
 
 
+/* Render a component immediately. This is used internally and it is assumed a render phase is already ongoing */
 export function renderComponentNow(component) {
   if (componentsToRender.indexOf(component) === -1)
     componentsToRender.push(component)

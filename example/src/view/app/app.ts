@@ -1,36 +1,42 @@
 require('./app.styl')
 
-import { h, ConnectParams, RenderParams } from 'kaiju'
-import { Store } from 'kaiju/store'
-import update, { replace } from 'immupdate'
+import { h, Component, ConnectParams, RenderParams, VNode } from 'kaiju'
+import update from 'immupdate'
 
 import pageAnimation from '../../widget/animation/page'
-import { ComponentWithStores } from '../../util/vnode'
 import link from '../../widget/link'
-import index from '../../index'
+import index from '../index'
 import blue from '../blue'
 import createAppStore, { AppStore } from './store'
-import * as routes from '../../router'
-import { RouteWithParams } from '../../router'
+import { routes, RouteDef, Route } from '../../router'
 
 
-export default ComponentWithStores<{}, State, StoreProps>(
-  { name: 'app', initState, connect, render },
-  stores
-)
+export default function route() {
+  const appStore = createAppStore()
+
+  return RouteDef('', {}, {
+    enter: initRoute => (route, child) => app({ appStore, child, route }),
+
+    children: {
+      index: index(),
+      blue: blue(() => appStore)
+    }
+  })
+}
 
 
-interface StoreProps extends Obj<Store<{}>>  {
+function app(props: Props) {
+  return Component<Props, State>({ name: 'app', props, initState, connect, render })
+}
+
+type Props = {
   appStore: AppStore
+  route: Route<{}>
+  child: VNode
 }
 
-interface State {
+type State = {
   count: number
-  route: RouteWithParams<{}>
-}
-
-function stores() {
-  return { appStore: createAppStore() }
 }
 
 function initState() {
@@ -38,23 +44,22 @@ function initState() {
 }
 
 
-function connect({ on, props }: ConnectParams<StoreProps, State>) {
+function connect({ on, props }: ConnectParams<Props, State>) {
   const store = props().appStore
 
   on(store.state, (state, app) => update(state, { count: app.blue.count }))
-  on(routes.current, (state, route) => update(state, { route: replace(route) }))
 }
 
 
-function render({ props, state }: RenderParams<StoreProps, State>) {
-  const { route } = state
+function render({ props, state }: RenderParams<Props, State>): VNode {
+  const { route, child } = props
 
   return h('div', [
     h('header', [
       link({
         route: routes.index,
         label: 'Index',
-        isActive: route.is(routes.index)
+        isActive: route.isIn(routes.index)
       }),
       link({
         route: routes.blue,
@@ -64,12 +69,6 @@ function render({ props, state }: RenderParams<StoreProps, State>) {
       }),
       String(state.count)
     ]),
-    pageAnimation('main', getChildren(state.route, props.appStore))
+    pageAnimation('main', child)
   ])
-}
-
-function getChildren(route: RouteWithParams<{}>, appStore: AppStore) {
-  if (route.isIn(routes.blue)) return [blue({ route, appStore })]
-  if (route.is(routes.index)) return [index()]
-  return []
 }

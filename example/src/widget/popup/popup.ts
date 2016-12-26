@@ -1,11 +1,10 @@
 const styles = require('./popup.styl')
-import { h, Component, VNode, Message, NoArgMessage, ConnectParams, RenderParams, patch, isFirstRender } from 'kaiju'
+import { h, Component, VNode, Message, NoArgMessage, ConnectParams, RenderParams, renderInto, isFirstRender } from 'kaiju'
 import { findParentByAttr } from '../../util/dom'
 
 
 // Popups are rendered in their own top-level container for clean separation of layers.
 const popupLayer = document.getElementById('popupLayer')!
-popupLayer.appendChild(document.createElement('div'))
 
 
 interface Props {
@@ -54,28 +53,28 @@ function render({ props }: RenderParams<Props, {}>) {
 
 function insert(vnode: VNode) {
   const popup = vnode.data['_popup'] = popupWithContent(vnode.data['content'])
-  patch(popupLayer.children[0], popup)
+  renderInto(popupLayer, popup)
 }
 
 function postpatch(oldVNode: VNode, vnode: VNode) {
-  const oldPopup = vnode.data['_popup']
+  const oldPopup = oldVNode.data['_popup']
   const newPopup = popupWithContent(vnode.data['content'])
 
   vnode.data['_popup'] = newPopup
 
-  patch(oldPopup, newPopup)
+  renderInto(oldPopup, newPopup)
 }
 
 const emptyVNode = h('div')
 function destroy(vnode: VNode) {
-  patch(vnode.data['_popup'], emptyVNode)
+  renderInto(vnode.data['_popup'], emptyVNode)
 }
 
 function popupWithContent(content: VNode[]) {
   return (
     h(`div.${styles.overlay}`, {
       key: 'popup-content',
-      hook: isFirstRender() ? { remove: removeAnimation } : { insert: insertAnimation, remove: removeAnimation },
+      hook: { insert: isFirstRender() ? undefined : insertAnimation, remove: removeAnimation },
       events: { click: overlayClick } }, [
 
         h(`div.${styles.popup}`, {
@@ -113,5 +112,8 @@ const removeAnimation = (vnode: VNode, cb: Function) => {
     { opacity: [1, 0] },
     { duration: 120, easing: 'linear', fill: 'forwards' }
   )
-  .onfinish = cb
+  .onfinish = () => {
+    cb()
+    popupLayer.removeChild(popupLayer.firstChild!)
+  }
 }

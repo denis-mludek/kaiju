@@ -18,7 +18,7 @@
  */
 export function startApp(options: {
   app: VNode
-  snabbdomModules: any[]
+  snabbdomModules: Array<{}>
   elm: Element
 }): void
 
@@ -176,12 +176,6 @@ interface Messages {
 
 // snabbdom
 
-/**
- * Patches the right VNode into the left VNode or Element (if it's the first patch)
- */
-export type PatchFunction = (target: Element | VNode, vnode: VNode) => VNode
-
-
 // The third form is for Message.with(), which will take care of type-safety
 type EventHandler = NoArgMessage | Message<Event> | [ Message<any>, any ]
 
@@ -280,6 +274,6 @@ export function h(sel: string, children: Array<Node> | string): VNode
 export function h(sel: string, data: VNodeData): VNode
 export function h(sel: string, data: VNodeData, children: Array<Node> | string): VNode
 
-export var patch: PatchFunction
+export var renderInto: (target: Element | VNode, vnode: VNode) => void
 
 export function isFirstRender(): boolean

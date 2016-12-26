@@ -11,9 +11,9 @@
   },
 
   "dependencies": {
-    "typescript": "2.1.4",
-    "kaiju": "0.16.0",
-    "snabbdom": "0.5.3",
+    "typescript": "2.2.0-dev.20161221",
+    "kaiju": "0.17.0",
+    "snabbdom": "0.5.4",
     "abyssa": "8.0.2",
     "immupdate": "0.3.0"
   },

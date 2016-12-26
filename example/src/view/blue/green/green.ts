@@ -7,17 +7,26 @@ import { editIcon } from '../../../icon'
 import popup, * as Popup from '../../../widget/popup'
 import button from '../../../widget/button'
 import groupFadeAnimation from '../../../widget/animation/groupFade'
-import * as routes from '../../../router'
-import { RouteWithParams } from '../../../router'
+import router, { RouteDef, Route } from '../../../router'
 
 
-export default function(props: Props) {
+type Params = { id: string, popup?: string }
+
+export default function route() {
+  return RouteDef('green?popup', <Params>{}, {
+    enter: initRoute => route => green({ route }),
+    children: {}
+  })
+}
+
+
+function green(props: Props) {
   return Component<Props, State>({ name: 'green', props, initState, connect, render })
 }
 
 
 interface Props {
-  route: RouteWithParams<typeof routes.green.params>
+  route: Route<Params>
 }
 
 interface State {
@@ -48,13 +57,13 @@ function connect({ on, props }: ConnectParams<Props, State>) {
 
   on(showPopup, state => {
     const params = update(props().route.params, { popup: 'true' })
-    routes.replaceParams(params)
+    router.replaceParams(params)
     return update(state, { popupOpened: true })
   })
 
   on(Popup.close, state => {
     const params = update(props().route.params, { popup: undefined })
-    routes.replaceParams(params)
+    router.replaceParams(params)
     return update(state, { popupOpened: false })
   })
 }
@@ -70,6 +79,7 @@ function render({ props, state }: RenderParams<Props, State>) {
   return (
     h('div', [
       `Green (route id = ${route.params.id})`,
+
       h('form', [
         input('firstName', firstName, true),
         input('lastName', lastName)
