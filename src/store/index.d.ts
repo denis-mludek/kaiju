@@ -13,17 +13,17 @@ export interface RegisterMessages<S> {
 
   /**
    * Registers a Message and call the handler function every time the message is sent.
-   * The handler is called with the current state and the original message (ready to be forwarded, etc)
+   * The handler is called with the current state.
    * Returning undefined or the current state in the handler is a no-op.
    */
-  (message: NoArgMessage, handler: (state: S, message: MessagePayload<undefined>) => S|void): void
+  (message: NoArgMessage, handler: (state: S) => S|void): void
 
   /**
    * Registers a Message and call the handler function every time the message is sent.
-   * The handler is called with the current state, the payload of the message and the original message (ready to be forwarded, etc)
+   * The handler is called with the current state and the payload of the message.
    * Returning undefined or the current state in the handler is a no-op.
    */
-  <P>(message: Message<P>, handler: (state: S, payload: P, message: MessagePayload<P>) => S|void): void
+  <P>(message: Message<P>, handler: (state: S, payload: P) => S|void): void
 }
 
 export interface Messages {

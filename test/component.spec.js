@@ -155,10 +155,10 @@ describe('Component', () => {
           receivedMessages.push('childLocal')
         })
 
-        on(forwarded, (state, evt, message) => {
+        on(forwarded, (state, evt) => {
           expect(evt.currentTarget).toExist()
           receivedMessages.push('childForwarded')
-          msg.sendToParent(message)
+          msg.sendToParent(forwarded(evt))
         })
 
         on(Message.unhandled, (state, message) => {

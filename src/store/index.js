@@ -49,8 +49,8 @@ export default function Store(initialState, registerHandlers, options = empty) {
     }
   }
 
-  function receive(sourceName, handler, arg1, arg2) {
-    queue.push({ sourceName, handler, arg1, arg2 })
+  function receive(sourceName, handler, arg) {
+    queue.push({ sourceName, handler, arg })
 
     if (stack >= 10) throw new Error(`Infinite loop while handling ${sourceName}`)
     if (receiving) return
@@ -61,15 +61,17 @@ export default function Store(initialState, registerHandlers, options = empty) {
 
     try {
       while (queue.length) {
-        const { sourceName, handler, arg1, arg2 } = queue.shift()
+        const { sourceName, handler, arg } = queue.shift()
         stack++
 
         if (shouldLog)
-          console.log(`%c${sourceName} %creceived by %c${storeName}`,
+          console.log(
+            `%c${sourceName} %creceived by %c${storeName}`,
             'color: #B31EA6', 'color: black',
-            'font-weight: bold', 'with', arg1)
+            'font-weight: bold', 'with', arg
+          )
 
-        const result = handler(state, arg1, arg2)
+        const result = handler(state, arg)
         if (result !== undefined) state = result
       }
     }
@@ -90,13 +92,12 @@ export default function Store(initialState, registerHandlers, options = empty) {
   registerHandlers(on, msg)
 
   store.send = function(message) {
-    const { _id, _name, _hasPayload, payload } = message
+    const { _id, _name, payload } = message
 
     const handler = handlers[_id]
 
     if (handler) {
-      const [arg1, arg2] = _hasPayload ? [payload, message] : [message, undefined]
-      receive(_name, handler, arg1, arg2)
+      receive(_name, handler, payload)
       return
     }
 
@@ -114,7 +115,7 @@ export default function Store(initialState, registerHandlers, options = empty) {
       return
     }
 
-    console.warn(`${storeName}.send: Unhandled message: `, _name)
+    console.warn(`${storeName}: Unhandled message: `, _name)
   }
 
   store.destroy = function() {

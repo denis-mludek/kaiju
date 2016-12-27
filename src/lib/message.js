@@ -7,8 +7,7 @@ export default function Message(name) {
   const _id = messageId++
 
   function message(payload) {
-    const _hasPayload = arguments.length !== 0
-    return { _id, _name: name, _hasPayload, payload }
+    return { _id, _name: name, payload }
   }
 
   message._id = _id
