@@ -67,11 +67,13 @@ describe('Store', () => {
 
     const increaseBy = Message('increaseBy')
     const pleaseIncreaseBy = Message('pleaseIncreaseBy')
+    const pleaseIncreaseBy2 = Message('pleaseIncreaseBy2')
     const pleaseIncreaseByObservable = Observable().named('pleaseIncreaseBy')
 
     const initState = { num: 10 }
-    const store = Store(initState, on => {
+    const store = Store(initState, (on, msg) => {
       on(pleaseIncreaseBy, (state, by) => store.send(increaseBy(by)))
+      on(pleaseIncreaseBy2, (state, by) => msg.send(increaseBy(by)))
       on(pleaseIncreaseByObservable, (state, by) => store.send(increaseBy(by)))
       on(increaseBy, (state, by) => ({ num: state.num + by }))
     })
@@ -81,6 +83,9 @@ describe('Store', () => {
 
     pleaseIncreaseByObservable(5)
     expect(store.state()).toEqual({ num: 20 })
+
+    store.send(pleaseIncreaseBy2(5))
+    expect(store.state()).toEqual({ num: 25 })
   })
 
 

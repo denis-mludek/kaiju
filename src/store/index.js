@@ -27,11 +27,14 @@ export default function Store(initialState, registerHandlers, options = empty) {
   const shouldLog = options.log !== undefined ? options.log : log.message === true
   const storeName = name || (registerHandlers.name ? `${registerHandlers.name} store` : 'Store')
 
-  const msg = { listen: message => {
-    const observable = Observable()
-    listened[message._id] = observable
-    return observable
-  }}
+  const msg = {
+    send: message => store.send(message),
+    listen: message => {
+      const observable = Observable()
+      listened[message._id] = observable
+      return observable
+    }
+  }
 
   function on(src, fn) {
     if (src._isMessage) {

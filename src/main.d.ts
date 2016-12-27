@@ -158,7 +158,7 @@ interface Messages {
   listenAt(target: string | Element, message: NoArgMessage): Observable<void>
 
   /**
-   * Sends a message to self. Note: Messages should not be sent synchronously from an on() handler.
+   * Sends a message to self.
    *
    * Example:
    * msg.send(AjaxSuccess([1, 2]))

@@ -3,7 +3,7 @@ import { Message, NoArgMessage, MessagePayload } from '../main'
 import { ObservableWithInitialValue, Observable } from '../observable'
 
 
-interface RegisterMessages<S> {
+export interface RegisterMessages<S> {
   /**
    * Registers an Observable and call the handler function every time the observable has a new value.
    * The handler is called with the current state and the new value of the observable.
@@ -24,6 +24,26 @@ interface RegisterMessages<S> {
    * Returning undefined or the current state in the handler is a no-op.
    */
   <P>(message: Message<P>, handler: (state: S, payload: P, message: MessagePayload<P>) => S|void): void
+}
+
+export interface Messages {
+  /**
+   * Listens for a particular message. This is used to create a new Observable.
+   */
+  listen<P>(message: Message<P>): Observable<P>
+
+  /**
+   * Listens for a particular message. This is used to create a new Observable.
+   */
+  listen(message: NoArgMessage): Observable<undefined>
+
+  /**
+   * Sends a message to self.
+   *
+   * Example:
+   * msg.send(AjaxSuccess([1, 2]))
+   */
+  send<P>(payload: MessagePayload<P>): void
 }
 
 export interface Store<S> {
@@ -54,6 +74,6 @@ interface StoreOptions {
  */
 export default function Store<S>(
   initialState: S,
-  registerHandlers: (on: RegisterMessages<S>) => void,
+  registerHandlers: (on: RegisterMessages<S>, msg: Messages) => void,
   options?: StoreOptions
 ): Store<S>
