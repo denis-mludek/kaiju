@@ -1,6 +1,6 @@
 {
   "name": "kaiju",
-  "version": "0.18.0",
+  "version": "0.18.1",
   "main": "main",
   "typings": "main.d.ts",
   "description": "Virtual dom, observables / streams and isolated components",
@@ -38,7 +38,7 @@
     "delete-temp-folder": "rm -rf temp",
     "build": "npm run copy-typings && npm run babel && npm run copy-lib-to-root && npm run delete-temp-folder",
     "example-dev": "npm run copy-typings && npm run babel && npm run copy-lib-to-root && npm run copy-lib-to-example && npm run delete-temp-folder",
-    "test": "mocha --recursive --compilers js:babel-register"
+    "test": "mocha --recursive --compilers js:babel-register --timeout 300"
   },
 
   "files": [

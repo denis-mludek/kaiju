@@ -22,13 +22,23 @@ export function isFirstRender() {
 /**
  * Generic render function for arbitrary VDOM rendering
  */
-export function renderVDom(target, vdom) {
+export function renderVDom(target, vdom, onComplete) {
+  let cancelled = false
+
   // Some components are already rendering within an animation frame, piggy back and do it synchronously
-  if (rendering)
+  if (rendering) {
     patchInto(target, vdom)
+    if (onComplete) onComplete()
+  }
   // No component rendering is in progress; just schedule it asap
   else
-    requestAnimationFrame(() => renderSync(target, vdom))
+    requestAnimationFrame(() => {
+      if (cancelled) return
+      renderSync(target, vdom)
+      if (onComplete) onComplete()
+    })
+
+  return function cancel() { cancelled = true }
 }
 
 export function renderSync(target, vdom) {
@@ -147,18 +157,51 @@ function logEndRender() {
   }
 }
 
-function patchInto(target, node) {
-  const isVNode = !!target.elm
 
-  // Update
-  if (isVNode) {
-    return Render.patch(target, node)
+function patchInto(target, node) {
+  const targetIsArray = Array.isArray(target)
+  const nodeIsArray = Array.isArray(node)
+
+  if (nodeIsArray)
+    mapPrimitiveNodes(node)
+
+  // First render inside an Element
+  if (target.elm === undefined) {
+    Render.patch(
+      VNode('dummy', {}, [], undefined, target),
+      VNode('dummy', {}, nodeIsArray ? node : [node])
+    )
+
+    if (nodeIsArray)
+      node.elm = target
   }
-  // Creation inside an element container
+  // Update using a previous VNode or VNode[] to patch against
   else {
-    const el = document.createElement('div')
-    target.appendChild(el)
-    const elNode = VNode('div', { key: '_init' }, [], undefined, el)
-    return Render.patch(elNode, node)
+    if (targetIsArray) {
+      Render.patch(
+        VNode('dummy', {}, target, undefined, target.elm),
+        VNode('dummy', {}, nodeIsArray ? node : [node])
+      )
+    }
+    else {
+      Render.patch(target, node)
+    }
+
+    if (nodeIsArray)
+      node.elm = target.elm
+  }
+}
+
+/*
+  Similar to what h() does. We have to do it here ourselves
+  when we are passed an Array of Nodes as it didn't go through the h() transformation.
+  The operation is mutative, so that the Array of Nodes can later be reused for patching.
+  This is not particularly elegant but is consistent with the snabbdom's way.
+*/
+function mapPrimitiveNodes(arr) {
+  for (let i = 0; i < arr.length; ++i) {
+    const node = arr[i]
+    if (typeof node === 'string' || typeof node === 'number')
+      arr[i] = VNode(undefined, undefined, undefined, node)
   }
 }

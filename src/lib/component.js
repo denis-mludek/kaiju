@@ -11,7 +11,7 @@ import log, { shouldLog } from './log'
 const empty = {}
 
 export default function Component(options) {
-  const { name, props = empty, initState, connect, render } = options
+  const { name, props = empty, sel = 'component', initState, connect, render } = options
 
   const key = props.key === undefined ? name : `${name}_${props.key}`
 
@@ -24,7 +24,7 @@ export default function Component(options) {
 
   // An empty placeholder is returned, and that's all our parent is going to see.
   // Each component handles its own internal rendering.
-  const compVnode = h('component', data)
+  const compVnode = h(sel, data)
   data.component.compVnode = compVnode
   return compVnode
 }
@@ -139,10 +139,13 @@ function rendered(component, newVnode) {
   // Store the new vnode inside the component so we can diff it next render
   component.vnode = newVnode
 
-  // Lift any 'remove' hook to our placeholder vnode for it to be called
-  // as the placeholder is all our parent vnode knows about.
-  const hook = newVnode.data.hook && newVnode.data.hook.remove
-  if (hook) component.compVnode.data.hook.remove = hook
+  // For now, only lift the hook of non Array render outputs
+  if (!Array.isArray(newVnode)) {
+    // Lift any 'remove' hook to our placeholder vnode for it to be called
+    // as the placeholder is all our parent vnode knows about.
+    const hook = newVnode.data.hook && newVnode.data.hook.remove
+    if (hook) component.compVnode.data.hook.remove = hook
+  }
 }
 
 function destroy(vnode) {

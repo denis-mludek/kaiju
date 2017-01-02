@@ -315,13 +315,13 @@ Both `initState` and `render` are called only once when the component first appe
 
 ## Update
 - At any point in time, the component will re-render if either is true:  
-  - The parent rerenders the component with **changed** props (shallow compare)
-  - An Observable registered in `connect` is updated, and an **updated** state (shallow compare) is returned in its handler.
+  - The parent rerenders the component with **changed** props (shallow comparison)
+  - An Observable registered in `connect` is updated, and an **updated** state (shallow comparison) is returned in its handler.
 
 Synchronously sending a message to the component in its `render` method is forbidden to avoid loops.
 
 ## Destruction
-When some parent is removed from the tree or when the component's direct parent stops including the component in its render method, the component gets destroyed. `render` will never be called again and all the `Observables` are unregistered from.
+When some parent is removed from the tree or when the component's direct parent stops including the component in its render output, the component gets destroyed. `render` will never be called again and all the `Observables` are unregistered from.
 
 Additionally, for any of these phases, the snabbdom [hooks](https://github.com/snabbdom/snabbdom#hooks) can be used on any VNode returned in `render`
 
@@ -584,6 +584,14 @@ Mandatory `String`
 This is the standard Virtual DOM `key` used in the diffing algorithm to uniquely identify this `VNode`.
 It is also used for logging purposes, so it is usually just the name of the component.
 
+### sel
+Optional `String`  
+An alternative hyperscript selector to use instead of `component`.  
+Example:  
+```ts
+Component<Props, State>({ sel: `div.${styles.div}` })
+```
+
 ### props
 
 Optional `Object`  
@@ -661,7 +669,7 @@ listen<P>(message: Message<P>): Observable<P>
 listenAt<P>(selector: string, message: Message<P>): Observable<P>
 
 /**
- * Sends a message to self. Note: Messages should not be sent synchronously from an on() handler.
+ * Sends a message to self.
  *
  * Example:
  * msg.send(AjaxSuccess([1, 2]))
@@ -685,9 +693,10 @@ Just like with props, a redraw will only get scheduled if the state object chang
 
 ### render
 
-Mandatory `function({ props, state, msg }: RenderParams<Props, State>): VNode`  
+Mandatory `function({ props, state, msg }: RenderParams<Props, State>): VNode | Node[]`  
 
-Returns the current VNode tree of the component based on its props and state.
+Returns the current VNode tree of the component based on its props and state.  
+You can also return an Array of `Node`s, where a `Node` is either a `VNode` or a `string`.  
 
 Example:  
 
@@ -748,15 +757,20 @@ startApp({ app, snabbdomModules, elm: document.body })
 
 This function is made available after the app was created with `startApp`.
 This can be used to create some advanced components with their own internal rendering needs (e.g: Efficient popups, alerts, etc).
+It renders either synchronously if called from an ongoing rendering phase, or asynchronously.
 
 ```ts
 import { renderInto, h } from 'kaiju'
 
+const firstVDom = h('div')
+
 // Creates a new div as a child of body
-const currentVdom = renderInto(document.body, h('div'))
+renderInto(document.body, firstVDom)
 
 // Patch that div so that it becomes a span
-const newVdom = renderInto(currentVdom, h('span'))
+const cancel = renderInto(firstVDom, h('span'), () => {
+  // Inside the rendered callback  
+})
 ```
 
 

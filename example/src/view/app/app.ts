@@ -1,6 +1,6 @@
 require('./app.styl')
 
-import { h, Component, ConnectParams, RenderParams, VNode } from 'kaiju'
+import { h, Component, ConnectParams, RenderParams, Node, VNode } from 'kaiju'
 import update from 'immupdate'
 
 import pageAnimation from '../../widget/animation/page'
@@ -51,10 +51,10 @@ function connect({ on, props }: ConnectParams<Props, State>) {
 }
 
 
-function render({ props, state }: RenderParams<Props, State>): VNode {
+function render({ props, state }: RenderParams<Props, State>): Node[] {
   const { route, child } = props
 
-  return h('div', [
+  return [
     h('header', [
       link({
         route: routes.index,
@@ -70,5 +70,5 @@ function render({ props, state }: RenderParams<Props, State>): VNode {
       String(state.count)
     ]),
     pageAnimation('main', child)
-  ])
+  ]
 }

@@ -111,7 +111,7 @@ describe('Observable', () => {
 
   it('can be delayed', done => {
 
-    const obs = delay(100, Observable(add => {
+    const obs = delay(20, Observable(add => {
       add(10)
     }))
 
@@ -125,11 +125,11 @@ describe('Observable', () => {
 
     valueIs(undefined)
 
-    setTimeout(() => valueIs(undefined), 60)
+    setTimeout(() => valueIs(undefined), 10)
     setTimeout(() => {
       valueIs(10)
       done()
-    }, 110)
+    }, 30)
   })
 
 

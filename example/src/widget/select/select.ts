@@ -48,16 +48,14 @@ function render({ props, state }: RenderParams<Props<{}>, State>) {
 
   const dropdownEl = renderDropdownEl(props, opened)
 
-  return (
-    h('div', [
-      h('input', {
-        props: { value: text },
-        attrs: { readonly: true, placeholder: 'click me' },
-        events: { click: open, blur: close }
-      }),
-      dropdownEl
-    ])
-  )
+  return [
+    h('input', {
+      props: { value: text },
+      attrs: { readonly: true, placeholder: 'click me' },
+      events: { click: open, blur: close }
+    }),
+    dropdownEl
+  ]
 }
 
 function renderDropdownEl(props: Props<{}>, opened: boolean) {

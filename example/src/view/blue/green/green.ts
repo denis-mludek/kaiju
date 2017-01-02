@@ -76,25 +76,23 @@ function render({ props, state }: RenderParams<Props, State>) {
 
   const popupEl = popupOpened ? helloPopup() : ''
 
-  return (
-    h('div', [
-      `Green (route id = ${route.params.id})`,
+  return [
+    `Green (route id = ${route.params.id})`,
 
-      h('form', [
-        input('firstName', firstName, true),
-        input('lastName', lastName)
-      ]),
+    h('form', [
+      input('firstName', firstName, true),
+      input('lastName', lastName)
+    ]),
 
-      button({
-        className: styles.popupButton,
-        icon: editIcon(),
-        label: 'Open popup',
-        events: { mousedown: showPopup }
-      }),
+    button({
+      className: styles.popupButton,
+      icon: editIcon(),
+      label: 'Open popup',
+      events: { mousedown: showPopup }
+    }),
 
-      popupEl
-    ])
-  )
+    popupEl
+  ]
 }
 
 function input(name: string, value: string, shouldAutoFocus = false) {

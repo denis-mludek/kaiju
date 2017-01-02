@@ -16,7 +16,7 @@ export default function route(userStore: () => UserStore) {
 
 
 function red(props: Props) {
-  return Component<Props, State>({ name: 'red', props, initState, connect, render })
+  return Component<Props, State>({ sel: `component.${styles.red}`, name: 'red', props, initState, connect, render })
 }
 
 
@@ -52,16 +52,14 @@ function connect({ on, props }: ConnectParams<Props, State>) {
 function render({ state }: RenderParams<Props, State>) {
   const { selectedUser, users } = state
 
-  return (
-    h(`div.${styles.red}`, [
-      h('button', { events: { click: reloadUsers } }, 'Refresh select list'),
-      h('br'),
-      select({
-        items: users.list,
-        selectedItem: selectedUser,
-        onChange: userChange,
-        loading: users.loading
-      })
-    ])
-  )
+  return [
+    h('button', { events: { click: reloadUsers } }, 'Refresh select list'),
+    h('br'),
+    select({
+      items: users.list,
+      selectedItem: selectedUser,
+      onChange: userChange,
+      loading: users.loading
+    })
+  ]
 }

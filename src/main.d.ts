@@ -48,10 +48,11 @@ export interface RenderParams<P, S> {
 
 interface ComponentOptions<P, S> {
   name: string
+  sel?: string
   props?: P
   initState: (initProps: P) => S
   connect: (params: ConnectParams<P, S>) => void
-  render: (params: RenderParams<P, S>) => VNode
+  render: (params: RenderParams<P, S>) => VNode | Node[]
 }
 
 /**
@@ -254,7 +255,7 @@ export interface VNode {
   key?: string
 }
 
-type Node = VNode | string
+export type Node = VNode | string
 
 export interface Hook {
   pre?: () => void
@@ -270,10 +271,13 @@ export interface Hook {
 }
 
 export function h(sel: string): VNode
-export function h(sel: string, children: Array<Node> | string): VNode
+export function h(sel: string, children: Node[] | string): VNode
 export function h(sel: string, data: VNodeData): VNode
-export function h(sel: string, data: VNodeData, children: Array<Node> | string): VNode
+export function h(sel: string, data: VNodeData, children: Node[] | string): VNode
 
-export var renderInto: (target: Element | VNode, vnode: VNode) => void
+export var renderInto: (
+  target: Element | VNode | Node[],
+  vnode: VNode | Node[],
+  onComplete?: Function) => Function
 
 export function isFirstRender(): boolean

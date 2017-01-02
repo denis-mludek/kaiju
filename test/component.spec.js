@@ -1,6 +1,8 @@
 require('jsdom-global')()
+global.requestAnimationFrame = fn => setTimeout(fn, 1)
+
 import expect from 'expect'
-import { Component, h, patch, startApp, Message } from '../src/main'
+import { Component, h, startApp, Message } from '../src/main'
 
 
 /** Utils **/
@@ -34,9 +36,11 @@ function dispatchMouseEventOn(target, name) {
 
 describe('Component', () => {
 
+
   afterEach(() => {
-    document.body.removeChild(document.body.firstChild)
+    document.body.innerHTML = ''
   })
+
 
   it('is a regular VDOM node', () => {
 
@@ -46,6 +50,91 @@ describe('Component', () => {
 
     expect(document.body.firstChild.tagName).toBe('COMPONENT')
     expect(document.body.firstChild.firstChild.tagName).toBe('BUTTON')
+  })
+
+
+  it('can render with a custom selector', () => {
+
+    const table = (() => {
+      function initState() { return {} }
+      function connect() {}
+
+      function render() {
+        return h('button')
+      }
+
+      return function() {
+        return Component({ sel: 'table.large', name: 'table', initState, connect, render })
+      }
+    })()
+
+    expect(table().sel).toBe('table.large')
+
+    startApp({ app: table(), elm: document.body, snabbdomModules })
+
+    expect(document.body.firstChild.tagName).toBe('TABLE')
+    expect(document.body.firstChild.className).toBe('large')
+    expect(document.body.firstChild.firstChild.tagName).toBe('BUTTON')
+  })
+
+
+  it('can render an Array of VNodes', done => {
+
+    let askForReRender
+
+    const reRender = Message('reRender')
+
+    const bag = (() => {
+
+      function initState() { return {} }
+
+      function connect({ on, msg }) {
+        askForReRender = () => msg.send(reRender())
+
+        on(reRender, () => ({ swap: true }))
+      }
+
+      function render({ state }) {
+        return [
+          h('button'),
+          h(state.swap ? 'p' : 'div'),
+          h('span')
+        ]
+      }
+
+      return function() {
+        return Component({ name: 'bag', initState, connect, render })
+      }
+    })()
+
+    startApp({ app: bag(), elm: document.body, snabbdomModules })
+
+    const comp = document.body.firstChild
+    expect(comp.tagName).toBe('COMPONENT')
+    expect(comp.children[0].tagName).toBe('BUTTON')
+    expect(comp.children[1].tagName).toBe('DIV')
+    expect(comp.children[2].tagName).toBe('SPAN')
+    const buttonEl = comp.children[0]
+    const spanEl = comp.children[2]
+
+    askForReRender()
+
+    requestAnimationFrame(() => {
+      // The component node is stable
+      const newComp = document.body.firstChild
+      expect(newComp).toBe(comp)
+
+      // Test the patching occurs properly
+      expect(comp.children[0].tagName).toBe('BUTTON')
+      expect(comp.children[1].tagName).toBe('P')
+      expect(comp.children[2].tagName).toBe('SPAN')
+
+      // No reason for these to have changed reference
+      expect(comp.children[0]).toBe(buttonEl)
+      expect(comp.children[2]).toBe(spanEl)
+
+      done()
+    })
   })
 
 
@@ -202,5 +291,6 @@ describe('Component', () => {
       'childUnknown', 'parentUnknown'
     ])
   })
+
 
 })
