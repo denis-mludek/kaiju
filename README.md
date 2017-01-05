@@ -830,3 +830,8 @@ log.message = 'popup'
 ```
 
 You will want to change the log values as early as possible in your program so that no logs are missed.
+
+Note: The render durations are more interesting as a relative measurement to spot bottlenecks and focus any optimization effort.  
+The absolute durations may be heavily influenced by the `console` sometimes being very slow.  
+
+![slow-console](http://i171.photobucket.com/albums/u320/boubiyeah/console.log.cost_zps4n1pvodl.png)
