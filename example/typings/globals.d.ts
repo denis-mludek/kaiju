@@ -6,7 +6,7 @@ interface Obj<V> {
 
 /* Allows access to an Element property in dictionary style */
 interface Element {
-  [key: string]: {} | undefined
+  [key: string]: {} | null
 }
 
 // Made available by webpack

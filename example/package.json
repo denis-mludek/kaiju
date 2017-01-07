@@ -14,7 +14,7 @@
     "typescript": "2.2.0-dev.20161221",
     "kaiju": "0.18.1",
     "snabbdom": "0.5.4",
-    "abyssa": "8.0.2",
+    "abyssa": "8.0.3",
     "immupdate": "0.3.0"
   },
 

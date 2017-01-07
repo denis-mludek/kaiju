@@ -1,5 +1,5 @@
 
-import { Router as AbyssaRouter, State, ConfigOptions } from 'abyssa'
+import { Router as AbyssaRouter, State, ConfigOptions, ParamsDiff } from 'abyssa'
 const vnode = require('snabbdom/vnode')
 import { startApp, VNode, renderInto } from 'kaiju'
 import * as obj from './obj'
@@ -22,7 +22,7 @@ export type RouteDef<P, Children extends RouteMap> = {
 interface RouteDefOptions<P, Children extends RouteMap> {
   children: Children
   enter: (route: Route<P, Children>) => (route: Route<P, Children>, child: VNode) => VNode
-  update?: (route: Route<P, Children>) => void
+  update?: (route: CurrentRoute<P, Children>) => void
   exit?: () => void
 }
 
@@ -47,6 +47,10 @@ export interface Route<P, Children extends RouteMap> {
 
   /* Determines whether this route is included in or matches a Route definition */
   isIn(def: RouteDef<{}, {}>): boolean
+}
+
+export interface CurrentRoute<P, Children extends RouteMap> extends Route<P, Children> {
+  paramsDiff: ParamsDiff
 }
 
 
@@ -87,7 +91,7 @@ export function Router<Routes extends RouteMap>(options: RouterOptions<Routes>) 
   const components: Array<(route: Route<{}, {}>, child: VNode) => VNode> = []
 
   // The current route in the transition
-  let currentRoute: Route<{}, {}> | undefined
+  let currentRoute: CurrentRoute<{}, {}> | undefined
 
   // The current app VNode
   let currentVNode: VNode | undefined
@@ -134,7 +138,7 @@ export function Router<Routes extends RouteMap>(options: RouterOptions<Routes>) 
 
   router.on('started', newState => {
     const routeDef = routeByName[newState.fullName]
-    currentRoute = makeRoute(routeDef, newState.params)
+    currentRoute = makeRoute(routeDef, newState.params, newState.paramsDiff)
   })
 
   router.on('ended', () => {
@@ -184,10 +188,11 @@ export function Router<Routes extends RouteMap>(options: RouterOptions<Routes>) 
 }
 
 
-function makeRoute(route: RouteDef<{}, {}>, params: {}) {
+function makeRoute(route: RouteDef<{}, {}>, params: {}, paramsDiff: ParamsDiff) {
   return {
     route,
     params,
+    paramsDiff,
     is: (otherRoute: RouteDef<{}, {}>) => route.def.fullName === otherRoute.def.fullName,
     isIn: (parentRoute: RouteDef<{}, {}>) => {
       let parent = route
