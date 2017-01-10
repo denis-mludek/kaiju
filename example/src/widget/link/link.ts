@@ -1,7 +1,8 @@
 const styles = require('./link.styl')
 
 import { h } from 'kaiju'
-import router, { RouteDef } from '../../router'
+
+import router, { RouteDef } from 'router'
 
 
 interface LinkProps<P> {

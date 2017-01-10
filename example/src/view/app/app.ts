@@ -3,12 +3,12 @@ require('./app.styl')
 import { h, Component, ConnectParams, RenderParams, Node, VNode } from 'kaiju'
 import update from 'immupdate'
 
-import pageAnimation from '../../widget/animation/page'
-import link from '../../widget/link'
-import index from '../index'
-import blue from '../blue'
-import createAppStore, { AppStore } from './store'
-import { routes, RouteDef, Route } from '../../router'
+import pageAnimation from 'widget/animation/page'
+import link from 'widget/link'
+import index from 'view/index'
+import blue from 'view/blue'
+import createAppStore, { AppStore } from 'view/app/store'
+import { routes, RouteDef, Route } from 'router'
 
 
 export default function route() {

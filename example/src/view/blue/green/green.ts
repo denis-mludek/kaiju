@@ -3,11 +3,12 @@ const listStyles = require('./list.styl')
 
 import { Component, h, Message, ConnectParams, RenderParams, Hook } from 'kaiju'
 import update from 'immupdate'
-import { editIcon } from '../../../icon'
-import popup, * as Popup from '../../../widget/popup'
-import button from '../../../widget/button'
-import groupFadeAnimation from '../../../widget/animation/groupFade'
-import router, { RouteDef, Route } from '../../../router'
+
+import { editIcon } from 'icon'
+import popup, * as Popup from 'widget/popup'
+import button from 'widget/button'
+import groupFadeAnimation from 'widget/animation/groupFade'
+import router, { RouteDef, Route } from 'router'
 
 
 type Params = { id: string, popup?: string }

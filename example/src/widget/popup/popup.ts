@@ -1,6 +1,6 @@
 const styles = require('./popup.styl')
 import { h, Component, VNode, Message, NoArgMessage, ConnectParams, RenderParams, renderInto, isFirstRender } from 'kaiju'
-import { findParentByAttr } from '../../util/dom'
+import { findParentByAttr } from 'util/dom'
 
 
 // Popups are rendered in their own top-level container for clean separation of layers.

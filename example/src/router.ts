@@ -1,6 +1,6 @@
-import { Router, RouteDef, Route as RuntimeRoute } from './util/router'
-import forceProps from './util/forceProps'
-import app from './view/app'
+import { Router, RouteDef, Route as RuntimeRoute } from 'util/router'
+import forceProps from 'util/forceProps'
+import app from 'view/app'
 
 
 const snabbdomModules = [

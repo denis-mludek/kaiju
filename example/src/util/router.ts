@@ -2,7 +2,8 @@
 import { Router as AbyssaRouter, State, ConfigOptions, ParamsDiff } from 'abyssa'
 const vnode = require('snabbdom/vnode')
 import { startApp, VNode, renderInto } from 'kaiju'
-import * as obj from './obj'
+
+import * as obj from 'util/obj'
 
 
 /* More typesafe abstraction using abyssa */

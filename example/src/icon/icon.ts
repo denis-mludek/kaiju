@@ -1,4 +1,5 @@
 const styles = require('./icon.styl')
+
 import { h } from 'kaiju'
 
 

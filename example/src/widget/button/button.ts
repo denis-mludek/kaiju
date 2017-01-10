@@ -1,6 +1,8 @@
 const styles = require('./button.styl')
+
 import { h, VNode, EventHandler } from 'kaiju'
-import { addClassName } from '../../util/vnode'
+
+import { addClassName } from 'util/vnode'
 
 
 interface Props {

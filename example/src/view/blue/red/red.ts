@@ -2,9 +2,10 @@ const styles = require('./red.styl')
 
 import update from 'immupdate'
 import { h, Component, ConnectParams, RenderParams, Message } from 'kaiju'
-import { RouteDef } from '../../../router'
-import { Users, UserStore, reloadUsers } from '../userStore'
-import select from '../../../widget/select'
+
+import { RouteDef } from 'router'
+import { Users, UserStore, reloadUsers } from 'view/blue/userStore'
+import select from 'widget/select'
 
 
 export default function route(userStore: () => UserStore) {

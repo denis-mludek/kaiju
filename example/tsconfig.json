@@ -1,6 +1,8 @@
 {
   "compilerOptions": {
     "target": "es5",
+    "baseUrl": ".",
+    "paths": { "*": [ "src/*" ] },
     "noImplicitAny": true,
     "strictNullChecks": true,
     "skipLibCheck": true,

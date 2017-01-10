@@ -1,8 +1,8 @@
 import update from 'immupdate'
 import Store, { Store as StoreType } from 'kaiju/store'
 import { Message } from 'kaiju'
-import observeAjax from '../../util/ajax'
-import * as promise from '../../util/promise'
+import observeAjax from 'util/ajax'
+import * as promise from 'util/promise'
 
 
 export const reloadUsers = Message('reloadUsers')

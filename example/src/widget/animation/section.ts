@@ -1,5 +1,6 @@
 import { VNode } from 'kaiju'
-import animate from './animation'
+
+import animate from 'widget/animation/animation'
 
 
 const sectionAnimations = {

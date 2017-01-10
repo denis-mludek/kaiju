@@ -1,5 +1,6 @@
 import { h } from 'kaiju'
-import { RouteDef } from '../router'
+
+import { RouteDef } from 'router'
 
 
 export default function route() {
