@@ -115,7 +115,7 @@ export default function Store(initialState, registerHandlers, options = empty) {
       return
     }
 
-    console.warn(`${storeName}: Unhandled message: `, _name)
+    console.warn(`Unhandled message "${_name}" at %c${storeName}`, 'font-weight: bold')
   }
 
   store.destroy = function() {
