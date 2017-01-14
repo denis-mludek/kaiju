@@ -1,5 +1,5 @@
 import expect from 'expect'
-import Observable from '../src/observable/create'
+import { Observable } from '../src/observable'
 import { Message } from '../src/main'
 import Store from '../src/store'
 

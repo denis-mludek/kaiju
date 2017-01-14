@@ -1,5 +1,5 @@
 
-import Observable from '../create'
+import { Observable } from './'
 
 
 export default function delay(delayValue, source) {

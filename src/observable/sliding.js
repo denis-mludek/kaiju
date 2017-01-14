@@ -1,8 +1,8 @@
 
-import Observable from '../create'
+import { Observable } from './'
 
 
-export function sliding2(source) {
+export function sliding2(source) {  
   return sliding(2, source)
 }
 

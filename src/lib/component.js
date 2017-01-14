@@ -2,8 +2,7 @@ import h from 'snabbdom/h'
 import { renderComponentNextFrame, renderComponentNow, renderNewComponentNow } from './render'
 import { shallowEqual } from './util'
 import Messages from './messages'
-import Observable from '../observable/create'
-import { sliding2 } from '../observable/sliding'
+import { Observable } from '../observable'
 import Store from '../store'
 import log, { shouldLog } from './log'
 
@@ -92,7 +91,7 @@ function create(_, vnode) {
     log: shouldLog(log.message, component.key)
   })
 
-  sliding2(component.store.state).subscribe(([newState, oldState]) => {
+  component.store.state.sliding2().subscribe(([newState, oldState]) => {
 
     const shouldRender =
       // Skip the first notification

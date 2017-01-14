@@ -1,4 +1,4 @@
-import Observable from '../observable/create'
+import { Observable } from '../observable'
 import Message from '../lib/message'
 import log from '../lib/log'
 

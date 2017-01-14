@@ -277,23 +277,12 @@ The characteristics of this observable implementation are:
 * The last value of an observable can be read by invoking the observable as a function
 * Synchronous: Easier to reason about and friendlier stack traces
 * No error handling/swallowing: No need for it since this observable implementation is synchronous
-* No notion of an observable's end/completion for simplicity sake and since we really only have two kinds of observables: never ending ones (global state), and the ones that are tied to a particular component's lifecycle
+* No notion of an observable's end/completion for simplicity sake and since we really have two kinds of observables: never ending ones (global state), and the ones that are tied to a particular component's lifecycle
 * Lazy resource management: An observable only activates if there is at least one subscriber
 * If the observable already holds a value, any subscribe function will be called immediately upon registration
 
-
-All combinators can be found under `lib/observable`, for instance to import `debounce`:
-
-```ts
-import debounce from 'kaiju/observable/debounce'
-```
-
 To see observables in action, check the [example's ajax abstraction](https://github.com/AlexGalays/kaiju/tree/master/example/src/util/ajax.ts) and [its usage](https://github.com/AlexGalays/kaiju/tree/master/example/src/blue.ts#L58)
 
-
-## OO style
-
-Importing `kaiju/observable` at least once in your codebase has the benefit of adding all the operators to the Observable object and instances for more convenience:  
 
 ```ts
 import { Observable } from 'kaiju/observable'
@@ -602,9 +591,9 @@ Note 1: props and state are separated exactly like in `React` as it works great.
 Note 2: If you wish to compute some state or generally perform a side effect based on whether some part of the props changed (similar to using `componentWillReceiveProps` in react) you can use the sliding2 combinator to compare the previous props with the ones:  
 
 ```ts
-import { sliding2 } from 'kaiju/observable/sliding'
+import { Observable } from 'kaiju/observable'
 
-on(sliding2(props), (state, [newProps, oldProps]) => ...)
+on(props.sliding2(), (state, [newProps, oldProps]) => ...)
 ```
 
 ### initState

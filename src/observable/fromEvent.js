@@ -1,5 +1,5 @@
-import Observable from '../create'
-import { Set } from '../../lib/util'
+import { Observable } from './'
+import { Set } from '../lib/util'
 
 
 export default function fromEvent(name, el, childSelector) {

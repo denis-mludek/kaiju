@@ -1,13 +1,11 @@
 import { Router, RouteDef, Route as RuntimeRoute } from 'util/router'
-import forceProps from 'util/forceProps'
 import app from 'view/app'
 
 
 const snabbdomModules = [
   require('snabbdom/modules/class'),
   require('snabbdom/modules/props'),
-  require('snabbdom/modules/attributes'),
-  forceProps
+  require('snabbdom/modules/attributes')
 ]
 
 const router = Router({

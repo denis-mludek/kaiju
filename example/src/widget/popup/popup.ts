@@ -1,5 +1,6 @@
 const styles = require('./popup.styl')
 import { h, Component, VNode, Message, NoArgMessage, ConnectParams, RenderParams, renderInto, isFirstRender } from 'kaiju'
+import { Observable } from 'kaiju/observable'
 import { findParentByAttr } from 'util/dom'
 
 
@@ -28,13 +29,18 @@ const overlayClick = Message<Event>('overlayClick')
 // Listen for messages inside the popup container, and redispatch at the Popup launcher level.
 function connect({ on, props, msg }: ConnectParams<Props, {}>) {
 
-  on(msg.listenAt(popupLayer, close), () => {
-    msg.sendToParent(props().onClose())
-  })
+  const requestClose = () => msg.sendToParent(props().onClose())
+
+  on(msg.listenAt(popupLayer, close), requestClose)
 
   on(msg.listenAt(popupLayer, overlayClick), (state, evt) => {
     if (!findParentByAttr('data-popup', evt.target as Element))
-      msg.sendToParent(props().onClose())
+      requestClose()
+  })
+
+  on(Observable.fromEvent('keydown', window), (state, evt) => {
+    if (evt.keyCode === 27) // ESC
+      requestClose()
   })
 
 }

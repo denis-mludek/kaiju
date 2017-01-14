@@ -52,7 +52,7 @@ function connect({ on, props }: ConnectParams<Props, State>) {
 
   on(inputChanged, (state, evt) => {
     const { name, value } = evt.target as HTMLInputElement
-    const formPatch = { [name]: value.substr(0, 4) }
+    const formPatch = { [name]: value }
     return update(state, { form: formPatch })
   })
 
@@ -105,9 +105,8 @@ function input(name: string, value: string, shouldAutoFocus = false) {
     h('label', [
       name,
       h(`input.${styles.input}`, {
-        props: { name },
+        props: { name, value },
         hook,
-        forceProps: { value },
         events: { input: inputChanged }
       }, '')
     ])

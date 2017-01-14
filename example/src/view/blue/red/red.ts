@@ -4,8 +4,9 @@ import update from 'immupdate'
 import { h, Component, ConnectParams, RenderParams, Message } from 'kaiju'
 
 import { RouteDef } from 'router'
-import { Users, UserStore, reloadUsers } from 'view/blue/userStore'
+import { UserStore, reloadUsers } from 'view/blue/userStore'
 import select from 'widget/select'
+import { RemoteData, unpack } from 'util/remoteData'
 
 
 export default function route(userStore: () => UserStore) {
@@ -26,7 +27,7 @@ interface Props {
 }
 
 interface State {
-  users: Users
+  users: RemoteData<string[], {}>
   selectedUser?: string
 }
 
@@ -44,7 +45,7 @@ const userChange = Message<string>('userChange')
 function connect({ on, props }: ConnectParams<Props, State>) {
   const userStore = props().userStore
 
-  on(userStore.state, (state, users) => update(state, { users }))
+  on(userStore.state, (state, userState) => update(state, { users: userState.users }))
   on(reloadUsers, _ => userStore.send(reloadUsers()))
 
   on(userChange, (state, user) => update(state, { selectedUser: user }))
@@ -53,14 +54,16 @@ function connect({ on, props }: ConnectParams<Props, State>) {
 function render({ state }: RenderParams<Props, State>) {
   const { selectedUser, users } = state
 
+  const { data = [], loading } = unpack(users)
+
   return [
     h('button', { events: { click: reloadUsers } }, 'Refresh select list'),
     h('br'),
     select({
-      items: users.list,
+      items: data,
       selectedItem: selectedUser,
       onChange: userChange,
-      loading: users.loading
+      loading
     })
   ]
 }

@@ -1,4 +1,4 @@
-import Observable from '../observable/create'
+import { Observable } from '../observable'
 
 
 export default function Messages() {}

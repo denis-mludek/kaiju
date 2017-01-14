@@ -1,9 +1,7 @@
 import expect from 'expect'
-import Observable from '../src/observable/create'
+import { Observable } from '../src/observable'
 import delay from '../src/observable/delay'
-import flatMapLatest from '../src/observable/flatMapLatest'
 import pure from '../src/observable/pure'
-import { Observable as FullObservable } from '../src/observable'
 
 
 describe('Observable', () => {
@@ -103,7 +101,7 @@ describe('Observable', () => {
 
   it('can be created with a constant value', () => {
 
-    const obs = FullObservable.pure(100)
+    const obs = Observable.pure(100)
     obs.subscribe(x => x)
     expect(obs()).toBe(100)
   })
@@ -136,29 +134,7 @@ describe('Observable', () => {
   it("can be flatMapLatest'ed", () => {
 
     let pushToObservable
-    const obs = flatMapLatest(x => pure(x * 2), Observable(add => {
-      pushToObservable = add
-      add(10)
-    }))
-
-    let observedValue
-    obs.subscribe(value => observedValue = value)
-
-    function valueIs(value) {
-      expect(observedValue).toBe(value)
-      expect(obs()).toBe(value)
-    }
-
-    valueIs(20)
-    pushToObservable(15)
-    valueIs(30)
-  })
-
-
-  it("can be flatMapLatest'ed, using OO style", () => {
-
-    let pushToObservable
-    const obs = FullObservable(add => {
+    const obs = Observable(add => {
       pushToObservable = add
       add(10)
     })
