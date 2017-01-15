@@ -1,4 +1,4 @@
-import update from 'immupdate'
+import { update } from 'immupdate'
 import { Message } from 'kaiju'
 import Store, { Store as StoreType } from 'kaiju/store'
 

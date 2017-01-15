@@ -1,7 +1,7 @@
 require('./app.styl')
 
 import { h, Component, ConnectParams, RenderParams, Node, VNode } from 'kaiju'
-import update from 'immupdate'
+import { update } from 'immupdate'
 
 import pageAnimation from 'widget/animation/page'
 import link from 'widget/link'

@@ -36,7 +36,10 @@ module.exports = {
   devtool: 'inline-source-map',
 
   plugins: [
-    new ExtractTextPlugin('style.css')
+    new ExtractTextPlugin('style.css'),
+    new webpack.DefinePlugin({
+      'process.env.IMMUPDATE_DEEP_FREEZE': '"true"'
+    })
   ],
 
   performance: {

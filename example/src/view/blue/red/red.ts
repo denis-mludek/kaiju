@@ -1,6 +1,6 @@
 const styles = require('./red.styl')
 
-import update from 'immupdate'
+import { update } from 'immupdate'
 import { h, Component, ConnectParams, RenderParams, Message } from 'kaiju'
 
 import { RouteDef } from 'router'

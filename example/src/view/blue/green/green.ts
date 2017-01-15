@@ -2,7 +2,7 @@ const styles = require('./green.styl')
 const listStyles = require('./list.styl')
 
 import { Component, h, Message, ConnectParams, RenderParams, Hook } from 'kaiju'
-import update from 'immupdate'
+import { update } from 'immupdate'
 
 import { editIcon } from 'icon'
 import popup, * as Popup from 'widget/popup'

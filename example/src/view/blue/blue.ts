@@ -1,7 +1,7 @@
 const styles = require('./blue.styl')
 
 import { h, Component, ConnectParams, RenderParams, VNode, Node } from 'kaiju'
-import update from 'immupdate'
+import { update } from 'immupdate'
 
 import sectionAnimation from 'widget/animation/section'
 import green from 'view/blue/green'
