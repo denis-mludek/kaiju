@@ -300,7 +300,7 @@ const obs = Observable.pure(100).map(x => x * 2).delay(200)
 component's initial state is updated immediately.
 - 4) `render()` is called for the first time
 
-Both `initState` and `render` are called only once when the component first appears.
+Both `initState` and `connect` are called only once when the component first appears.
 
 ## Update
 - At any point in time, the component will re-render if either is true:  
