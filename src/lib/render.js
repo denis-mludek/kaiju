@@ -1,5 +1,5 @@
 import h from 'snabbdom/h'
-import VNode from 'snabbdom/vnode'
+import { vnode as VNode } from 'snabbdom/vnode'
 import log, { shouldLog } from './log'
 
 

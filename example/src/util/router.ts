@@ -1,7 +1,5 @@
-
 import { Router as AbyssaRouter, State, ConfigOptions, ParamsDiff } from 'abyssa'
-const vnode = require('snabbdom/vnode')
-import { startApp, VNode, renderInto } from 'kaiju'
+import { h, startApp, VNode, renderInto } from 'kaiju'
 
 import * as obj from 'util/obj'
 
@@ -145,7 +143,7 @@ export function Router<Routes extends RouteMap>(options: RouterOptions<Routes>) 
   router.on('ended', () => {
     const newAppNode = components.reduceRight((previous, current) => {
       return current(currentRoute!, previous)
-    }, emptyVNode())
+    }, emptyVNode)
 
     if (currentVNode) {
       renderInto(currentVNode, newAppNode)
@@ -206,6 +204,4 @@ function makeRoute(route: RouteDef<{}, {}>, params: {}, paramsDiff: ParamsDiff) 
   }
 }
 
-function emptyVNode() {
-  return vnode('div', { key: '_emptyVNode' }, [], undefined, undefined)
-}
+const emptyVNode = h('div', { key: '_emptyVNode' })

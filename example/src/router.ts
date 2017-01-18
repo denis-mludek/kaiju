@@ -1,11 +1,15 @@
+import classModule from 'snabbdom/modules/class'
+import propsModule from 'snabbdom/modules/props'
+import attrsModule from 'snabbdom/modules/attributes'
+
 import { Router, RouteDef, Route as RuntimeRoute } from 'util/router'
 import app from 'view/app'
 
 
 const snabbdomModules = [
-  require('snabbdom/modules/class'),
-  require('snabbdom/modules/props'),
-  require('snabbdom/modules/attributes')
+  classModule,
+  propsModule,
+  attrsModule
 ]
 
 const router = Router({

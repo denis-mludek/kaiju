@@ -178,7 +178,7 @@ interface Messages {
 // snabbdom
 
 // The third form is for Message.with(), which will take care of type-safety
-type EventHandler = NoArgMessage | Message<Event> | [ Message<any>, any ]
+type EventHandler = NoArgMessage | Message<Event> | [ Message<{}>, {} ]
 
 
 interface VNodeData {
@@ -246,13 +246,21 @@ interface VNodeData {
   [s: string]: any
 }
 
+/** The VNode interface, as constructed by h() */
 export interface VNode {
   sel: string
   data: VNodeData
-  children?: Array<VNode>
-  text?: string
-  elm: HTMLElement // This is actually wrong as it could be an SVGElement too. Keep it as a HTMLElement for now for convenience.
-  key?: string
+  children: Array<VNode> | undefined
+  text: string | undefined
+
+  /*
+   * Technically, elm can actually be undefined in two scenarios:
+   * 1) If we access it on a VNode that was never used for patching
+   * 2) From a init() hook
+   * Since these are very marginal uses, make it non nullable for convenience in all the other cases.
+   */
+  elm: Element
+  key: string | undefined
 }
 
 export type Node = VNode | string
@@ -275,9 +283,11 @@ export function h(sel: string, children: Node[] | string): VNode
 export function h(sel: string, data: VNodeData): VNode
 export function h(sel: string, data: VNodeData, children: Node[] | string): VNode
 
-export var renderInto: (
+/** Renders a VNode into an element or a previous VNode's elm. Returns a cancellation function. */
+export function renderInto(
   target: Element | VNode | Node[],
   vnode: VNode | Node[],
-  onComplete?: Function) => Function
+  onComplete?: Function): Function
 
+/** Returns whether this is the first time the app renders */
 export function isFirstRender(): boolean

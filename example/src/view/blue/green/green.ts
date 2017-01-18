@@ -98,7 +98,7 @@ function render({ props, state }: RenderParams<Props, State>) {
 
 function input(name: string, value: string, shouldAutoFocus = false) {
   const hook: Hook | undefined = shouldAutoFocus
-    ? { insert: node => node.elm.focus() }
+    ? { insert: node => (node.elm as HTMLInputElement).focus() }
     : undefined
 
   return (

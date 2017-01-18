@@ -7,10 +7,10 @@ let onRemoved: Function
 
 const pageAnimations = {
   create: (empty: VNode, vnode: VNode) => {
-    vnode.elm.style.display = 'none'
+    (vnode.elm as HTMLElement).style.display = 'none'
 
     onRemoved = () => {
-      vnode.elm.style.removeProperty('display')
+      (vnode.elm as HTMLElement).style.removeProperty('display')
       vnode.elm.animate(
         { opacity: [0, 1], transform: ['translateX(30px)', 'translateX(0)'] },
         { duration: 300, easing: 'cubic-bezier(0.2, 0.6, 0.3, 1)', fill: 'forwards' }
