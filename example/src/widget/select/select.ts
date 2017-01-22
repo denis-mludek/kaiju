@@ -31,14 +31,16 @@ const close = Message('close')
 const itemSelected = Message<[Event, {}]>('itemSelected')
 
 
-function connect({ on, props, msg }: ConnectParams<Props<{}>, State>) {
+function connect<T>({ on, props, msg }: ConnectParams<Props<T>, State>) {
   on(open, state => copy(state, { opened: true }))
   on(close, state => copy(state, { opened: false }))
-  on(itemSelected, (state, [_, item]) => msg.sendToParent(props().onChange(item)))
+
+  on(itemSelected, (state, [_, item]) =>
+    msg.sendToParent(props().onChange(item as T)))
 }
 
 
-function render({ props, state }: RenderParams<Props<{}>, State>) {
+function render<T>({ props, state }: RenderParams<Props<T>, State>) {
   const { items, selectedItem, itemRenderer, loading } = props
   const { opened } = state
 
