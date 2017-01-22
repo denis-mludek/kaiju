@@ -1,4 +1,4 @@
-import { update } from 'immupdate'
+import { update as copy } from 'immupdate'
 import Store, { Store as StoreType } from 'kaiju/store'
 import { Message } from 'kaiju'
 
@@ -23,7 +23,7 @@ export function UserStore(initId: string) {
   return Store<Users>(initState, on => {
     const users = getUserData()
 
-    on(users.data, (state, data) => update(state, { users: data }))
+    on(users.data, (state, data) => copy(state, { users: data }))
 
     on(reloadUsers, () => users.call(undefined))
 

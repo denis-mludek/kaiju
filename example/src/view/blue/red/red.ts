@@ -1,6 +1,6 @@
 const styles = require('./red.styl')
 
-import { update } from 'immupdate'
+import { update as copy } from 'immupdate'
 import { h, Component, ConnectParams, RenderParams, Message } from 'kaiju'
 
 import { RouteDef } from 'router'
@@ -45,10 +45,10 @@ const userChange = Message<string>('userChange')
 function connect({ on, props }: ConnectParams<Props, State>) {
   const userStore = props().userStore
 
-  on(userStore.state, (state, userState) => update(state, { users: userState.users }))
+  on(userStore.state, (state, userState) => copy(state, { users: userState.users }))
   on(reloadUsers, _ => userStore.send(reloadUsers()))
 
-  on(userChange, (state, user) => update(state, { selectedUser: user }))
+  on(userChange, (state, user) => copy(state, { selectedUser: user }))
 }
 
 function render({ state }: RenderParams<Props, State>) {

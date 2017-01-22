@@ -1,7 +1,7 @@
 const styles = require('./blue.styl')
 
 import { h, Component, ConnectParams, RenderParams, VNode, Node } from 'kaiju'
-import { update } from 'immupdate'
+import { update as copy } from 'immupdate'
 
 import sectionAnimation from 'widget/animation/section'
 import green from 'view/blue/green'
@@ -63,7 +63,7 @@ function connect({ on, props }: ConnectParams<Props, State>) {
 
   on(incrementCounter, _ => appStore.send(incrementCounter()))
 
-  on(appStore.state, (state, appState) => update(state, { count: appState.blue.count }))
+  on(appStore.state, (state, appState) => copy(state, { count: appState.blue.count }))
 }
 
 

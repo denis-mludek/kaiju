@@ -1,4 +1,4 @@
-import { update } from 'immupdate'
+import { update as copy } from 'immupdate'
 import { Message } from 'kaiju'
 import Store, { Store as StoreType } from 'kaiju/store'
 
@@ -24,7 +24,7 @@ export default function() {
 
     on(incrementCounter, state => {
       const count = state.blue.count
-      return update(state, { blue: { count: count + 1 } })
+      return copy(state, { blue: { count: count + 1 } })
     })
 
   }, { name: 'appStore' })

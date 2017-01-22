@@ -2,7 +2,7 @@ const styles = require('./green.styl')
 const listStyles = require('./list.styl')
 
 import { Component, h, Message, ConnectParams, RenderParams, Hook } from 'kaiju'
-import { update } from 'immupdate'
+import { update as copy } from 'immupdate'
 
 import { editIcon } from 'icon'
 import popup, * as Popup from 'widget/popup'
@@ -53,19 +53,19 @@ function connect({ on, props }: ConnectParams<Props, State>) {
   on(inputChanged, (state, evt) => {
     const { name, value } = evt.target as HTMLInputElement
     const formPatch = { [name]: value }
-    return update(state, { form: formPatch })
+    return copy(state, { form: formPatch })
   })
 
   on(showPopup, state => {
-    const params = update(props().route.params, { popup: 'true' })
+    const params = copy(props().route.params, { popup: 'true' })
     router.replaceParams(params)
-    return update(state, { popupOpened: true })
+    return copy(state, { popupOpened: true })
   })
 
   on(Popup.close, state => {
-    const params = update(props().route.params, { popup: undefined })
+    const params = copy(props().route.params, { popup: undefined })
     router.replaceParams(params)
-    return update(state, { popupOpened: false })
+    return copy(state, { popupOpened: false })
   })
 }
 

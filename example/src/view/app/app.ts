@@ -1,7 +1,7 @@
 require('./app.styl')
 
 import { h, Component, ConnectParams, RenderParams, Node, VNode } from 'kaiju'
-import { update } from 'immupdate'
+import { update as copy } from 'immupdate'
 
 import pageAnimation from 'widget/animation/page'
 import link from 'widget/link'
@@ -47,7 +47,7 @@ function initState() {
 function connect({ on, props }: ConnectParams<Props, State>) {
   const store = props().appStore
 
-  on(store.state, (state, app) => update(state, { count: app.blue.count }))
+  on(store.state, (state, app) => copy(state, { count: app.blue.count }))
 }
 
 

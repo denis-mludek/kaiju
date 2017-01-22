@@ -1,6 +1,6 @@
 const styles = require('./select.styl')
 
-import { update } from 'immupdate'
+import { update as copy } from 'immupdate'
 import { Component, h, Message, ConnectParams, RenderParams, VNode } from 'kaiju'
 
 
@@ -32,8 +32,8 @@ const itemSelected = Message<[Event, {}]>('itemSelected')
 
 
 function connect({ on, props, msg }: ConnectParams<Props<{}>, State>) {
-  on(open, state => update(state, { opened: true }))
-  on(close, state => update(state, { opened: false }))
+  on(open, state => copy(state, { opened: true }))
+  on(close, state => copy(state, { opened: false }))
   on(itemSelected, (state, [_, item]) => msg.sendToParent(props().onChange(item)))
 }
 
