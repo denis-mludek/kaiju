@@ -1,13 +1,21 @@
 
+/* tslint:disable:no-any */
 
+/** The model for some data fetched asynchronously */
 export type RemoteData<D, E> =
-  { type: 'notAsked' } |
-  { type: 'loading' } |
-  { type: 'success', data: D } |
-  { type: 'failure', error: E }
+  NotAsked |
+  Loading |
+  Success<D> |
+  Failure<E>
 
-export const NotAsked: RemoteData<any, any> = { type: 'notAsked' } // tslint:disable-line:no-any
-export const Loading: RemoteData<any, any> = { type: 'loading' } // tslint:disable-line:no-any
+
+export type NotAsked = { type: 'notAsked' }
+export type Loading = { type: 'loading' }
+export type Success<D> = { type: 'success', data: D }
+export type Failure<E> = { type: 'failure', error: E }
+
+export const NotAsked: RemoteData<any, any> = { type: 'notAsked' }
+export const Loading: RemoteData<any, any> = { type: 'loading' }
 export const Success = <D, E>(data: D): RemoteData<D, E> => ({ type: 'success', data })
 export const Failure = <D, E>(error: E): RemoteData<D, E> => ({ type: 'failure', error })
 

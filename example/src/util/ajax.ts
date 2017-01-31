@@ -39,10 +39,11 @@ export default function observeAjax<I, O, E>(options: Options<I, O>): Handle<I, 
     r.type === 'success' ? Success<O, E>(r.value) : Failure<O, E>(r.error as E)
   )
 
-  const data = Observable.merge(
-    trigger.map(_ => hasCallNowWith ? Loading : NotAsked),
-    result
-  )
+  const loading = trigger.map(_ => Loading)
+
+  const notAsked = hasCallNowWith ? Observable<NotAsked>() : Observable.pure(NotAsked)
+
+  const data = Observable.merge(notAsked, loading, result)
 
   return {
     data: data.named(name + '_remoteData'),
