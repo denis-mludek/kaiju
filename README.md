@@ -139,7 +139,19 @@ function connect({ on, msg }: ConnectParams<{}, State>) {
 }
 ```
 
-Now, the state is only updated if we stopped clicking for 1 second.
+Now, the state is only updated if we stopped clicking for 1 second.  
+
+We could also decide to just perform a side effect, instead of updating the component's state.  
+When performing side effects (void/undefined is returned) the component is not redrawn:  
+
+```ts
+
+function connect({ on, msg }: ConnectParams<{}, State>) {
+  const clicks = msg.listen(click).debounce(1000)
+
+  on(clicks, _ => console.log('clicked!'))
+}
+```
 
 
 Our component now has an internal state and we know how to update it. But it's also completely opaque from the outside!  
@@ -420,28 +432,33 @@ function connect({ on }: ConnectProps<Props, State>) {
 e.g  
 **Instantiate/destroy a vanillaJS widget when the component is added/removed**  
 
-A context object representing the current component instance is created and passed to `connect` and `render`.  
-Note: context is unlogged, mutable state; minimize its use.  
+We can send a message from a DOM hook.  
 
 Assuming we found some vanillaJS widget named `widget.Map` that has a `create` and `destroy` method:  
 ```ts
-type Context = { map: {...}, init: Function, destroy: Function }
 
-function connect({ context }: RenderParams<Props, State> & { context: Context }) {
-  // Optional: We cache the init/destroy hooks so that render don't keep on creating new functions
-  context.init = (_, node: VNode) => { context.map = widget.Map.create(node.elm) }
-  context.destroy = () => { context.map.destroy() }
+const inserted = Message<Element>('inserted')
+const destroyed = Message('destroyed')
+
+function connect({ on }: RenderParams<Props, State> & { context: Context }) {
+  let mapWidget: MapWidget | undefined
+
+  on(inserted, (state, elm) => { mapWidget = widget.Map.create(elm) })
+
+  on(destroyed, () => mapWidget.destroy())
 }
 
-function render({ props, state, context }: RenderParams<Props, State> & { context: Context }) {
+function render({ props, state, msg }: RenderParams<Props, State> & { context: Context }) {
   return (
     h('div', { hook: {
-      create: context.init,
-      destroy: context.destroy
+      insert: node => msg.send(inserted(node.elm)),
+      destroy: () => msg.send(destroyed())
     }})
   )
 }
 ```
+Note that this kind of Message sent from a DOM lifecycle hook should always perform side effect only.  
+If the state is updated, a warning will be logged and the component will ignore that change.  
 
 
 <a name="localglobalstate"></a>

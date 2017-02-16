@@ -90,7 +90,7 @@ export function renderComponentNextFrame(component) {
 }
 
 function renderComponent(component) {
-  const { props, store, messages, elm, render, vnode, context, destroyed } = component
+  const { props, store, messages, elm, render, vnode, destroyed } = component
 
   // Bail if the component is already destroyed.
   // This can happen if the parent renders first and decide a child component should be removed.
@@ -103,7 +103,7 @@ function renderComponent(component) {
 
   if (log.render) beforeRender = performance.now()
 
-  const newVNode = render({ props, state: store.state(), msg: messages, context })
+  const newVNode = render({ props, state: store.state(), msg: messages })
   patchInto(vnode || elm, newVNode)
 
   if (shouldLog(log.render, component.key)) {
@@ -138,7 +138,6 @@ function processRenderQueue() {
   while (componentsToRender.length) {
     const component = componentsToRender.shift()
     renderComponent(component)
-    if (component.onFirstRender) component.onFirstRender()
   }
   componentsToRender = []
 }

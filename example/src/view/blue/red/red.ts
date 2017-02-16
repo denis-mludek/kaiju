@@ -4,9 +4,9 @@ import { update as copy } from 'immupdate'
 import { h, Component, ConnectParams, RenderParams, Message } from 'kaiju'
 
 import { RouteDef } from 'router'
-import { UserStore, reloadUsers } from 'view/blue/userStore'
+import { UserStore, Users, reloadUsers, loadNextUserPage } from 'view/blue/userStore'
 import select from 'widget/select'
-import { RemoteData, unpack } from 'util/remoteData'
+import { unpack } from 'util/remoteData'
 
 
 export default function route(userStore: () => UserStore) {
@@ -26,14 +26,14 @@ interface Props {
   userStore: UserStore
 }
 
-interface State {
-  users: RemoteData<string[], {}>
+interface State extends Users {
   selectedUser?: string
 }
 
 function initState() {
   return {
     users: undefined!,
+    pagination: undefined!,
     selectedUser: undefined
   }
 }
@@ -45,14 +45,16 @@ const userChange = Message<string>('userChange')
 function connect({ on, props }: ConnectParams<Props, State>) {
   const userStore = props().userStore
 
-  on(userStore.state, (state, userState) => copy(state, { users: userState.users }))
+  on(userStore.state, (state, { users, pagination }) => copy(state, { users, pagination }))
   on(reloadUsers, _ => userStore.send(reloadUsers()))
 
   on(userChange, (state, user) => copy(state, { selectedUser: user }))
+
+  on(loadNextUserPage, _ => userStore.send(loadNextUserPage()))
 }
 
 function render({ state }: RenderParams<Props, State>) {
-  const { selectedUser, users } = state
+  const { selectedUser, users, pagination } = state
 
   const { data = [], loading } = unpack(users)
 
@@ -63,7 +65,8 @@ function render({ state }: RenderParams<Props, State>) {
       items: data,
       selectedItem: selectedUser,
       onChange: userChange,
-      loading
+      loading,
+      pagination
     })
   ]
 }

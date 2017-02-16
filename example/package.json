@@ -12,10 +12,11 @@
 
   "dependencies": {
     "typescript": "2.2.0-dev.20161221",
-    "kaiju": "0.20.0",
+    "kaiju": "0.21.0",
     "snabbdom": "0.6.3",
     "abyssa": "8.0.3",
-    "immupdate": "1.0.0"
+    "immupdate": "1.0.0",
+    "space-lift": "0.0.3"
   },
 
   "devDependencies": {

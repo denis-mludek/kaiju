@@ -5,17 +5,20 @@
 export type RemoteData<D, E> =
   NotAsked |
   Loading |
+  Refreshing<D> |
   Success<D> |
   Failure<E>
 
 
 export type NotAsked = { type: 'notAsked' }
 export type Loading = { type: 'loading' }
+export type Refreshing<D> = { type: 'refreshing', data: D }
 export type Success<D> = { type: 'success', data: D }
 export type Failure<E> = { type: 'failure', error: E }
 
 export const NotAsked: RemoteData<any, any> = { type: 'notAsked' }
 export const Loading: RemoteData<any, any> = { type: 'loading' }
+export const Refreshing = <D, E>(data: D): RemoteData<D, E> => ({ type: 'refreshing', data })
 export const Success = <D, E>(data: D): RemoteData<D, E> => ({ type: 'success', data })
 export const Failure = <D, E>(error: E): RemoteData<D, E> => ({ type: 'failure', error })
 
@@ -32,9 +35,10 @@ type Unpacked<D, E> = {
  */
 export function unpack<D, E>(data: RemoteData<D, E>): Unpacked<D, E> {
   switch (data.type) {
-    case 'notAsked': return { loading: false }
-    case 'loading':  return { loading: true }
-    case 'success':  return { data: data.data, loading: false }
-    case 'failure':  return { error: data.error, loading: false }
+    case 'notAsked':   return { loading: false }
+    case 'loading':    return { loading: true }
+    case 'refreshing': return { loading: true, data: data.data }
+    case 'success':    return { data: data.data, loading: false }
+    case 'failure':    return { error: data.error, loading: false }
   }
 }

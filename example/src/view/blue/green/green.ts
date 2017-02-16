@@ -52,8 +52,8 @@ function connect({ on, props }: ConnectParams<Props, State>) {
 
   on(inputChanged, (state, evt) => {
     const { name, value } = evt.target as HTMLInputElement
-    const formPatch = { [name]: value }
-    return copy(state, { form: formPatch })
+    const newForm = copy(state.form, { [name]: value })
+    return copy(state, { form: newForm })
   })
 
   on(showPopup, state => {

@@ -1,7 +1,6 @@
 import { Router as AbyssaRouter, State, ConfigOptions, ParamsDiff } from 'abyssa'
 import { h, startApp, VNode, renderInto } from 'kaiju'
-
-import * as obj from 'util/obj'
+import lift from 'space-lift'
 
 
 /* More typesafe abstraction using abyssa */
@@ -62,7 +61,7 @@ export function RouteDef<P, Children extends RouteMap, A>(
 
   const children = options.children || {}
 
-  return obj.merge({
+  return Object.assign({
     def: {
       uri,
       fullName: undefined!,
@@ -70,7 +69,7 @@ export function RouteDef<P, Children extends RouteMap, A>(
       ...options
     },
     params: undefined!
-  }, children) as {} as RouteDef<P, RouteMapWithParentParams<Children, P> & RouteMap>
+  }, children)
 }
 
 
@@ -96,7 +95,7 @@ export function Router<Routes extends RouteMap>(options: RouterOptions<Routes>) 
   let currentVNode: VNode | undefined
 
   // Translate our RouteDefs into abyssa States
-  function transformRouteTree<K extends string>(
+  function transformRouteTree(
     name: string,
     route: RouteDef<{}, {}>,
     parent: RouteDef<{}, {}> | undefined = undefined
@@ -108,8 +107,9 @@ export function Router<Routes extends RouteMap>(options: RouterOptions<Routes>) 
     route.def.fullName = name
 
     const children = route.def.children
-      ? obj.mapValues(route.def.children, (childName, childRoute) =>
-          transformRouteTree(`${name}.${childName}`, childRoute, route))
+      ? lift(route.def.children)
+          .mapValues((childName, childRoute) => transformRouteTree(`${name}.${childName}`, childRoute, route))
+          .value()
       : {}
 
     return State(route.def.uri, {
@@ -130,7 +130,7 @@ export function Router<Routes extends RouteMap>(options: RouterOptions<Routes>) 
   }
 
 
-  const rootStates = obj.mapValues(options.routes as {}, transformRouteTree)
+  const rootStates = lift(options.routes).mapValues(transformRouteTree).value()
   const router = AbyssaRouter(rootStates)
 
   router.configure(options)

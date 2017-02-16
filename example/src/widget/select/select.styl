@@ -13,15 +13,27 @@
   list-style: none
   padding: 8px
   box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2)
+}
 
-  li {
-    width: 100%
-    color: #444
-    padding: 4px
-    cursor: default
+.li {
+  width: 100%
+  color: #444
+  padding: 4px
+  cursor: default
 
-    &:hover {
-      background: #F0F0F0
-    }
+  &:hover {
+    background: #F0F0F0
   }
+}
+
+.scroller {
+  max-height: 200px
+  overflow-y: auto
+}
+
+.loaderContainer {
+  margin: 10px 0
+  display: flex
+  justify-content: center
+  align-items: center
 }

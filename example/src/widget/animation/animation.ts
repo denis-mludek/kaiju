@@ -1,5 +1,5 @@
 import { h, VNode } from 'kaiju'
-import { Set } from 'util/obj'
+import lift from 'space-lift'
 
 
 /* Container animating its children in and out. children must have keys to be properly differentiated */
@@ -21,8 +21,8 @@ function prepatch(oldVNode: VNode, newVNode: VNode) {
   const oldChildren = oldVNode.children || []
   const newChildren = newVNode.children || []
 
-  const oldKeys = Set(oldChildren.map(c => c.key || ''))
-  const newKeys = Set(newChildren.map(c => c.key || ''))
+  const oldKeys = lift(oldChildren).map(c => c.key || '').toSet().value()
+  const newKeys = lift(newChildren).map(c => c.key || '').toSet().value()
 
   // children making an exit
   oldChildren.forEach(child => {

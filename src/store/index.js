@@ -14,7 +14,7 @@ export default function Store(initialState, registerHandlers, options = empty) {
   const handlers = {}
   // unsubscribe functions created by the on(observable) syntax
   const subscriptions = []
-  // List of the messages that are listened to to create observables
+  // List of the messages that are listened to in order to create observables
   const listened = {}
   // Dispatching queue, when a message handler sends additional messages
   const queue = []
@@ -28,9 +28,9 @@ export default function Store(initialState, registerHandlers, options = empty) {
   const storeName = name || (registerHandlers.name ? `${registerHandlers.name} store` : 'Store')
 
   const msg = {
-    send: message => store.send(message),
+    send: m => store.send(m), // Late binding as store.send is not yet defined
     listen: message => {
-      const observable = Observable()
+      const observable = Observable().named(message._name)
       listened[message._id] = observable
       return observable
     }

@@ -16,7 +16,7 @@ export default function Component(options) {
 
   const data = {
     key,
-    hook: { create, postpatch, destroy },
+    hook: { insert, postpatch, destroy },
     component: { props, initState, connect, render, key: name },
     attrs: { name }
   }
@@ -28,24 +28,28 @@ export default function Component(options) {
   return compVnode
 }
 
-// Called when the component is created but isn't yet attached to the DOM
-function create(_, vnode) {
+function insert(vnode) {
   const { component } = vnode.data
   const { props, initState, connect } = component
 
   let connected = false
+
+  // Lookup from HTML Element to component, used in DOM-based messaging
+  vnode.elm.__comp__ = component
+
+  // Store the component depth once it's attached to the DOM so we can render
+  // component hierarchies in a predictive (top -> down) manner.
+  component.depth = getDepth(vnode.elm)
 
   // Internal callbacks
   component.lifecycle = {
     rendered
   }
 
-  const messages = new Messages()
-  const context = {}
+  const messages = new Messages(vnode.elm)
 
   component.elm = vnode.elm
   component.messages = messages
-  component.context = context
 
   const propsObservable = Observable(add => {
     add(component.props)
@@ -56,12 +60,13 @@ function create(_, vnode) {
   // the ObservableWithInitialValue interface contract.
   propsObservable.subscribe(x => x)
 
-  component.store = Store(initState(props), on => {
+  component.store = Store(initState(props), (on, msg) => {
+    messages.storeMsg = msg
+
     const connectParams = {
       on,
       props: propsObservable,
-      msg: messages,
-      context
+      msg: messages
     }
 
     connect(connectParams)
@@ -73,19 +78,6 @@ function create(_, vnode) {
     // e.g we get patched into our parent after our parent was added to the document.
     renderNewComponentNow(component)
 
-    component.onFirstRender = () => {
-      // Lookup from HTML Element to component
-      component.vnode.elm.__comp__ = component
-
-      // The component is now attached to the document so activate the DOM based messages
-      messages._activate(component.vnode.elm)
-
-      // Store the component depth once it's attached to the DOM so we can render
-      // component hierarchies in a predictive (top -> down) manner.
-      component.depth = getDepth(component.vnode.elm)
-
-      component.onFirstRender = undefined
-    }
   }, {
     name: component.key,
     log: shouldLog(log.message, component.key)
@@ -94,9 +86,9 @@ function create(_, vnode) {
   component.store.state.sliding2().subscribe(([newState, oldState]) => {
 
     const shouldRender =
-      // Skip the first notification
+      // Skip the first notification (hot observable)
       oldState &&
-      // synchronous observables triggering before the very first render
+      // synchronous observables triggering before the first render should just be accumulated
       connected &&
       // the props observable triggered, a synchronous render is made right after so skip
       !component.lifecycle.propsChanging &&
@@ -142,6 +134,7 @@ function rendered(component, newVnode) {
   if (!Array.isArray(newVnode)) {
     // Lift any 'remove' hook to our placeholder vnode for it to be called
     // as the placeholder is all our parent vnode knows about.
+    // TODO: Call all the hooks of an Array VNode?
     const hook = newVnode.data.hook && newVnode.data.hook.remove
     if (hook) component.compVnode.data.hook.remove = hook
   }

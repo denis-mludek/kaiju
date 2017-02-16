@@ -279,9 +279,9 @@ export interface Hook {
 }
 
 export function h(sel: string): VNode
-export function h(sel: string, children: Node[] | string): VNode
+export function h(sel: string, children: string | Node | Node[]): VNode
 export function h(sel: string, data: VNodeData): VNode
-export function h(sel: string, data: VNodeData, children: Node[] | string): VNode
+export function h(sel: string, data: VNodeData, children: string | Node | Node[]): VNode
 
 /** Renders a VNode into an element or a previous VNode's elm. Returns a cancellation function. */
 export function renderInto(

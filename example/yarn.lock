@@ -2024,6 +2024,10 @@ optimist@~0.6.0:
     minimist "~0.0.1"
     wordwrap "~0.0.2"
 
+option.ts@0.1.6:
+  version "0.1.6"
+  resolved "https://registry.yarnpkg.com/option.ts/-/option.ts-0.1.6.tgz#d3da6c0421cd13da01424beee8e9d77a2d9e98e0"
+
 os-browserify@^0.2.0:
   version "0.2.1"
   resolved "https://registry.yarnpkg.com/os-browserify/-/os-browserify-0.2.1.tgz#63fc4ccee5d2d7763d26bbf8601078e6c2e0044f"
@@ -2723,6 +2727,13 @@ source-map@0.1.x:
 source-map@^0.5.0, source-map@^0.5.3, source-map@^0.5.6, source-map@~0.5.1, source-map@~0.5.3:
   version "0.5.6"
   resolved "https://registry.yarnpkg.com/source-map/-/source-map-0.5.6.tgz#75ce38f52bf0733c5a7f0c118d81334a2bb5f412"
+
+space-lift@0.0.3:
+  version "0.0.3"
+  resolved "https://registry.yarnpkg.com/space-lift/-/space-lift-0.0.3.tgz#429d8aaf7d26c80decaa3fe45f7102499a79dbb1"
+  dependencies:
+    immupdate "1.0.0"
+    option.ts "0.1.6"
 
 spdx-correct@~1.0.0:
   version "1.0.2"

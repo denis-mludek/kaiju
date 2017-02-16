@@ -1,9 +1,14 @@
 const styles = require('./select.styl')
 
 import { update as copy } from 'immupdate'
-import { Component, h, Message, ConnectParams, RenderParams, VNode } from 'kaiju'
+import { Component, h, Message, ConnectParams, RenderParams, VNode, NoArgMessage } from 'kaiju'
+import { Option } from 'option.ts'
+
+import scroller from 'widget/scroller'
+import loader from 'widget/loader'
 
 
+/** A select component that can optionally display paginated data */
 export default function<T>(props: Props<T>) {
   return Component<Props<T>, State>({ name: 'select', props, initState, connect, render })
 }
@@ -15,6 +20,12 @@ interface Props<T> {
   onChange: Message<T>
   itemRenderer?: (item: T) => string
   loading: boolean
+  pagination?: Pagination
+}
+
+interface Pagination {
+  hasMore: boolean
+  loadMore: NoArgMessage
 }
 
 interface State {
@@ -32,11 +43,15 @@ const itemSelected = Message<[Event, {}]>('itemSelected')
 
 
 function connect<T>({ on, props, msg }: ConnectParams<Props<T>, State>) {
+
   on(open, state => copy(state, { opened: true }))
   on(close, state => copy(state, { opened: false }))
 
-  on(itemSelected, (state, [_, item]) =>
-    msg.sendToParent(props().onChange(item as T)))
+  on(itemSelected, (state, [_, item]) => msg.sendToParent(props().onChange(item as T)))
+
+  Option(props().pagination).map(pagination => {
+    on(pagination.loadMore, _ => msg.sendToParent(pagination.loadMore()))
+  })
 }
 
 
@@ -61,25 +76,33 @@ function render<T>({ props, state }: RenderParams<Props<T>, State>) {
 }
 
 function renderDropdownEl(props: Props<{}>, opened: boolean) {
-  const { items, loading, itemRenderer } = props
+  const { items, loading, itemRenderer, pagination } = props
 
-  const itemEls = opened && !loading
+  const itemEls = opened
     ? (itemRenderer ? items.map(itemRenderer) : items).map(renderItem)
     : undefined
 
-  const loaderEl = opened && loading
-    ? [ h('li', 'Loading...') ]
-    : undefined
+  if (!itemEls) return ''
 
-  const dropdownEls = itemEls || loaderEl
+  const itemsWithLoaderEl = loading
+    ? itemEls.concat(h(`li.${styles.loaderContainer}`, loader()))
+    : itemEls
 
-  return dropdownEls
-    ? h(`ul.${styles.dropdown}`, { hook: animationHook }, dropdownEls)
-    : ''
+  const listEl = pagination ? (
+    scroller({
+      styleName: styles.scroller,
+      list: itemsWithLoaderEl,
+      hasMore: pagination.hasMore,
+      loadMore: pagination.loadMore,
+      isLoadingMore: loading
+    })
+  ) : itemsWithLoaderEl
+
+  return h(`ul.${styles.dropdown}`, { hook: animationHook }, listEl)
 }
 
 function renderItem(item: string) {
-  return h('li', { events: { mousedown: itemSelected.with(item) } }, item)
+  return h(`li.${styles.li}`, { events: { mousedown: itemSelected.with(item) } }, item)
 }
 
 const animationHook = {
