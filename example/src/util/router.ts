@@ -1,4 +1,4 @@
-import { Router as AbyssaRouter, State, ConfigOptions, ParamsDiff } from 'abyssa'
+import { Router as AbyssaRouter, RouterAPI, State, ConfigOptions, ParamsDiff } from 'abyssa'
 import { h, startApp, VNode, renderInto } from 'kaiju'
 import lift from 'space-lift'
 
@@ -19,7 +19,7 @@ export type RouteDef<P, Children extends RouteMap> = {
 
 interface RouteDefOptions<P, Children extends RouteMap> {
   children: Children
-  enter: (route: Route<P, Children>) => (route: Route<P, Children>, child: VNode) => VNode
+  enter: (router: Router, initRoute: Route<P, Children>) => (route: Route<P, Children>, child: VNode) => VNode
   update?: (route: CurrentRoute<P, Children>) => void
   exit?: () => void
 }
@@ -51,7 +51,6 @@ export interface CurrentRoute<P, Children extends RouteMap> extends Route<P, Chi
   paramsDiff: ParamsDiff
 }
 
-
 /* Creates a new Route definition */
 export function RouteDef<P, Children extends RouteMap, A>(
   uri: string,
@@ -72,6 +71,24 @@ export function RouteDef<P, Children extends RouteMap, A>(
   }, children)
 }
 
+// The public interface to be used for the Router.
+export interface Router {
+  routes: RouteMap
+
+  init(): void
+  transitionTo<P>(route: RouteDef<P, {}>, params: P): void
+  replaceParams(params: {}): void
+  link<P>(route: RouteDef<P, {}>, params: P): string
+}
+
+interface TypedRouter<Routes> {
+  routes: Routes
+
+  init(): void
+  transitionTo<P>(route: RouteDef<P, {}>, params: P): void
+  replaceParams(params: {}): void
+  link<P>(route: RouteDef<P, {}>, params: P): string
+}
 
 type RouterOptions<Routes extends RouteMap> = ConfigOptions & {
   routes: Routes,
@@ -80,7 +97,7 @@ type RouterOptions<Routes extends RouteMap> = ConfigOptions & {
 }
 
 /* Creates the router and starts the application */
-export function Router<Routes extends RouteMap>(options: RouterOptions<Routes>) {
+export function Router<Routes extends RouteMap>(options: RouterOptions<Routes>): TypedRouter<Routes> {
 
   // The lookup of our custom route objects by full name
   const routeByName: Obj<RouteDef<{}, {}>> = {}
@@ -93,6 +110,8 @@ export function Router<Routes extends RouteMap>(options: RouterOptions<Routes>) 
 
   // The current app VNode
   let currentVNode: VNode | undefined
+
+  let typedRouter: TypedRouter<Routes>
 
   // Translate our RouteDefs into abyssa States
   function transformRouteTree(
@@ -115,7 +134,7 @@ export function Router<Routes extends RouteMap>(options: RouterOptions<Routes>) 
     return State(route.def.uri, {
       enter: (params) => {
         components.push(
-          route.def.enter(currentRoute!))
+          route.def.enter(typedRouter, currentRoute!))
       },
       update: () => {
         if (route.def.update)
@@ -149,28 +168,23 @@ export function Router<Routes extends RouteMap>(options: RouterOptions<Routes>) 
       renderInto(currentVNode, newAppNode)
     }
     else {
-      // Renders asynchronously for import ordering convenience in the main module.
-      // e.g, this way, a render function can use router.link, etc.
-      requestAnimationFrame(() =>
-        startApp({
-          app: newAppNode,
-          elm: options.elm,
-          snabbdomModules: options.snabbdomModules
-        })
-      )
+      startApp({
+        app: newAppNode,
+        elm: options.elm,
+        snabbdomModules: options.snabbdomModules
+      })
     }
 
     currentVNode = newAppNode
   })
 
-  const routerApi = router.init()
-
+  const routerApi = router as {} as RouterAPI
 
   function transitionTo<P>(route: RouteDef<P, {}>, params: P) {
     return routerApi.transitionTo(route.def.fullName, params)
   }
 
-  function link<P, C>(route: RouteDef<P, {}>, params: P) {
+  function link<P>(route: RouteDef<P, {}>, params: P) {
     return routerApi.link(route.def.fullName, params)
   }
 
@@ -178,12 +192,19 @@ export function Router<Routes extends RouteMap>(options: RouterOptions<Routes>) 
     return routerApi.replaceParams(params)
   }
 
-  return  {
+  function init() {
+    router.init()
+  }
+
+  typedRouter = {
     routes: options.routes,
     transitionTo,
     replaceParams,
-    link
+    link,
+    init
   }
+
+  return typedRouter
 }
 
 

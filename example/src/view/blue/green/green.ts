@@ -8,14 +8,14 @@ import { editIcon } from 'icon'
 import popup, * as Popup from 'widget/popup'
 import button from 'widget/button'
 import groupFadeAnimation from 'widget/animation/groupFade'
-import router, { RouteDef, Route } from 'router'
+import { RouteDef, Router, Route } from 'router'
 
 
 type Params = { id: string, popup?: string }
 
 export default function route() {
   return RouteDef('green?popup', <Params>{}, {
-    enter: initRoute => route => green({ route }),
+    enter: router => route => green({ router, route }),
     children: {}
   })
 }
@@ -27,6 +27,7 @@ function green(props: Props) {
 
 
 interface Props {
+  router: Router
   route: Route<Params>
 }
 
@@ -49,6 +50,8 @@ const showPopup = Message('showPopup')
 
 
 function connect({ on, props }: ConnectParams<Props, State>) {
+
+  const { router } = props()
 
   on(inputChanged, (state, evt) => {
     const { name, value } = evt.target as HTMLInputElement

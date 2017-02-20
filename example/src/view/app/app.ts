@@ -8,14 +8,14 @@ import link from 'widget/link'
 import index from 'view/index'
 import blue from 'view/blue'
 import createAppStore, { AppStore } from 'view/app/store'
-import { routes, RouteDef, Route } from 'router'
+import { routes, RouteDef, Router, Route } from 'router'
 
 
 export default function route() {
   const appStore = createAppStore()
 
   return RouteDef('', {}, {
-    enter: initRoute => (route, child) => app({ appStore, child, route }),
+    enter: router => (route, child) => app({ appStore, child, router, route }),
 
     children: {
       index: index(),
@@ -31,6 +31,7 @@ function app(props: Props) {
 
 type Props = {
   appStore: AppStore
+  router: Router
   route: Route<{}>
   child: VNode
 }
@@ -52,16 +53,18 @@ function connect({ on, props }: ConnectParams<Props, State>) {
 
 
 function render({ props, state }: RenderParams<Props, State>): Node[] {
-  const { route, child } = props
+  const { router, route, child } = props
 
   return [
     h('header', [
       link({
+        router,
         route: routes.index,
         label: 'Index',
         isActive: route.isIn(routes.index)
       }),
       link({
+        router,
         route: routes.blue,
         params: { id: '33' },
         label: 'Blue',

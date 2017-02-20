@@ -1717,9 +1717,9 @@ jsprim@^1.2.2:
     json-schema "0.2.3"
     verror "1.3.6"
 
-kaiju@0.20.0:
-  version "0.20.0"
-  resolved "https://registry.yarnpkg.com/kaiju/-/kaiju-0.20.0.tgz#1a07a166a0900842f753756307f28c958ffe17da"
+kaiju@0.21.0:
+  version "0.21.0"
+  resolved "https://registry.yarnpkg.com/kaiju/-/kaiju-0.21.0.tgz#ecc6139f3a0572946a1cd67a41c960f50a4bb9ac"
 
 kind-of@^3.0.2:
   version "3.1.0"

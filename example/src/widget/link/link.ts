@@ -2,17 +2,18 @@ const styles = require('./link.styl')
 
 import { h } from 'kaiju'
 
-import router, { RouteDef } from 'router'
+import { Router, RouteDef } from 'router'
 
 
 interface LinkProps<P> {
+  router: Router
   route: RouteDef<P, {}>
   isActive?: boolean
   params?: P
   label: string
 }
 
-export default function link<P>({ route, params, label, isActive = false }: LinkProps<P>) {
+export default function link<P>({ router, route, params, label, isActive = false }: LinkProps<P>) {
   const href = router.link(route, params)
 
   return (

@@ -7,7 +7,7 @@ import sectionAnimation from 'widget/animation/section'
 import green from 'view/blue/green'
 import red from 'view/blue/red'
 import { AppStore, incrementCounter } from 'view/app/store'
-import { routes, RouteDef, Route } from 'router'
+import { routes, RouteDef, Router, Route } from 'router'
 import link from 'widget/link'
 import { UserStore } from 'view/blue/userStore'
 
@@ -20,9 +20,9 @@ export default function blueRoute(appStore: () => AppStore) {
 
   return RouteDef('blue/:id', <Params>{}, {
 
-    enter: initRoute => {
+    enter: (router, initRoute) => {
       userStore = UserStore(initRoute.params.id)
-      return (route, child) => blue({ appStore: appStore(), route, child })
+      return (route, child) => blue({ appStore: appStore(), router, route, child })
     },
 
     exit: () => {
@@ -44,6 +44,7 @@ function blue(props: Props) {
 
 interface Props {
   child: VNode
+  router: Router
   route: Route<Params>
   appStore: AppStore
 }
@@ -68,18 +69,20 @@ function connect({ on, props }: ConnectParams<Props, State>) {
 
 
 function render({ props, state }: RenderParams<Props, State>): Node[] {
-  const { route, child } = props
+  const { router, route, child } = props
   const id = route.params.id
 
   return [
     h('h1', 'Blue screen'),
     link({
+      router,
       route: routes.blue.green,
       params: { id },
       label: 'Green',
       isActive: route.isIn(routes.blue.green)
     }),
     link({
+      router,
       route: routes.blue.red,
       params: { id },
       label: 'Red',
