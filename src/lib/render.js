@@ -4,17 +4,27 @@ import log, { shouldLog } from './log'
 
 
 let componentsToRender = []
-
+let nodesToRender = []
+let scheduledDOMReads = []
+let scheduledDOMWrites = []
 let rendering = false
 let nextRender = undefined
 let renderBeginTime = undefined
-
-
-const Render = { patch: undefined }
-export default Render
-
-
 let _isFirstRender = true
+let patch
+
+
+export function setPatchFunction(value) {
+  patch = value
+}
+
+export const Render = {
+  into: renderInto,
+  isFirst: isFirstRender,
+  scheduleDOMRead,
+  scheduleDOMWrite
+}
+
 export function isFirstRender() {
   return _isFirstRender
 }
@@ -22,38 +32,31 @@ export function isFirstRender() {
 /**
  * Generic render function for arbitrary VDOM rendering
  */
-export function renderVDom(target, vdom, onComplete) {
-  let cancelled = false
-
-  // Some components are already rendering within an animation frame, piggy back and do it synchronously
-  if (rendering) {
-    patchInto(target, vdom)
-    if (onComplete) onComplete()
+export function renderInto(target, vdom, onComplete) {
+  const task = {
+    target,
+    vdom,
+    onComplete,
+    cancelled: false
   }
-  // No component rendering is in progress; just schedule it asap
-  else
-    requestAnimationFrame(() => {
-      if (cancelled) return
-      renderSync(target, vdom)
-      if (onComplete) onComplete()
-    })
 
-  return function cancel() { cancelled = true }
+  nodesToRender.push(task)
+
+  renderNextFrame()
+
+  return function cancel() { task.cancelled = true }
 }
 
+// Used by startApp
 export function renderSync(target, vdom) {
-  rendering = true
+  const task = {
+    target,
+    vdom
+  }
 
-  logBeginRender()
+  nodesToRender.push(task)
 
-  patchInto(target, vdom)
-
-  processRenderQueue()
-
-  logEndRender()
-
-  _isFirstRender = false
-  rendering = false
+  renderNow()
 }
 
 
@@ -85,7 +88,11 @@ export function renderComponentNextFrame(component) {
 
   componentsToRender.push(component)
 
-  if (!nextRender)
+  renderNextFrame()
+}
+
+function renderNextFrame() {
+  if (!nextRender && !rendering)
     nextRender = requestAnimationFrame(renderNow)
 }
 
@@ -97,7 +104,6 @@ function renderComponent(component) {
   if (destroyed) return
 
   const isNew = vnode === undefined
-  const { patch } = Render
 
   let beforeRender
 
@@ -117,7 +123,6 @@ function renderComponent(component) {
 
 function renderNow() {
   rendering = true
-
   nextRender = undefined
 
   logBeginRender()
@@ -127,19 +132,54 @@ function renderNow() {
   // If we didn't do that, a component could first be rendered following a state change
   // but then miss out on a props change from its parent.
   componentsToRender.sort((compA, compB) => compA.depth - compB.depth)
+
   processRenderQueue()
 
+  processDOMReadsWrites()
+
   rendering = false
+  _isFirstRender = false
 
   logEndRender()
 }
 
 function processRenderQueue() {
-  while (componentsToRender.length) {
-    const component = componentsToRender.shift()
-    renderComponent(component)
+  while (nodesToRender.length || componentsToRender.length) {
+    while (nodesToRender.length) {
+      const { target, vdom, onComplete, cancelled } = nodesToRender.shift()
+      if (cancelled) continue
+      patchInto(target, vdom)
+      if (onComplete) onComplete()
+    }
+
+    while (componentsToRender.length) {
+      const component = componentsToRender.shift()
+      renderComponent(component)
+    }
   }
-  componentsToRender = []
+}
+
+function processDOMReadsWrites() {
+  while (scheduledDOMReads.length || scheduledDOMWrites.length) {
+
+    while (scheduledDOMReads.length) {
+      (scheduledDOMReads.shift())()
+    }
+
+    while (scheduledDOMWrites.length) {
+      (scheduledDOMWrites.shift())()
+    }
+  }
+}
+
+function scheduleDOMRead(callback) {
+  scheduledDOMReads.push(callback)
+  renderNextFrame()
+}
+
+function scheduleDOMWrite(callback) {
+  scheduledDOMWrites.push(callback)
+  renderNextFrame()
 }
 
 function logBeginRender() {
@@ -166,7 +206,7 @@ function patchInto(target, node) {
 
   // First render inside an Element
   if (target.elm === undefined) {
-    Render.patch(
+    patch(
       VNode('dummy', {}, [], undefined, target),
       VNode('dummy', {}, nodeIsArray ? node : [node])
     )
@@ -177,13 +217,13 @@ function patchInto(target, node) {
   // Update using a previous VNode or VNode[] to patch against
   else {
     if (targetIsArray) {
-      Render.patch(
+      patch(
         VNode('dummy', {}, target, undefined, target.elm),
         VNode('dummy', {}, nodeIsArray ? node : [node])
       )
     }
     else {
-      Render.patch(target, node)
+      patch(target, node)
     }
 
     if (nodeIsArray)
@@ -192,10 +232,10 @@ function patchInto(target, node) {
 }
 
 /*
-  Similar to what h() does. We have to do it here ourselves
+  Similar to what h() does for its children. We have to do it here ourselves
   when we are passed an Array of Nodes as it didn't go through the h() transformation.
   The operation is mutative, so that the Array of Nodes can later be reused for patching.
-  This is not particularly elegant but is consistent with the snabbdom's way.
+  This is consistent with the snabbdom's way.
 */
 function mapPrimitiveNodes(arr) {
   for (let i = 0; i < arr.length; ++i) {

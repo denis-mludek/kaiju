@@ -26,7 +26,8 @@ kaiju is a view layer used to build an efficient tree of stateless/stateful comp
   * [Creating a component](#api-component)
   * [Altering the DOM from a component/VNode tree](#api-startApp)
     * [startApp](#api-startApp)
-    * [patch](#api-patch)
+    * [Render.into](#api-renderInto)
+    * [Render.scheduleDOMWrite](#api-renderSchedule)
   * [Message: Intra and inter component communication](#api-message)
   * [Logging data changes and render timing](#api-logging)
 * [Full TS Example](https://github.com/AlexGalays/kaiju/tree/master/example/src)
@@ -759,26 +760,54 @@ startApp({ app, snabbdomModules, elm: document.body })
 ```
 
 <a name="api-renderInto"></a>
-## renderInto
+## Render.into
 
 This function is made available after the app was created with `startApp`.
 This can be used to create some advanced components with their own internal rendering needs (e.g: Efficient popups, alerts, etc).
 It renders either synchronously if called from an ongoing rendering phase, or asynchronously.
 
 ```ts
-import { renderInto, h } from 'kaiju'
+import { Render, h } from 'kaiju'
 
 const firstVDom = h('div')
 
 // Creates a new div as a child of body
-renderInto(document.body, firstVDom)
+Render.into(document.body, firstVDom)
 
 // Patch that div so that it becomes a span
-const cancel = renderInto(firstVDom, h('span'), () => {
+const cancel = Render.into(firstVDom, h('span'), () => {
   // Inside the rendered callback  
 })
 ```
 
+
+<a name="api-renderSchedule"></a>
+## Render.scheduleDOMWrite
+
+The virtual DOM abstraction pretty much guarantees an optimal way of creating and updating the DOM in a single pass, without any layout trashing.  
+Sometimes, however, you may want to further alter the DOM in an imperative way when it's not possible to have a straightforward state->view binding.  
+Kaiju provides two functions to do that without causing layout trashing:  
+`Render.scheduleDOMRead` and `Render.scheduleDOMWrite`.  
+Both are called at the end of a render cycle (so still inside a requestAnimationFrame context)  
+The reads and writes are batched, reads are called first.  
+
+```ts
+import { Render, VNode } from 'kaiju'
+
+// Called within an insert hook
+function increaseHeight(vnode: VNode) {
+  const el = vnode.elm as HTMLElement
+
+  Render.scheduleDOMRead(() => {
+    const height = el.clientHeight
+
+    Render.scheduleDOMWrite(() => {
+      el.style['height'] = `${height + 10}px`
+    })
+  })
+}
+
+```
 
 
 <a name="api-message"></a>

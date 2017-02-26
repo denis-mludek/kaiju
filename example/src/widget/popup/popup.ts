@@ -1,5 +1,5 @@
 const styles = require('./popup.styl')
-import { h, Component, VNode, Message, NoArgMessage, ConnectParams, RenderParams, renderInto, isFirstRender } from 'kaiju'
+import { h, Component, VNode, Message, NoArgMessage, ConnectParams, RenderParams, Render } from 'kaiju'
 import { Observable } from 'kaiju/observable'
 import { findParentByAttr } from 'util/dom'
 
@@ -59,7 +59,7 @@ function render({ props }: RenderParams<Props, {}>) {
 
 function insert(vnode: VNode) {
   const popup = vnode.data['_popup'] = popupWithContent(vnode.data['content'])
-  renderInto(popupLayer, popup)
+  Render.into(popupLayer, popup)
 }
 
 function postpatch(oldVNode: VNode, vnode: VNode) {
@@ -68,19 +68,19 @@ function postpatch(oldVNode: VNode, vnode: VNode) {
 
   vnode.data['_popup'] = newPopup
 
-  renderInto(oldPopup, newPopup)
+  Render.into(oldPopup, newPopup)
 }
 
 const emptyVNode = h('div')
 function destroy(vnode: VNode) {
-  renderInto(vnode.data['_popup'], emptyVNode)
+  Render.into(vnode.data['_popup'], emptyVNode)
 }
 
 function popupWithContent(content: VNode[]) {
   return (
     h(`div.${styles.overlay}`, {
       key: 'popup-content',
-      hook: { insert: isFirstRender() ? undefined : insertAnimation, remove: removeAnimation },
+      hook: { insert: Render.isFirst() ? undefined : insertAnimation, remove: removeAnimation },
       events: { click: overlayClick } }, [
 
         h(`div.${styles.popup}`, {

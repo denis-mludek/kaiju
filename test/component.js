@@ -2,7 +2,7 @@ require('jsdom-global')()
 global.requestAnimationFrame = fn => setTimeout(fn, 1)
 
 import expect from 'expect'
-import { Component, h, startApp, Message } from '../src/main'
+import { Component, h, startApp, Message, Render } from '../src/main'
 
 
 /** Utils **/
@@ -80,7 +80,7 @@ describe('Component', () => {
 
   it('can render an Array of VNodes', done => {
 
-    let askForReRender
+    let forceReRender
 
     const reRender = Message('reRender')
 
@@ -89,7 +89,7 @@ describe('Component', () => {
       function initState() { return {} }
 
       function connect({ on, msg }) {
-        askForReRender = () => msg.send(reRender())
+        forceReRender = () => msg.send(reRender())
 
         on(reRender, () => ({ swap: true }))
       }
@@ -117,7 +117,7 @@ describe('Component', () => {
     const buttonEl = comp.children[0]
     const spanEl = comp.children[2]
 
-    askForReRender()
+    forceReRender()
 
     requestAnimationFrame(() => {
       // The component node is stable
@@ -292,5 +292,112 @@ describe('Component', () => {
     ])
   })
 
+
+  it('can schedule DOM manipulations without causing layout trashing', done => {
+
+    let calls = []
+    let forceReRender = []
+
+    const input = (() => {
+      const reRender = Message('reRender')
+
+      function initState() { return {} }
+      function connect({ msg, on }) {
+        forceReRender.push(() => msg.send(reRender()))
+
+        calls.push('connect')
+
+        Render.scheduleDOMRead(() => {
+          calls.push('scheduleDOMReadFromConnect')
+        })
+
+        on(reRender, _ => ({ swap: true }))
+      }
+
+      function render() {
+        calls.push('render')
+
+        return h('input', {
+          hook: {
+            insert: onInsert,
+            update: onUpdate
+          }
+        })
+      }
+
+      function onInsert(vnode) {
+        Render.scheduleDOMRead(() => {
+          calls.push('scheduleDOMReadFromInsert')
+          let height = vnode.elm.clientHeight
+
+          Render.scheduleDOMWrite(() => {
+            calls.push('scheduleDOMWriteFromInsert')
+            vnode.elm.style.height = height + 20
+
+            Render.scheduleDOMRead(() => {
+              calls.push('scheduleDOMReadFromInsert2')
+            })
+
+          })
+        })
+
+        calls.push('onInsert')
+      }
+
+      function onUpdate(_, vnode) {
+        Render.scheduleDOMRead(() => {
+          calls.push('scheduleDOMReadFromUpdate')
+          let height = vnode.elm.clientHeight
+
+          Render.scheduleDOMWrite(() => {
+            calls.push('scheduleDOMWriteFromUpdate')
+            vnode.elm.style.height = height + 20
+
+            Render.scheduleDOMRead(() => {
+              calls.push('scheduleDOMReadFromUpdate2')
+            })
+
+          })
+        })
+
+        calls.push('onUpdate')
+      }
+
+      return function() {
+        return Component({ name: 'input', initState, connect, render })
+      }
+    })()
+
+    startApp({
+      app: h('nav', [input(), input(), input()]),
+      elm: document.body,
+      snabbdomModules
+    })
+
+    expect(calls).toEqual([
+      'connect', 'connect', 'connect',
+      'render', 'onInsert', 'render', 'onInsert', 'render', 'onInsert',
+      'scheduleDOMReadFromConnect', 'scheduleDOMReadFromConnect', 'scheduleDOMReadFromConnect',
+      'scheduleDOMReadFromInsert', 'scheduleDOMReadFromInsert', 'scheduleDOMReadFromInsert',
+      'scheduleDOMWriteFromInsert', 'scheduleDOMWriteFromInsert', 'scheduleDOMWriteFromInsert',
+      'scheduleDOMReadFromInsert2', 'scheduleDOMReadFromInsert2', 'scheduleDOMReadFromInsert2'
+    ])
+
+    calls = []
+
+    forceReRender.forEach(fn => fn())
+
+    requestAnimationFrame(() => {
+      expect(calls).toEqual([
+        'render', 'onUpdate', 'render', 'onUpdate', 'render', 'onUpdate',
+        'scheduleDOMReadFromUpdate', 'scheduleDOMReadFromUpdate', 'scheduleDOMReadFromUpdate',
+        'scheduleDOMWriteFromUpdate', 'scheduleDOMWriteFromUpdate', 'scheduleDOMWriteFromUpdate',
+        'scheduleDOMReadFromUpdate2', 'scheduleDOMReadFromUpdate2', 'scheduleDOMReadFromUpdate2'
+      ])
+
+      done()
+    })
+
+  })
 
 })

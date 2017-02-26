@@ -283,11 +283,20 @@ export function h(sel: string, children: string | Node | Node[]): VNode
 export function h(sel: string, data: VNodeData): VNode
 export function h(sel: string, data: VNodeData, children: string | Node | Node[]): VNode
 
-/** Renders a VNode into an element or a previous VNode's elm. Returns a cancellation function. */
-export function renderInto(
-  target: Element | VNode | Node[],
-  vnode: VNode | Node[],
-  onComplete?: Function): Function
 
-/** Returns whether this is the first time the app renders */
-export function isFirstRender(): boolean
+export const Render: {
+  /** Renders a VNode into an element or a previous VNode's elm. Returns a cancellation function. */
+  into(
+    target: Element | VNode | Node[],
+    vnode: VNode | Node[],
+    onComplete?: Function): Function
+
+  /** Returns whether this is the first time the app renders */
+  isFirst(): boolean
+
+  /** Schedules a DOM read operation to be batched with all the other reads at the end of next frame's render. Prevents layout trashing. **/
+  scheduleDOMRead(callback: () => void): void
+
+  /** Schedules a DOM write operation to be batched with all the other writes at the end of next frame's render. Prevents layout trashing. **/
+  scheduleDOMWrite(callback: () => void): void
+}

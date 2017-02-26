@@ -1,5 +1,5 @@
 import { Router as AbyssaRouter, RouterAPI, State, ConfigOptions, ParamsDiff } from 'abyssa'
-import { h, startApp, VNode, renderInto } from 'kaiju'
+import { h, startApp, VNode, Render } from 'kaiju'
 import lift from 'space-lift'
 
 
@@ -165,7 +165,7 @@ export function Router<Routes extends RouteMap>(options: RouterOptions<Routes>):
     }, emptyVNode)
 
     if (currentVNode) {
-      renderInto(currentVNode, newAppNode)
+      Render.into(currentVNode, newAppNode)
     }
     else {
       startApp({
