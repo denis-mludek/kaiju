@@ -263,7 +263,7 @@ export interface VNode {
   key: string | undefined
 }
 
-export type Node = VNode | string
+export type Node = VNode | string | null | undefined
 
 export interface Hook {
   pre?: () => void
@@ -279,9 +279,9 @@ export interface Hook {
 }
 
 export function h(sel: string): VNode
-export function h(sel: string, children: string | Node | Node[]): VNode
+export function h(sel: string, children: string | VNode | Node[]): VNode
 export function h(sel: string, data: VNodeData): VNode
-export function h(sel: string, data: VNodeData, children: string | Node | Node[]): VNode
+export function h(sel: string, data: VNodeData, children: string | VNode | Node[]): VNode
 
 
 export const Render: {
