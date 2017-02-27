@@ -59,7 +59,7 @@ function render<T>({ props, state }: RenderParams<Props<T>, State>) {
   const { items, selectedItem, itemRenderer, loading } = props
   const { opened } = state
 
-  const text = (!loading && items.indexOf(selectedItem) > -1)
+  const text = items.indexOf(selectedItem) > -1
     ? itemRenderer ? itemRenderer(selectedItem) : selectedItem.toString()
     : ''
 

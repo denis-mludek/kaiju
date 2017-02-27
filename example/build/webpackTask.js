@@ -1,11 +1,11 @@
 const webpack = require('webpack')
-const stripAnsi = require('strip-ansi')
+const ansi = require('ansi_up')
 const tasks = require('../node_modules/devloop/lib/tasks')
 
 
 module.exports = def => {
 
-  const watch = tasks.create(
+  const daemon = tasks.create(
     'webpack daemon',
 
     def.cwd || __projectPath,
@@ -21,6 +21,8 @@ module.exports = def => {
           out(`Could not load webpack config ${ def.config } relative to the webpackTask's path`)
           return error()
         }
+
+        this.compilation = {}
 
         const compiler = webpack(config)
 
@@ -39,19 +41,27 @@ module.exports = def => {
             var jsonStats = stats.toJson()
 
             if (jsonStats.errors.length > 0) {
-              this.compilation.err = stripAnsi(jsonStats.errors.join('\n\n'))
+              this.compilation.err = ansi.ansi_to_html(
+                jsonStats.errors.join('\n\n'),
+                { use_classes: true }
+              )
+
               this.compilation.ok = false
             }
             else {
               this.compilation.ok = true
             }
           }
-          this.compilation.cb && this.compilation.cb(this.compilation)
+
+          if (this.compilation.cb)
+            this.compilation.cb(this.compilation)
         })
 
         this.onWatchFinished = function(cb) {
-          if (this.compilation.ok === undefined) this.compilation.cb = cb
-          else cb(this.compilation)
+          if (this.compilation.ok === undefined)
+            this.compilation.cb = cb
+          else
+            cb(this.compilation)
         }
       }
       success()
@@ -67,28 +77,33 @@ module.exports = def => {
   const listen = tasks.create(
     def.name || 'watch',
 
-    watch.cwd,
+    daemon.cwd,
 
     function execute(out, success, error) {
-      watch.onWatchFinished(({ ok, err }) => {
-        if (ok)
-          success()
-        else {
-          out(err)
-          error()
-        }
-      })
+      // if a developer is really fast, it's possible to refresh the browser and execute this task before
+      // .plugin('watch-run') had the chance to re-run.
+      setTimeout(() => {
+        daemon.onWatchFinished(({ ok, err }) => {
+          if (ok)
+            success()
+          else {
+            watch
+            out(err)
+            error()
+          }
+        })
+      }, 500)
     },
 
     function kill() {
       // Nothing to kill here: This task is passive
-      // as we never want to kill the watch process while devloop runs
+      // as we never want to kill the daemon process while devloop runs
     }
   ).dependsOn(watch)
 
   // Lift dependencies to the inner watcher task as 'listen' is passive and shouldn't have dependencies
   listen.dependsOn = function() {
-    watch.dependsOn.apply(watch, arguments)
+    daemon.dependsOn.apply(daemon, arguments)
     return listen
   }
 
