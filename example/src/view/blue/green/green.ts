@@ -40,7 +40,7 @@ interface State {
 function initState(props: Props) {
   return {
     form: {},
-    popupOpened: !!props.route.params['popup']
+    popupOpened: !!props.route.params.popup
   }
 }
 

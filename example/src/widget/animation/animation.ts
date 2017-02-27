@@ -16,7 +16,7 @@ export default function animate(animations: Animations) {
 }
 
 function prepatch(oldVNode: VNode, newVNode: VNode) {
-  const animations = newVNode.data['animations'] as Animations
+  const animations = newVNode.data.animations as Animations
 
   const oldChildren = oldVNode.children || []
   const newChildren = newVNode.children || []

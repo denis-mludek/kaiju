@@ -56,7 +56,7 @@ function connect<T>({ on, props, msg }: ConnectParams<Props<T>, State>) {
 
 
 function render<T>({ props, state }: RenderParams<Props<T>, State>) {
-  const { items, selectedItem, itemRenderer, loading } = props
+  const { items, selectedItem, itemRenderer } = props
   const { opened } = state
 
   const text = items.indexOf(selectedItem) > -1

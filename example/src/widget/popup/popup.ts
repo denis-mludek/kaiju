@@ -58,22 +58,22 @@ function render({ props }: RenderParams<Props, {}>) {
 }
 
 function insert(vnode: VNode) {
-  const popup = vnode.data['_popup'] = popupWithContent(vnode.data['content'])
+  const popup = vnode.data._popup = popupWithContent(vnode.data.content)
   Render.into(popupLayer, popup)
 }
 
 function postpatch(oldVNode: VNode, vnode: VNode) {
-  const oldPopup = oldVNode.data['_popup']
-  const newPopup = popupWithContent(vnode.data['content'])
+  const oldPopup = oldVNode.data._popup
+  const newPopup = popupWithContent(vnode.data.content)
 
-  vnode.data['_popup'] = newPopup
+  vnode.data._popup = newPopup
 
   Render.into(oldPopup, newPopup)
 }
 
 const emptyVNode = h('div')
 function destroy(vnode: VNode) {
-  Render.into(vnode.data['_popup'], emptyVNode)
+  Render.into(vnode.data._popup, emptyVNode)
 }
 
 function popupWithContent(content: VNode[]) {
