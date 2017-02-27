@@ -31,7 +31,9 @@ export default function Store(initialState, registerHandlers, options = empty) {
     send: m => store.send(m), // Late binding as store.send is not yet defined
     listen: message => {
       const observable = Observable().named(message._name)
-      listened[message._id] = observable
+      let obss = listened[message._id]
+      if (!obss) obss = listened[message._id] = []
+      obss.push(observable)
       return observable
     }
   }
@@ -101,10 +103,10 @@ export default function Store(initialState, registerHandlers, options = empty) {
       handled = true
     }
 
-    const obs = listened[_id]
+    const obss = listened[_id]
 
-    if (obs) {
-      obs(payload)
+    if (obss) {
+      obss.forEach(obs => obs(payload))
       handled = true
     }
 

@@ -38,34 +38,38 @@ describe('Store', () => {
     const store = Store(initState, (on, msg) => {
       on(observableNum, (state, by) => ({ num: state.num + by }))
 
+      on(observableNum.map(x => x * 2), (state, by) => ({ num: state.num + by }))
+
       on(increaseBy, (state, by) => ({ num: state.num + by }))
 
       // Alternatively, we can listen to a Message to create an observable out of it
       on(msg.listen(increaseBy).delay(20).map(x => x * 2), (state, by) => ({ num: state.num + by }))
+
+      on(msg.listen(increaseBy), (state, by) => ({ num: state.num + by }))
     })
 
     // Observables fire synchronously
-    expect(store.state()).toEqual({ num: 40 })
+    expect(store.state()).toEqual({ num: 100 }) // 10+30 + 30*2
 
     observableNum(5)
-    expect(store.state()).toEqual({ num: 45 })
+    expect(store.state()).toEqual({ num: 115 })
     observableNum(5)
-    expect(store.state()).toEqual({ num: 50 })
+    expect(store.state()).toEqual({ num: 130 })
 
     store.send(increaseBy(5))
-    expect(store.state()).toEqual({ num: 55 })
+    expect(store.state()).toEqual({ num: 140 })
     store.send(increaseBy(5))
-    expect(store.state()).toEqual({ num: 60 })
+    expect(store.state()).toEqual({ num: 150 })
 
     setTimeout(() => {
       // Two delayed 'increaseBy' messages should have been received by now
-      expect(store.state()).toEqual({ num: 80 })
+      expect(store.state()).toEqual({ num: 170 })
 
       store.destroy()
 
       observableNum(1000)
       store.send(increaseBy(1000))
-      expect(store.state()).toEqual({ num: 80 })
+      expect(store.state()).toEqual({ num: 170 })
 
       done()
     }, 35)
