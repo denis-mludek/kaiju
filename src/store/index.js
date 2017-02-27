@@ -93,20 +93,22 @@ export default function Store(initialState, registerHandlers, options = empty) {
 
   store.send = function(message) {
     const { _id, _name, payload } = message
-
     const handler = handlers[_id]
+    let handled = false
 
     if (handler) {
       receive(_name, handler, payload)
-      return
+      handled = true
     }
 
     const obs = listened[_id]
 
     if (obs) {
       obs(payload)
-      return
+      handled = true
     }
+
+    if (handled) return
 
     const unhandled = handlers[Message.unhandled._id]
 

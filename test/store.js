@@ -29,7 +29,7 @@ describe('Store', () => {
   })
 
 
-  it('can be modified by subscribing to an observable', () => {
+  it('can be modified by subscribing to an observable', done => {
 
     const increaseBy = Message('increaseBy')
     const observableNum = Observable()(30)
@@ -38,8 +38,10 @@ describe('Store', () => {
     const store = Store(initState, (on, msg) => {
       on(observableNum, (state, by) => ({ num: state.num + by }))
 
-      // Alternatively, we can listen to a Message and create an observable out of it
-      on(msg.listen(increaseBy).map(x => x * 2), (state, by) => ({ num: state.num + by }))
+      on(increaseBy, (state, by) => ({ num: state.num + by }))
+
+      // Alternatively, we can listen to a Message to create an observable out of it
+      on(msg.listen(increaseBy).delay(20).map(x => x * 2), (state, by) => ({ num: state.num + by }))
     })
 
     // Observables fire synchronously
@@ -51,15 +53,22 @@ describe('Store', () => {
     expect(store.state()).toEqual({ num: 50 })
 
     store.send(increaseBy(5))
-    expect(store.state()).toEqual({ num: 60 })
+    expect(store.state()).toEqual({ num: 55 })
     store.send(increaseBy(5))
-    expect(store.state()).toEqual({ num: 70 })
+    expect(store.state()).toEqual({ num: 60 })
 
-    store.destroy()
+    setTimeout(() => {
+      // Two delayed 'increaseBy' messages should have been received by now
+      expect(store.state()).toEqual({ num: 80 })
 
-    observableNum(1000)
-    store.send(increaseBy(1000))
-    expect(store.state()).toEqual({ num: 70 })
+      store.destroy()
+
+      observableNum(1000)
+      store.send(increaseBy(1000))
+      expect(store.state()).toEqual({ num: 80 })
+
+      done()
+    }, 35)
   })
 
 
