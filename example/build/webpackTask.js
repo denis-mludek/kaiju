@@ -99,7 +99,7 @@ module.exports = def => {
       // Nothing to kill here: This task is passive
       // as we never want to kill the daemon process while devloop runs
     }
-  ).dependsOn(watch)
+  ).dependsOn(daemon)
 
   // Lift dependencies to the inner watcher task as 'listen' is passive and shouldn't have dependencies
   listen.dependsOn = function() {
