@@ -738,6 +738,7 @@ Installs and performs the initial render of the app synchronously.
 function startApp<S>(options: {
   app: VNode // The root VNode
   elm: HTMLElement // The root element where the app will be rendered
+  replaceElm?: boolean // Whether elm should be fully replaced by the app, instead of acting as the app parent. Defaults to false.
   snabbdomModules: any[] // The snabbdom modules that should be active during patching
 }): void
 ```

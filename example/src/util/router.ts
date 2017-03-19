@@ -91,8 +91,9 @@ interface TypedRouter<Routes> {
 }
 
 type RouterOptions<Routes extends RouteMap> = ConfigOptions & {
-  routes: Routes,
-  elm: Element,
+  routes: Routes
+  elm: Element
+  replaceElm?: boolean
   snabbdomModules: Array<{}>
 }
 
@@ -171,6 +172,7 @@ export function Router<Routes extends RouteMap>(options: RouterOptions<Routes>):
       startApp({
         app: newAppNode,
         elm: options.elm,
+        replaceElm: options.replaceElm,
         snabbdomModules: options.snabbdomModules
       })
     }

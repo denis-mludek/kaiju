@@ -20,6 +20,7 @@ export function startApp(options: {
   app: VNode
   snabbdomModules: Array<{}>
   elm: Element
+  replaceElm?: boolean
 }): void
 
 

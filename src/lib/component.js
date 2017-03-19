@@ -105,7 +105,13 @@ function postpatch(oldVnode, vnode) {
   const oldData = oldVnode.data
   const newData = vnode.data
 
-  const component = oldData.component
+  // Server side rendering: Reconcilating with a server-rendered node will have skipped calling insert()
+  if (!oldData.component) {
+    insert(vnode)
+  }
+
+  // oldData wouldn't have a component reference set if it came from the server (it's first set in insert())
+  const component = oldData.component || newData.component
   const oldProps = component.props
   const newProps = newData.component.props
 

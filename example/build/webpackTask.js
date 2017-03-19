@@ -87,7 +87,6 @@ module.exports = def => {
           if (ok)
             success()
           else {
-            watch
             out(err)
             error()
           }

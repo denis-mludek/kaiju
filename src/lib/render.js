@@ -48,10 +48,11 @@ export function renderInto(target, vdom, onComplete) {
 }
 
 // Used by startApp
-export function renderSync(target, vdom) {
+export function renderSync(target, vdom, replace) {
   const task = {
     target,
-    vdom
+    vdom,
+    replace
   }
 
   nodesToRender.push(task)
@@ -146,9 +147,9 @@ function renderNow() {
 function processRenderQueue() {
   while (nodesToRender.length || componentsToRender.length) {
     while (nodesToRender.length) {
-      const { target, vdom, onComplete, cancelled } = nodesToRender.shift()
+      const { target, vdom, replace, onComplete, cancelled } = nodesToRender.shift()
       if (cancelled) continue
-      patchInto(target, vdom)
+      replace ? patch(target, vdom) : patchInto(target, vdom)
       if (onComplete) onComplete()
     }
 
