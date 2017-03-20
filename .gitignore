@@ -4,6 +4,7 @@ node_modules
 /observable
 /store
 /lib
+/test/*.js
 main.js
 main.d.ts
 *.log

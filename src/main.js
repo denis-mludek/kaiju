@@ -13,7 +13,7 @@ import log from './lib/log'
 function startApp({ app, elm, replaceElm, snabbdomModules }) {
   const modules = snabbdomModules.concat(eventsModule)
   setPatchFunction(snabbdom.init(modules))
-  renderSync(toVNode(elm), app, replaceElm)
+  renderSync(replaceElm ? toVNode(elm) : elm, app, replaceElm)
 }
 
 export {

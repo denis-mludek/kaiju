@@ -9,5 +9,5 @@ interface Element {
   [key: string]: {} | null
 }
 
-// Made available by webpack
-declare function require(path: string): any
+// Made available by webpack; We only use it for css-modules so type the return value accordingly
+declare function require(path: string): Obj<string>
