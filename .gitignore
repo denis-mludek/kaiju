@@ -5,6 +5,6 @@ node_modules
 /store
 /lib
 /test/*.js
-main.js
-main.d.ts
+/main.js
+/main.d.ts
 *.log
