@@ -16,13 +16,15 @@ function updateEventListeners(oldVnode, vnode) {
 
     if (old !== current) {
 
-      if (old && isSameMessageAndPayload(
+      if (old && current && isSameMessageAndPayload(
         current,
         current.payload,
         old,
         old.payload)) return
 
-      vnode.elm['on' + name] = evt => _sendToElement(evt.currentTarget, current(evt))
+      vnode.elm['on' + name] = current
+        ? evt => _sendToElement(evt.currentTarget, current(evt))
+        : null
     }
   }
 

@@ -1,6 +1,6 @@
 {
   "name": "kaiju",
-  "version": "0.23.0",
+  "version": "0.23.1",
   "main": "main",
   "typings": "main.d.ts",
   "description": "Virtual dom, observables / streams and isolated components",
