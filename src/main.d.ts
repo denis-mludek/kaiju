@@ -85,6 +85,15 @@ export var log: {
  */
 export interface NoArgMessage {
   (): MessagePayload<undefined>
+  type: 'NoArgMessage'
+}
+
+/**
+ * A message taking no payload as its payload was previously bound.
+ */
+export interface BoundNoArgMessage {
+  (): MessagePayload<undefined>
+  type: 'BoundNoArgMessage'
 }
 
 /**
@@ -97,9 +106,17 @@ export interface Message<P> {
   (payload: P): MessagePayload<P>
 
   /**
-   * Used in events handlers to pre-bind the payload's data for that Message.
+   * Pre-binds the payload's data for that Message.
    */
-   with<Data>(this: Message<[Event, Data]>, data: Data): [this, Data]
+  with<Data, E extends Event>(this: Message<[E, Data]>, data: Data): Message<E>
+
+  /**
+   * Pre-binds the payload's data for that Message.
+   * Note: A bound message originally taking a single type cannot be used as a DOM handler as an Event is always passed.
+   */
+  with<Data>(this: Message<Data>, data: Data): BoundNoArgMessage
+
+  type: 'Message'
 }
 
 
@@ -130,34 +147,38 @@ interface MessagePayload<P> {
   _id: number
   _name: string
   payload: P
+
+  /**
+   * Returns whether this payload was created using the given message
+   */
+  is<T>(message: NoArgMessage): this is MessagePayload<undefined>
+
+  /**
+   * Returns whether this payload was created using the given message
+   */
+  is<T>(message: Message<T>): this is MessagePayload<T>
 }
 
 interface Messages {
   /**
-   * Listens for a message sent from immediate VNodes or component children
+   * Listens to a message sent from immediate VNodes or component children
    */
   listen<P>(message: Message<P>): Observable<P>
 
   /**
-   * Listens for a message sent from immediate VNodes or component children
+   * Listens to a message sent from immediate VNodes or component children
    */
   listen(message: NoArgMessage): Observable<undefined>
 
   /**
-   * Listens for messages bubbling up to a particular DOM node
+   * Listens to all messages bubbling up to a particular DOM node
    *
    * Example:
-   * const clicks = msg.listenAt('#page .button', Click)
+   * const clicks = msg.listenAt('#page .button')
+   * 
+   * Note: The DOM Element must be available at the time the function is called.
    */
-  listenAt<P>(target: string | Element, message: Message<P>): Observable<P>
-
-  /**
-   * Listens for messages bubbling up to a particular DOM node
-   *
-   * Example:
-   * const clicks = msg.listenAt('#page .button', Click)
-   */
-  listenAt(target: string | Element, message: NoArgMessage): Observable<void>
+  listenAt(target: string | Element): Observable<MessagePayload<{}>>
 
   /**
    * Sends a message to self.
@@ -178,13 +199,12 @@ interface Messages {
 
 // snabbdom
 
-// The third form is for Message.with(), which will take care of type-safety
-type EventHandler = NoArgMessage | Message<Event> | [ Message<{}>, {} ]
+type EventHandler = Message<Event> | NoArgMessage
 
 
 interface VNodeData {
   /* Tricks structural typing */
-  reduceRight?: 'weReallyNeedThisToBeAnObjectLiteralAndNotAnArray'
+  reduceRight?: 'VNodeData should not be an Array'
 
   key?: string | number
   hook?: Hook

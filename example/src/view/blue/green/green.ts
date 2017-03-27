@@ -46,8 +46,8 @@ function initState(props: Props) {
 
 
 const inputChanged = Message<Event>('inputChanged')
-const showPopup = Message('showPopup')
-
+const showPopup = Message<Event>('showPopup')
+const hidePopup = Message('hidePopup')
 
 function connect({ on, props }: ConnectParams<Props, State>) {
 
@@ -65,7 +65,7 @@ function connect({ on, props }: ConnectParams<Props, State>) {
     return copy(state, { popupOpened: true })
   })
 
-  on(Popup.close, state => {
+  on(hidePopup, state => {
     const params = copy(props().route.params, { popup: undefined })
     router.replaceParams(params)
     return copy(state, { popupOpened: false })
@@ -123,7 +123,7 @@ function helloPopup() {
     h('button', { events: { click: Popup.close } }, 'Close')
   ]
 
-  return popup({ content, onClose: Popup.close })
+  return popup({ content, onClose: hidePopup })
 }
 
 

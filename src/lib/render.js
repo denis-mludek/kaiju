@@ -145,17 +145,24 @@ function renderNow() {
 }
 
 function processRenderQueue() {
+  const completeCallbacks = []
+
   while (nodesToRender.length || componentsToRender.length) {
     while (nodesToRender.length) {
       const { target, vdom, replace, onComplete, cancelled } = nodesToRender.shift()
       if (cancelled) continue
       replace ? patch(target, vdom) : patchInto(target, vdom)
-      if (onComplete) onComplete()
+      if (onComplete) completeCallbacks.push(onComplete)
     }
 
     while (componentsToRender.length) {
       const component = componentsToRender.shift()
       renderComponent(component)
+    }
+
+    // Wait for the components indirectly introduced via renderInto to be rendered
+    while (completeCallbacks.length) {
+      (completeCallbacks.shift())()
     }
   }
 }

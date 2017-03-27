@@ -29,6 +29,7 @@ kaiju is a view layer used to build an efficient tree of stateless/stateful comp
     * [Render.into](#api-renderInto)
     * [Render.scheduleDOMWrite](#api-renderSchedule)
   * [Message: Intra and inter component communication](#api-message)
+    * [Unhandled messages](#api-message-unhandled)
   * [Logging data changes and render timing](#api-logging)
 * [Full TS Example](https://github.com/AlexGalays/kaiju/tree/master/example/src)
 
@@ -458,7 +459,7 @@ function render({ props, state, msg }: RenderParams<Props, State> & { context: C
   )
 }
 ```
-Note that this kind of Message sent from a DOM lifecycle hook should always perform side effect only.  
+Note that this kind of Message sent from a DOM lifecycle hook should always perform side effects only.  
 If the state is updated, a warning will be logged and the component will ignore that change.  
 
 
@@ -668,12 +669,14 @@ Full interface:
 listen<P>(message: Message<P>): Observable<P>
 
 /**
- * Listens for messages bubbling up to a particular DOM node
+ * Listens to all messages bubbling up to a particular DOM node
  *
  * Example:
- * const clicks = msg.listenAt('#page .button', click)
+ * const overlayMessages = msg.listenAt('#popupLayer .overlay')
+ *
+ * Note: The DOM Element must be available at the time the function is called.
  */
-listenAt<P>(selector: string, message: Message<P>): Observable<P>
+listenAt<P>(target: string | Element): Observable<MessagePayload<{}>>
 
 /**
  * Sends a message to self.
@@ -703,7 +706,7 @@ Just like with props, a redraw will only get scheduled if the state object chang
 Mandatory `function({ props, state, msg }: RenderParams<Props, State>): VNode | Node[]`  
 
 Returns the current VNode tree of the component based on its props and state.  
-You can also return an Array of `Node`s, where a `Node` is either a `VNode` or a `string`.  
+You can also return an Array of `Node`s, where a `Node` is either a `VNode`, a `string`, `null` or `undefined`.  
 
 Example:  
 
@@ -814,7 +817,10 @@ function increaseHeight(vnode: VNode) {
 <a name="api-message"></a>
 ## Message
 
-Creates a custom application message used to either communicate between components or send to a [Store](#stores).  
+Stores and Component can both send and listen to message. Indeed, each component has a private Store to manage its state.  
+Messages help debugging and communicate intent better than generic model-altering callbacks. Here's what you can do with messages:  
+
+- Creating a custom application message used to either communicate between components or send to a [Store](#stores).  
 
 ```ts
 import { Message } from 'kaiju'
@@ -824,15 +830,73 @@ const increment = Message('increment')
 
 // Message taking one argument
 const incrementBy = Message<number>('incrementBy')
+
+// Message taking a tuple
+const incrementBy2 = Message<[Event, number]>('incrementBy')
+// Then pre-bind it so it can be used directly in the DOM:
+incrementBy2.with(33) // Message<Event>
 ```
 
-### Catching unhandled messages
 
-This can be done inside a Store or a component's connect function.  
-For instance, inside a utility component, we could forward any messages we're not interested in to our parent:
+- Sending a message to a Store instance (usually to update application/domain state)
+See [store.send](#stores)  
+
+
+- Sending a message to the current Component
 
 ```ts
+function connect({ on, msg, props }: ConnectParams<Props, State>) {
+  on(click, (state, evt) => msg.send(sheReallyClicked(evt))
+}
+```
 
+
+- Sending a message to the nearest parent Component  
+
+```ts
+function connect({ on, msg, props }: ConnectParams<Props, State>) {
+  // Whenever a click message is received by this component, notify our parent.
+  // We read which message should be sent from the Props as it should be our parent's decision.
+  on(click, (state, evt) => msg.sendToParent(props().onClick(evt)))
+}
+```
+
+- Listen to a Message type locally
+
+`msg.listen` creates an [Observable](#observables) publishing every `Message` of that type.
+This can be useful to transform the observable before handling the Message or creating reusable abstractions.  
+
+```ts
+function connect({ on, msg, props }: ConnectParams<Props, State>) {
+
+  const clicks = msg.listen(click)
+
+  on(clicks, (state, evt) => console.log(evt))
+}
+```
+
+- Listen to all Messages bubbling up a particular DOM Element
+This should rarely be useful. It can be used when a Component (e.g a popup) renders its content in another part of the DOM tree and Messages should be listened from there instead of locally.  
+
+```ts
+function connect({ on, msg, props }: ConnectParams<Props, State>) {
+
+  const messagesFromPopup = msg.listenAt('#popup')
+
+  on(messagesFromPopup, (state, message) => console.log(message))
+}
+```
+
+
+<a name="api-message-unhandled"></a>
+### Catching unhandled messages
+
+Messages sent by the `events` snabbdom module or when using `Messages.sendToParent` will bubble up the DOM till it finds the nearest parent component.  
+Sometimes, this is not wanted as the nearest component could be a generic component that shouldn't listen to your business messages, only to its own messages.
+
+For instance, inside a utility component, we could forward any messages we're not interested in to our parent (e.g explicit bubbling):
+
+```ts
 function connect({ on, msg, props }: ConnectParams<Props, State>) {
 
   on(click, (state, evt) => update(state, { text: 'clicked!' }))

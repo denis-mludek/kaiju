@@ -15,14 +15,14 @@ function updateEventListeners(oldVnode, vnode) {
     const old = oldEvents && oldEvents[name]
 
     if (old !== current) {
-      const listenerIsArray = Array.isArray(current)
 
-      // The reference changed but the inner message and payload are the same
-      if (listenerIsArray && old && current[0] === old[0] && current[1] === old[1]) return
+      if (old && isSameMessageAndPayload(
+        current,
+        current.payload,
+        old,
+        old.payload)) return
 
-      vnode.elm['on' + name] = listenerIsArray
-        ? evt => _sendToElement(evt.currentTarget, current[0]([evt, current[1]]))
-        : evt => _sendToElement(evt.currentTarget, current(evt))
+      vnode.elm['on' + name] = evt => _sendToElement(evt.currentTarget, current(evt))
     }
   }
 
@@ -32,6 +32,10 @@ function updateEventListeners(oldVnode, vnode) {
     if (events[name] == null)
       vnode.elm['on' + name] = null
   }
+}
+
+function isSameMessageAndPayload(message, payload, oldMessage, oldPayload) {
+  return (message._id === oldMessage._id) && (payload === oldPayload)
 }
 
 export const eventsModule = {

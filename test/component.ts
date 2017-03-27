@@ -2,7 +2,7 @@ require('jsdom-global')()
 global.requestAnimationFrame = (fn: Function) => setTimeout(fn, 1)
 
 import * as expect from 'expect'
-import { Component, h, startApp, Message, Render, ConnectParams, RenderParams, VNode } from '../'
+import { Component, h, startApp, Message, Render, ConnectParams, RenderParams, VNode, Messages } from '../'
 
 
 /** Utils **/
@@ -399,6 +399,133 @@ describe('Component', () => {
       done()
     })
 
+  })
+
+
+  it('can pre-bind a message with its payload', done => {
+
+    let compMsg: Messages
+    const texts: string[] = []
+
+    const ping = Message<[Event, string]>('ping')
+
+    const comp = (() => {
+      function initState() { return {} }
+
+      function connect({ on, msg }: ConnectParams<{}, {}>) {
+        compMsg = msg
+
+        on(ping, (state, [evt, text]) => {
+          expect(evt.currentTarget).toNotBe(undefined!)
+          texts.push(text)
+        })
+      }
+
+      function render() {
+        return h('main', {
+          events: { click: ping.with('ping') }
+        })
+      }
+
+      return function() {
+        return Component({ name: 'parent', initState, connect, render })
+      }
+    })()
+
+    Render.into(document.body, comp(), () => {
+      dispatchMouseEventOn(document.querySelector('main')!, 'click')
+
+      expect(texts).toEqual(['ping'])
+
+      compMsg.send(ping.with('pong')(new Event('click')))
+
+      expect(texts).toEqual(['ping', 'pong'])
+
+      done()
+    })
+
+  })
+
+
+  it('can listen to any messages transiting through a DOM Element', done => {
+    const receivedMessages: string[] = []
+
+    const messageFromTheRight = Message<[Event, string]>('messageFromTheRight')
+    const messageFromTheRight2 = Message<[Event, string]>('messageFromTheRight2')
+
+    const leftEl = document.createElement('main')
+    document.body.appendChild(leftEl)
+
+    const rightEl = document.createElement('aside')
+    document.body.appendChild(rightEl)
+
+    const left = (() => {
+      function initState() { return {} }
+
+      function connect({ on, msg }: ConnectParams<{}, {}>) {
+
+        on(msg.listenAt(rightEl), (state, message) => {
+
+          if (message.is(messageFromTheRight)) {
+            expect(message.payload[0].currentTarget).toExist()
+            receivedMessages.push(message.payload[1])
+          }
+          
+          else if (message.is(messageFromTheRight2)) {
+            expect(message.payload[0].currentTarget).toExist()
+            receivedMessages.push(message.payload[1])
+          }
+        })
+
+      }
+
+      function render({ msg }: RenderParams<{}, {}>) {
+        return h('span')
+      }
+
+      return function() {
+        return Component({ name: 'left', initState, connect, render })
+      }
+    })()
+
+    const right = (() => {
+
+      function initState() { return {} }
+
+      function connect({ on, msg }: ConnectParams<{}, {}>) {
+
+        on(Message.unhandled, (state, payload) => {
+          msg.sendToParent(payload)
+        })
+
+      }
+
+      function render() {
+        return h('span#right', {
+          events: {
+            click: messageFromTheRight.with('hello'),
+            mousedown: messageFromTheRight2.with('goodbye')
+          }
+        })
+      }
+
+      return function() {
+        return Component({ name: 'right', initState, connect, render })
+      }
+    })()
+
+    Render.into(rightEl, right())
+
+    Render.into(leftEl, left(), () => {
+      const rightSpan = rightEl.querySelector('#right')!
+
+      dispatchMouseEventOn(rightSpan, 'click')
+      dispatchMouseEventOn(rightSpan, 'mousedown')
+
+      expect(receivedMessages).toEqual(['hello', 'goodbye'])
+
+      done()
+    })
   })
 
 })

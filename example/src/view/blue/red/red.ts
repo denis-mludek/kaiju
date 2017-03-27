@@ -11,7 +11,7 @@ import { unpack } from 'util/remoteData'
 
 export default function route(userStore: () => UserStore) {
   return RouteDef('red', {}, {
-    enter: initRoute => () => red({ userStore: userStore() }),
+    enter: router => () => red({ userStore: userStore() }),
     children: {}
   })
 }
@@ -41,16 +41,15 @@ function initState() {
 
 const userChange = Message<string>('userChange')
 
-
 function connect({ on, props }: ConnectParams<Props, State>) {
   const userStore = props().userStore
 
   on(userStore.state, (state, { users, pagination }) => copy(state, { users, pagination }))
+
   on(reloadUsers, _ => userStore.send(reloadUsers()))
+  on(loadNextUserPage, _ => userStore.send(loadNextUserPage()))
 
   on(userChange, (state, user) => copy(state, { selectedUser: user }))
-
-  on(loadNextUserPage, _ => userStore.send(loadNextUserPage()))
 }
 
 function render({ state }: RenderParams<Props, State>) {
