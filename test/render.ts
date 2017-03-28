@@ -41,8 +41,10 @@ describe('Render', () => {
 
       const init = [
         h('span'),
+        undefined,
         h('div'),
-        'some text'
+        null,
+        'some text',
       ]
 
       // Creation

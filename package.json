@@ -1,6 +1,6 @@
 {
   "name": "kaiju",
-  "version": "0.23.1",
+  "version": "0.23.2",
   "main": "main",
   "typings": "main.d.ts",
   "description": "Virtual dom, observables / streams and isolated components",
@@ -18,7 +18,7 @@
   },
 
   "devDependencies": {
-    "typescript": "2.2.1",
+    "typescript": "2.2.2",
     "snabbdom": "0.6.5",
     "babel-cli": "6.4.5",
     "babel-preset-es2015": "6.14.0",

@@ -77,6 +77,53 @@ describe('Component', () => {
   })
 
 
+  it('can render one VNode with children', done => {
+
+    let forceReRender: Function = () => {}
+
+    const reRender = Message('reRender')
+
+    const bag = (() => {
+
+      function initState() { return {} }
+
+      function connect({ on, msg }: ConnectParams<{}, {}>) {
+        forceReRender = () => msg.send(reRender())
+
+        on(reRender, () => ({ force: Date.now() }))
+      }
+
+      function render({ state }: RenderParams<{}, any>) {
+        return h('div', [
+          h('button'),
+          null,
+          h('div'),
+          undefined,
+          h('span')
+        ])
+      }
+
+      return function() {
+        return Component({ name: 'bag', initState, connect, render })
+      }
+    })()
+
+    const app = bag()
+
+    startApp({ app, elm: document.body, snabbdomModules })
+
+    const comp = document.body.firstElementChild!.firstElementChild!
+    expect(comp.tagName).toBe('DIV')
+    expect(comp.children[0].tagName).toBe('BUTTON')
+    expect(comp.children[1].tagName).toBe('DIV')
+    expect(comp.children[2].tagName).toBe('SPAN')
+    const buttonEl = comp.children[0]
+    const spanEl = comp.children[2]
+
+    Render.into(app, h('div'), done)
+  })
+
+
   it('can render an Array of VNodes', done => {
 
     let forceReRender: Function = () => {}
@@ -96,7 +143,9 @@ describe('Component', () => {
       function render({ state }: RenderParams<{}, any>) {
         return [
           h('button'),
+          null,
           h(state.swap ? 'p' : 'div'),
+          undefined,
           h('span')
         ]
       }
@@ -106,7 +155,9 @@ describe('Component', () => {
       }
     })()
 
-    startApp({ app: bag(), elm: document.body, snabbdomModules })
+    const app = bag()
+
+    startApp({ app, elm: document.body, snabbdomModules })
 
     const comp = document.body.firstElementChild!
     expect(comp.tagName).toBe('COMPONENT')
@@ -132,7 +183,8 @@ describe('Component', () => {
       expect(comp.children[0]).toBe(buttonEl)
       expect(comp.children[2]).toBe(spanEl)
 
-      done()
+      // Destroy the component
+      Render.into(app, h('div'), done)
     })
   })
 

@@ -160,6 +160,8 @@ function destroy(vnode) {
 // Note: Can't invoke modules' destroy hook as they're hidden in snabbdom's closure.
 // The default modules don't do anything in destroy() anyway.
 function destroyVnode(vnode) {
+  if (!vnode) return
+
   const data = vnode.data
 
   if (!data) return
