@@ -1,4 +1,4 @@
-import { Router as AbyssaRouter, RouterAPI, State, ConfigOptions, ParamsDiff } from 'abyssa'
+import { Router as AbyssaRouter, RouterAPI, State, ParamsDiff } from 'abyssa'
 import { h, startApp, VNode, Render } from 'kaiju'
 import lift from 'space-lift'
 
@@ -90,11 +90,17 @@ interface TypedRouter<Routes> {
   link<P>(route: RouteDef<P, {}>, params: P): string
 }
 
-type RouterOptions<Routes extends RouteMap> = ConfigOptions & {
+type RouterOptions<Routes extends RouteMap> = {
   routes: Routes
   elm: Element
   replaceElm?: boolean
   snabbdomModules: Array<{}>
+
+  enableLogs?: boolean
+  interceptAnchors?: boolean
+  urlSync?: 'history' | 'hash'
+  hashPrefix?: string
+  notFound?: RouteDef<{}, {}>
 }
 
 /* Creates the router and starts the application */
@@ -153,7 +159,11 @@ export function Router<Routes extends RouteMap>(options: RouterOptions<Routes>):
   const rootStates = lift(options.routes).mapValues(transformRouteTree).value()
   const router = AbyssaRouter(rootStates)
 
-  router.configure(options)
+  const abyssaOptions = Object.assign({}, options, {
+    notFound: options.notFound && options.notFound.def.fullName
+  })
+
+  router.configure(abyssaOptions)
 
   router.on('started', newState => {
     const routeDef = routeByName[newState.fullName]

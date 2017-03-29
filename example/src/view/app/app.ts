@@ -7,6 +7,7 @@ import pageAnimation from 'widget/animation/page'
 import link from 'widget/link'
 import index from 'view/index'
 import blue from 'view/blue'
+import notFound from 'view/app/routeNotFound'
 import createAppStore, { AppStore } from 'view/app/store'
 import { routes, RouteDef, Router, Route } from 'router'
 
@@ -19,7 +20,8 @@ export default function route() {
 
     children: {
       index: index(),
-      blue: blue(() => appStore)
+      blue: blue(() => appStore),
+      notFound: notFound()
     }
   })
 }

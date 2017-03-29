@@ -3,7 +3,7 @@ import propsModule from 'snabbdom/modules/props'
 import attrsModule from 'snabbdom/modules/attributes'
 
 import { Router, RouteDef, Route as RuntimeRoute } from 'util/router'
-import app from 'view/app'
+import appRoute from 'view/app'
 
 
 const snabbdomModules = [
@@ -12,11 +12,14 @@ const snabbdomModules = [
   attrsModule
 ]
 
+const app = appRoute()
+
 const router = Router({
-  routes: { app: app() },
+  routes: { app },
   elm: document.querySelector('#screenLayer')!,
   snabbdomModules,
-  urlSync: 'hash'
+  urlSync: 'hash',
+  notFound: app.notFound
 })
 
 // Skip the first level so that we don't have to write 'app.' everytime
