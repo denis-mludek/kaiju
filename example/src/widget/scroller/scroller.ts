@@ -39,7 +39,7 @@ function connect({ on, props, msg }: ConnectParams<Props, {}>) {
       on(Observable.fromEvent('scroll', scrollOwner).debounce(60), onScrollChanged)
     },
     None: () => {
-      on(setScroller, (state, localScroller) => {
+      on(setScroller, (_, localScroller) => {
         scroller = localScroller
         onScrollChanged()
       })
@@ -49,7 +49,7 @@ function connect({ on, props, msg }: ConnectParams<Props, {}>) {
 
   on(Observable.fromEvent('resize', window).debounce(600), onScrollChanged)
 
-  on(scrollChanged, state => {
+  on(scrollChanged, _ => {
     const { treshold = 200, hasMore, isLoadingMore, loadMore } = props()
 
     if (!scroller) return
@@ -60,7 +60,7 @@ function connect({ on, props, msg }: ConnectParams<Props, {}>) {
     if (reachedBottom) msg.sendToParent(loadMore())
   })
 
-  on(Message.unhandled, (state, m) => msg.sendToParent(m))
+  on(Message.unhandled, (_, m) => msg.sendToParent(m))
 }
 
 

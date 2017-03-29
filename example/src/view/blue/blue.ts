@@ -20,8 +20,8 @@ export default function blueRoute(appStore: () => AppStore) {
 
   return RouteDef('blue/:id', <Params>{}, {
 
-    enter: (router, initRoute) => {
-      userStore = UserStore(initRoute.params.id)
+    enter: (router) => {
+      userStore = UserStore()
       return (route, child) => blue({ appStore: appStore(), router, route, child })
     },
 

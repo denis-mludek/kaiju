@@ -47,7 +47,7 @@ function connect<T>({ on, props, msg }: ConnectParams<Props<T>, State>) {
   on(open, state => copy(state, { opened: true }))
   on(close, state => copy(state, { opened: false }))
 
-  on(itemSelected, (state, [_, item]) => msg.sendToParent(props().onChange(item as T)))
+  on(itemSelected, (_, [__, item]) => msg.sendToParent(props().onChange(item as T)))
 
   Option(props().pagination).map(pagination => {
     on(pagination.loadMore, _ => msg.sendToParent(pagination.loadMore()))

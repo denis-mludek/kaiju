@@ -11,7 +11,7 @@ import { unpack } from 'util/remoteData'
 
 export default function route(userStore: () => UserStore) {
   return RouteDef('red', {}, {
-    enter: router => () => red({ userStore: userStore() }),
+    enter: () => () => red({ userStore: userStore() }),
     children: {}
   })
 }

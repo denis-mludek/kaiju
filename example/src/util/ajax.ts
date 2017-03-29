@@ -47,7 +47,7 @@ export default function observeAjax<I, O, E>(options: Options<I, O>): Handle<I, 
 /**
  * Creates a data, error and loading observables out of a one-off or recurrent ajax call
  */
-export default function observeAjax<I, O, E>(options: any): any {
+export default function observeAjax(options: any): any {
   const { name, ajax } = options
 
   const call = Observable()
@@ -69,6 +69,6 @@ export default function observeAjax<I, O, E>(options: any): any {
 
   return {
     data: data.named(name + '_remoteData'),
-    call: (value: I) => { call(value) } // We want call() to return undefined so it can easily be used inside Store handlers.
+    call: (value: {}) => { call(value) } // We want call() to return undefined so it can easily be used inside Store handlers.
   }
 }

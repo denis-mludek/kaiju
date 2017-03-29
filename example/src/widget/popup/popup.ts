@@ -31,7 +31,7 @@ function connect({ on, props, msg }: ConnectParams<Props, {}>) {
 
   const requestClose = () => msg.sendToParent(props().onClose())
 
-  on(msg.listenAt(popupLayer), (state, message) => {
+  on(msg.listenAt(popupLayer), (_, message) => {
 
     if (message.is(close))
       requestClose()
@@ -43,7 +43,7 @@ function connect({ on, props, msg }: ConnectParams<Props, {}>) {
 
   })
 
-  on(Observable.fromEvent('keydown', window), (state, evt) => {
+  on(Observable.fromEvent('keydown', window), (_, evt) => {
     if (evt.keyCode === 27) // ESC
       requestClose()
   })

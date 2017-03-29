@@ -21,7 +21,7 @@ export interface Users {
 
 export type UserStore = StoreType<Users>
 
-export function UserStore(initId: string) {
+export function UserStore() {
 
   const initState = {
     users: NotAsked,

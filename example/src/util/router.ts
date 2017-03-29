@@ -26,11 +26,6 @@ interface RouteDefOptions<P, Children extends RouteMap> {
 
 type RouteMap = Record<string, RouteDef<{}, {}>>
 
-// Re-maps each RouteDef of the Map so that it cumulates its params and its parent's
-type RouteMapWithParentParams<T extends RouteMap, ParentParams> = {
-  [P in keyof T]: RouteDef<T[P]['params'] & ParentParams, T[P]['def']['children']>
-}
-
 /* A materialized route at runtime, complete with the actual parsed params */
 export interface Route<P, Children extends RouteMap> {
 
@@ -52,9 +47,10 @@ export interface CurrentRoute<P, Children extends RouteMap> extends Route<P, Chi
 }
 
 /* Creates a new Route definition */
-export function RouteDef<P, Children extends RouteMap, A>(
+export function RouteDef<P, Children extends RouteMap>(
   uri: string,
-  params: P,
+  // Only here to capture the type
+  _params: P,
   options: RouteDefOptions<P, Children>,
 ) {
 
@@ -139,15 +135,15 @@ export function Router<Routes extends RouteMap>(options: RouterOptions<Routes>):
       : {}
 
     return State(route.def.uri, {
-      enter: (params) => {
+      enter() {
         components.push(
           route.def.enter(typedRouter, currentRoute!))
       },
-      update: () => {
+      update() {
         if (route.def.update)
           route.def.update(currentRoute!)
       },
-      exit: () => {
+      exit() {
         components.pop()
         if (route.def.exit)
           route.def.exit()
@@ -225,8 +221,10 @@ function makeRoute(route: RouteDef<{}, {}>, params: {}, paramsDiff: ParamsDiff) 
     route,
     params,
     paramsDiff,
-    is: (otherRoute: RouteDef<{}, {}>) => route.def.fullName === otherRoute.def.fullName,
-    isIn: (parentRoute: RouteDef<{}, {}>) => {
+    is(otherRoute: RouteDef<{}, {}>) {
+      return route.def.fullName === otherRoute.def.fullName
+    },
+    isIn(parentRoute: RouteDef<{}, {}>) {
       let parent = route
       while (parent) {
         if (parent === parentRoute) return true

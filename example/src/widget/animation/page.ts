@@ -6,7 +6,7 @@ import animate from 'widget/animation/animation'
 let onRemoved: Function
 
 const pageAnimations = {
-  create: (empty: VNode, vnode: VNode) => {
+  create: (_: VNode, vnode: VNode) => {
     (vnode.elm as HTMLElement).style.display = 'none'
 
     onRemoved = () => {
