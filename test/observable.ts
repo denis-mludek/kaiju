@@ -153,4 +153,48 @@ describe('Observable', () => {
   })
 
 
+  it('can drop some of its values', () => {
+
+    const sourceValues: number[] = []
+    const drop1Values: number[] = []
+    const drop2Values: number[] = []
+    const drop3Values: number[] = []
+    const drop1AfterTheFactValues: number[] = []
+
+    let addToSource: (value: number) => void = undefined!
+    const source = Observable<number>(add => {
+      addToSource = add
+    })
+
+    const drop1 = source.drop(1)
+    const drop2 = source.drop(2)
+    const drop3 = source.drop(3)
+
+    source.subscribe(val => sourceValues.push(val))
+    drop1.subscribe(val => drop1Values.push(val))
+    drop2.subscribe(val => drop2Values.push(val))
+    drop3.subscribe(val => drop3Values.push(val))
+
+    addToSource(1)
+    addToSource(2)
+    addToSource(3)
+    addToSource(4)
+    addToSource(5)
+
+    expect(sourceValues).toEqual([1, 2, 3, 4, 5])
+    expect(drop1Values).toEqual([2, 3, 4, 5])
+    expect(drop2Values).toEqual([3, 4, 5])
+    expect(drop3Values).toEqual([4, 5])
+
+    const drop1AfterTheFact = source.drop(1)
+
+    drop1AfterTheFact.subscribe(val => drop1AfterTheFactValues.push(val))
+
+    addToSource(6)
+    addToSource(7)
+
+    // Should drop only the value received at subscription time
+    expect(drop1AfterTheFactValues).toEqual([6, 7])
+  })
+
 })

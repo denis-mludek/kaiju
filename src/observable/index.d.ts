@@ -34,6 +34,12 @@ export interface Observable<T> {
   delay(delay: number): Observable<T>
 
   /**
+   * Drops 'count' initial values.  
+   * Note: This can also be used to drop the initial value when subscribing to an Observable, if it had seen a value previously.
+   */
+  drop(count: number): Observable<T>
+
+  /**
    * Filters the values of this observable.
    */
   filter<T>(predicate: (t: T) => boolean): Observable<T>

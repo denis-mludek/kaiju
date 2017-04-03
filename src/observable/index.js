@@ -1,6 +1,7 @@
 
 import _debounce from './debounce'
 import _delay from './delay'
+import _drop from './drop'
 import _filter from './filter'
 import _flatMapLatest from './flatMapLatest'
 import _fromEvent from './fromEvent'
@@ -91,6 +92,7 @@ const UNSET = {}
 // Enrich the Observable "prototype" till (maybe) we have the |> operator!
 proto.debounce = function(time) { return _debounce(time, this) }
 proto.delay = function(time) { return _delay(time, this) }
+proto.drop = function(count) { return _drop(count, this) }
 proto.filter = function(fn) { return _filter(fn, this) }
 proto.flatMapLatest = function(fn) { return _flatMapLatest(fn, this) }
 proto.map = function(fn) { return _map(fn, this) }
