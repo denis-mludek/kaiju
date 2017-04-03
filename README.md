@@ -591,6 +591,9 @@ The `Component` factory function takes an object with the following properties:
 Mandatory `String`  
 This is the standard Virtual DOM `key` used in the diffing algorithm to uniquely identify this `VNode`.
 It is also used for logging purposes, so it is usually just the name of the component.
+By default, components have a `key` set to their `name` to differentiate them from other components.  
+However, you can also set an external `key` by defining a key property inside the Component's props. The overall key will then be name + _ + your key.  
+This can be useful when switching between two instances of the same component but without reusing any of its state.  
 
 ### sel
 Optional `String`  
