@@ -65,7 +65,7 @@ export interface Observable<T> {
    * then a size of 2 for subsequent values.
    * The newest value is always found at the index 0 of the Array for convenience and type safety.
    */
-  sliding2(): Observable<[T, T | void]>
+  sliding2(): Observable<[T, T | undefined]>
 
   /**
    * Groups values in fixed size blocks by passing a "sliding window" over them.
@@ -146,7 +146,7 @@ export interface ObservableObject {
   /**
    * Creates a new observable that produces undefined values at the provided interval in milliseconds.
    */
-   interval(time: number): Observable<void>
+   interval(time: number): Observable<undefined>
 
    /**
     * Merges all the observables into one
