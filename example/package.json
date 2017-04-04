@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "typescript": "next",
-    "kaiju": "0.23.2",
+    "kaiju": "0.23.3",
     "snabbdom": "0.6.5",
     "abyssa": "8.0.3",
     "immupdate": "1.0.1",
