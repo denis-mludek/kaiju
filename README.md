@@ -366,7 +366,7 @@ interface Observable<T> {
    * then a size of 2 for subsequent values.
    * The newest value is always found at the index 0 of the Array for convenience and type safety.
    */
-  sliding2(): Observable<[T, T | void]>
+  sliding2(): Observable<[T, T | undefined]>
 
   /**
    * Groups values in fixed size blocks by passing a "sliding window" over them.
@@ -406,7 +406,7 @@ interface ObservableObject {
   /**
    * Creates a new observable that produces undefined values at the provided interval in milliseconds.
    */
-  interval(time: number): Observable<void>
+  interval(time: number): Observable<undefined>
 
   /**
    * Merges all the observables into one
@@ -425,11 +425,11 @@ interface ObservableObject {
 # Component lifecycle
 
 ## Creation
-- 1) The component is now included in the application VNode tree for the first time
-- 2) `initState()` is called with the initial props
-- 3) `connect()` is called. Observables are plugged into the component, if they already hold state synchronously, the
+1) The component is now included in the application VNode tree for the first time
+2) `initState()` is called with the initial props
+3) `connect()` is called. Observables are plugged into the component, if they already hold state synchronously, the
 component's initial state is updated immediately.
-- 4) `render()` is called for the first time
+4) `render()` is called for the first time
 
 Both `initState` and `connect` are called only once when the component first appears.
 
