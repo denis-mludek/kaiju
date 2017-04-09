@@ -29,7 +29,14 @@ kaiju is a view layer used to build an efficient tree of stateless/stateful comp
     * [Render.into](#api-renderInto)
     * [Render.scheduleDOMWrite](#api-renderSchedule)
   * [Message: Intra and inter component communication](#api-message)
-    * [Unhandled messages](#api-message-unhandled)
+    * [Create a Message](#api-message-create)
+    * [Send a message to a Store](#api-message-send-store)
+    * [Send a message to the current component](#api-message-send-component)
+    * [Send a message to the nearest parent component](#api-message-send-parent-component)
+    * [Create an Observable for all messages of a given type](#api-message-listen-observable)
+    * [Listen to all messages bubbling to a particular DOM node](#api-message-listen-bubbling)
+    * [Partially apply a Message's payload](#api-message-partially-apply)
+    * [Dealing with unhandled messages](#api-message-unhandled)
   * [Logging data changes and render timing](#api-logging)
 * [Full TS Example](https://github.com/AlexGalays/kaiju/tree/master/example/src)
 
@@ -940,6 +947,7 @@ function increaseHeight(vnode: VNode) {
 Stores and Component can both send and listen to message. Indeed, each component has a private Store to manage its state.  
 Messages help debugging and communicate intent better than generic model-altering callbacks. Here's what you can do with messages:  
 
+<a name="api-message-create"></a>
 - Creating a custom application message used to either communicate between components or send to a [Store](#stores).  
 
 ```ts
@@ -952,16 +960,18 @@ const increment = Message('increment')
 const incrementBy = Message<number>('incrementBy')
 
 // Message taking a tuple
-const incrementBy2 = Message<[Event, number]>('incrementBy')
+const incrementBy2 = Message<[number, Event]>('incrementBy')
 // Then pre-bind it so it can be used directly in the DOM:
 incrementBy2.with(33) // Message<Event>
 ```
 
 
+<a name="api-message-send-store"></a>
 - Sending a message to a Store instance (usually to update application/domain state)
 See [store.send](#stores)  
 
 
+<a name="api-message-send-component"></a>
 - Sending a message to the current Component
 
 ```ts
@@ -970,7 +980,7 @@ function connect({ on, msg, props }: ConnectParams<Props, State>) {
 }
 ```
 
-
+<a name="api-message-send-parent-component"></a>
 - Sending a message to the nearest parent Component  
 
 ```ts
@@ -981,7 +991,9 @@ function connect({ on, msg, props }: ConnectParams<Props, State>) {
 }
 ```
 
-- Listen to a Message type locally
+
+<a name="api-message-listen-observable"></a>
+- Create an Observable for all messages of a given type
 
 `msg.listen` creates an [Observable](#observables) publishing every `Message` of that type.
 This can be useful to transform the observable before handling the Message or creating reusable abstractions.  
@@ -989,12 +1001,14 @@ This can be useful to transform the observable before handling the Message or cr
 ```ts
 function connect({ on, msg, props }: ConnectParams<Props, State>) {
 
-  const clicks = msg.listen(click)
+  const clicks = msg.listen(click).debounce(800)
 
   on(clicks, (state, evt) => console.log(evt))
 }
 ```
 
+
+<a name="api-message-listen-bubbling"></a>
 - Listen to all Messages bubbling up a particular DOM Element
 This should rarely be useful. It can be used when a Component (e.g a popup) renders its content in another part of the DOM tree and Messages should be listened from there instead of locally.  
 
@@ -1005,6 +1019,30 @@ function connect({ on, msg, props }: ConnectParams<Props, State>) {
 
   on(messagesFromPopup, (state, message) => console.log(message))
 }
+```
+
+<a name="api-message-partially-apply"></a>
+- Partially apply a Message's payload
+
+Use cases
+1) Reuse a Message inside a Component's VDOM but with a different payload
+2) Set part of the payload of a child's callback Message with information only useful to the parent (e.g, which child was this?)
+
+```ts
+const onClick = Message<[string, MouseEvent]>('onClick')
+
+function render() {
+  return h('button', {
+    events: {
+      click: onClick.with('John')
+    }
+  })
+}
+
+Note 1: Partially applying a Message has a little performance cost, roughly equal to a lambda creation. However, unlike in some other VDOM frameworks,
+the component will not re-render if the payload wasn't actually changed.  
+
+Note2: A partially applied Message is only to be used for sending, not receiving. Always listen to the original Message.  
 ```
 
 
@@ -1052,6 +1090,6 @@ log.message = 'popup'
 You will want to change the log values as early as possible in your program so that no logs are missed.
 
 Note: The render durations are more interesting as a relative measurement to spot bottlenecks and focus any optimization effort.  
-The absolute durations may be heavily influenced by the `console` sometimes being very slow.  
+The absolute durations may be heavily influenced by the `console` itself sometimes being very slow.  
 
 ![slow-console](http://i171.photobucket.com/albums/u320/boubiyeah/console.log.cost_zps4n1pvodl.png)

@@ -81,22 +81,6 @@ export var log: {
 // Messages
 
 /**
- * A Message taking no payload
- */
-export interface NoArgMessage {
-  (): MessagePayload<undefined>
-  type: 'NoArgMessage'
-}
-
-/**
- * A message taking no payload as its payload was previously bound.
- */
-export interface BoundNoArgMessage {
-  (): MessagePayload<undefined>
-  type: 'BoundNoArgMessage'
-}
-
-/**
  * A Message taking a payload
  */
 export interface Message<P> {
@@ -104,37 +88,55 @@ export interface Message<P> {
    * Creates a new message payload, ready to be sent.
    */
   (payload: P): MessagePayload<P>
-
-  /**
-   * Pre-binds the payload's data for that Message.
-   */
-  with<Data, E extends Event>(this: Message<[E, Data]>, data: Data): Message<E>
-
-  /**
-   * Pre-binds the payload's data for that Message.
-   * Note: A bound message originally taking a single type cannot be used as a DOM handler as an Event is always passed.
-   */
-  with<Data>(this: Message<Data>, data: Data): BoundNoArgMessage
-
-  type: 'Message'
 }
 
+/**
+ * A Message taking no payload
+ */
+export interface NoArgMessage {
+  (): MessagePayload<undefined>
+}
+
+interface DefaultNoArgMessage extends NoArgMessage {
+  type: 'defaultNoArgMessage'
+}
+
+interface DefaultMessage<P> extends Message<P> {
+  type: 'defaultMessage'
+
+  /**
+   * Creates a new Message that has part of its payload set.
+   * The created Message can not be used with on().
+   * Note: A partially applied message originally taking a scalar payload cannot be used as a DOM handler as an Event is always passed.
+   */
+  with<P1, P2>(this: Message<[P1, P2]>, partOfThePayload: P1): PartiallyAppliedMessage<P2>
+
+  /**
+   * Creates a new Message that aleady has its payload set.
+   * The created Message can not be used with on().
+   */
+  with<P1>(this: Message<P1>, payload: P1): PartiallyAppliedNoArgMessage
+}
+
+// Alias so we get more context in compilation errors.
+interface PartiallyAppliedMessage<P> extends Message<P> {}
+interface PartiallyAppliedNoArgMessage extends NoArgMessage {}
 
 interface MessageObject {
   /**
    * Creates a new Message type with a debug name. The message carry no payload.
    */
-  (name: string): NoArgMessage
+  (name: string): DefaultNoArgMessage
 
   /**
    * Creates a new Message type with a debug name. The message carry one payload.
    */
-  <P>(name: string): Message<P>
+  <P>(name: string): DefaultMessage<P>
 
   /**
    * A special message sent when another message was not handled
    */
-  unhandled: Message<MessagePayload<{}>>
+  unhandled: DefaultMessage<MessagePayload<{}>>
 }
 
 export var Message: MessageObject
@@ -163,12 +165,12 @@ interface Messages {
   /**
    * Listens to a message sent from immediate VNodes or component children
    */
-  listen<P>(message: Message<P>): Observable<P>
+  listen<P>(message: DefaultMessage<P>): Observable<P>
 
   /**
    * Listens to a message sent from immediate VNodes or component children
    */
-  listen(message: NoArgMessage): Observable<undefined>
+  listen(message: DefaultNoArgMessage): Observable<undefined>
 
   /**
    * Listens to all messages bubbling up to a particular DOM node
@@ -199,11 +201,16 @@ interface Messages {
 
 // snabbdom
 
-type EventHandler = Message<Event> | NoArgMessage
-
+type EventHandler =
+  // Either A new created Message<Event>
+  DefaultMessage<Event> |
+  // or a Message<[X, Event]> that was partially applied
+  PartiallyAppliedMessage<Event> |
+  // or a NoArgMessage that was not partially applied.
+  DefaultNoArgMessage
 
 interface VNodeData {
-  /* Tricks structural typing */
+  /* Work around structural typing */
   reduceRight?: 'VNodeData should not be an Array'
 
   key?: string | number

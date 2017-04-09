@@ -50,7 +50,6 @@ const showPopup = Message<Event>('showPopup')
 const hidePopup = Message('hidePopup')
 
 function connect({ on, props }: ConnectParams<Props, State>) {
-
   const { router } = props()
 
   on(inputChanged, (state, evt) => {
@@ -141,10 +140,10 @@ const list = (() => {
     return { items: props.initialItems }
   }
 
-  const deleteRow = Message<[MouseEvent, number]>('deleteRow')
+  const deleteRow = Message<[number, MouseEvent]>('deleteRow')
 
   function connect({ on }: ConnectParams<Props, State>) {
-    on(deleteRow, (state, [_, row]) => ({ items: state.items.filter(r => r !== row) }))
+    on(deleteRow, (state, [row]) => ({ items: state.items.filter(r => r !== row) }))
   }
 
   function render({ state }: RenderParams<Props, State>) {

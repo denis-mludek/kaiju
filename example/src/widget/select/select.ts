@@ -39,7 +39,8 @@ function initState() {
 
 const open = Message('open')
 const close = Message('close')
-const itemSelected = Message<[Event, {}]>('itemSelected')
+const itemSelected = Message<[{}, MouseEvent]>('itemSelected')
+const requestLoadMore = Message('requestLoadMore')
 
 
 function connect<T>({ on, props, msg }: ConnectParams<Props<T>, State>) {
@@ -47,10 +48,10 @@ function connect<T>({ on, props, msg }: ConnectParams<Props<T>, State>) {
   on(open, state => copy(state, { opened: true }))
   on(close, state => copy(state, { opened: false }))
 
-  on(itemSelected, (_, [__, item]) => msg.sendToParent(props().onChange(item as T)))
+  on(itemSelected, (_, [item]) => msg.sendToParent(props().onChange(item as T)))
 
   Option(props().pagination).map(pagination => {
-    on(pagination.loadMore, _ => msg.sendToParent(pagination.loadMore()))
+    on(requestLoadMore, _ => msg.sendToParent(pagination.loadMore()))
   })
 }
 
@@ -93,7 +94,7 @@ function renderDropdownEl(props: Props<{}>, opened: boolean) {
       styleName: styles.scroller,
       list: itemsWithLoaderEl,
       hasMore: pagination.hasMore,
-      loadMore: pagination.loadMore,
+      loadMore: requestLoadMore,
       isLoadingMore: loading
     })
   ) : itemsWithLoaderEl

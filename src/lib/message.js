@@ -20,24 +20,21 @@ export default function Message(name) {
 }
 
 function withPayload(payload) {
-  return MessageWith(this, payload)
+  return PartiallyAppliedMessage(this, payload)
 }
 
 function messageIs(ofType) {
   return this._id === ofType._id
 }
 
-/** Creates a new Message type that binds its payload */
-function MessageWith(message, payload) {
-  
-  function result(maybeEvent) {
-    return message(maybeEvent ? [maybeEvent, payload] : payload)
+/** Creates a new Message type that is partially applied with a payload */
+function PartiallyAppliedMessage(message, payload) {
+
+  function result(maybeOtherPayload) {
+    return message(maybeOtherPayload ? [payload, maybeOtherPayload] : payload)
   }
 
-  result._id = message._id
-  result._name = message._name
-  result._isMessage = true
-  result._type = 'messageWith'
+  result.type = 'partiallyAppliedMessage'
   result.payload = payload
 
   return result

@@ -2,7 +2,7 @@ require('jsdom-global')()
 global.requestAnimationFrame = (fn: Function) => setTimeout(fn, 1)
 
 import * as expect from 'expect'
-import { Component, h, startApp, Message, Render, ConnectParams, RenderParams, VNode, Messages } from '../'
+import { Component, h, startApp, Render, ConnectParams, RenderParams, VNode, Messages, Message, NoArgMessage } from '../'
 
 
 /** Utils **/
@@ -196,7 +196,7 @@ describe('Component', () => {
 
     const div = (() => {
       const clickMsg = Message<Event>('click')
-      const mouseDownMsg = Message<[Event, number]>('mousedown')
+      const mouseDownMsg = Message<[number, Event]>('mousedown')
 
       function initState() { return {} }
 
@@ -206,7 +206,7 @@ describe('Component', () => {
           receivedClickMessage = true
         })
 
-        on(mouseDownMsg, (state, [evt, data]) => {
+        on(mouseDownMsg, (state, [data, evt]) => {
           expect(evt.currentTarget).toExist()
           expect(data).toBe(13)
           receivedMouseDownMessage = true
@@ -459,7 +459,7 @@ describe('Component', () => {
     let compMsg: Messages
     const texts: string[] = []
 
-    const ping = Message<[Event, string]>('ping')
+    const ping = Message<[string, Event]>('ping')
 
     const comp = (() => {
       function initState() { return {} }
@@ -467,7 +467,7 @@ describe('Component', () => {
       function connect({ on, msg }: ConnectParams<{}, {}>) {
         compMsg = msg
 
-        on(ping, (state, [evt, text]) => {
+        on(ping, (state, [text, evt]) => {
           expect(evt.currentTarget).toNotBe(undefined!)
           texts.push(text)
         })
@@ -502,8 +502,8 @@ describe('Component', () => {
   it('can listen to any messages transiting through a DOM Element', done => {
     const receivedMessages: string[] = []
 
-    const messageFromTheRight = Message<[Event, string]>('messageFromTheRight')
-    const messageFromTheRight2 = Message<[Event, string]>('messageFromTheRight2')
+    const messageFromTheRight = Message<[string, Event]>('messageFromTheRight')
+    const messageFromTheRight2 = Message<[string, Event]>('messageFromTheRight2')
 
     const leftEl = document.createElement('main')
     document.body.appendChild(leftEl)
@@ -519,13 +519,13 @@ describe('Component', () => {
         on(msg.listenAt(rightEl), (state, message) => {
 
           if (message.is(messageFromTheRight)) {
-            expect(message.payload[0].currentTarget).toExist()
-            receivedMessages.push(message.payload[1])
+            expect(message.payload[1].currentTarget).toExist()
+            receivedMessages.push(message.payload[0])
           }
           
           else if (message.is(messageFromTheRight2)) {
-            expect(message.payload[0].currentTarget).toExist()
-            receivedMessages.push(message.payload[1])
+            expect(message.payload[1].currentTarget).toExist()
+            receivedMessages.push(message.payload[0])
           }
         })
 
@@ -580,4 +580,152 @@ describe('Component', () => {
     })
   })
 
+
+  it('only calls render when props and states significantly changed', done => {
+
+    let parentRenderCount = 0
+    let childRenderCount = 0 
+
+    let parentMsg: Messages
+
+    const updateParentStateWithNoop = Message('')
+    const updateParentStateWithNewDate = Message('')
+    const updateChildProp = Message('')
+    const updateChildMessageProp = Message('')
+
+    const onChildChange = Message<number>('')
+    const onComplete = Message<[number, string]>('')
+
+    const parent = (() => {
+      type State = {
+        childProp: number
+        childMessageProp: number
+      }
+
+      function initState() {
+        return {
+          childProp: 10,
+          childMessageProp: 100
+        }
+      }
+
+      function connect({ on, msg }: ConnectParams<{}, {}>) {
+        parentMsg = msg
+
+        on(updateParentStateWithNoop, state => Object.assign({}, state))
+
+        on(updateParentStateWithNewDate, state => Object.assign({}, state, { ts: Date.now() }))
+
+        on(updateChildProp, state => Object.assign({}, state, { childProp: 20 }))
+
+        on(updateChildMessageProp, state => Object.assign({}, state, { childMessageProp: 200 }))
+      }
+
+      function render({ props, state }: RenderParams<{}, State>) {
+        parentRenderCount++
+
+        return h('main', {},
+          child({
+            id: '33',
+            childProp: state.childProp,
+            onChange: onChildChange,
+            onComplete: onComplete.with(state.childMessageProp)
+          })
+        )
+      }
+
+      return function() {
+        return Component<{}, State>({ name: 'parent', initState, connect, render })
+      }
+    })()
+
+    const child = (() => {
+      type Props = {
+        id: string
+        childProp: number
+        onChange: Message<number>
+        onComplete: Message<string>
+      }
+
+      function initState() { return {} }
+
+      function connect({ on, msg }: ConnectParams<Props, {}>) {}
+
+      function render() {
+        childRenderCount++
+        return h('div')
+      }
+
+      return function(props: Props) {
+        return Component<Props, {}>({ name: 'child', initState, props, connect, render })
+      }
+    })()
+
+    const parent1 = parent()
+
+    RenderInto(document.body, parent1)
+      .then(() => {
+        expect(parentRenderCount).toBe(1)
+        expect(childRenderCount).toBe(1)
+      })
+      .then(() => RenderInto(parent1, parent1))
+      .then(() => {
+        expect(parentRenderCount).toBe(1)
+        expect(childRenderCount).toBe(1)
+      })
+      .then(() => {
+        parentMsg.send(updateParentStateWithNoop())
+        return nextFrame().then(() => {
+          expect(parentRenderCount).toBe(1, 'updateParentStateWithNoop - parent')
+          expect(childRenderCount).toBe(1, 'updateParentStateWithNoop - child')
+        })
+      })
+      .then(() => {
+        parentMsg.send(updateParentStateWithNewDate())
+        return nextFrame().then(() => {
+          // The parent has a new state
+          expect(parentRenderCount).toBe(2, 'updateParentStateWithNewDate - parent')
+          // But the child still have the same props/state
+          expect(childRenderCount).toBe(1, 'updateParentStateWithNewDate - child')
+        })
+      })
+      .then(() => {
+        parentMsg.send(updateChildProp())
+        return nextFrame().then(() => {
+          expect(parentRenderCount).toBe(3, 'updateChildProp - parent')
+          expect(childRenderCount).toBe(2, 'updateChildProp - child')
+        })
+      })
+      .then(() => {
+        parentMsg.send(updateChildMessageProp())
+        return nextFrame().then(() => {
+          expect(parentRenderCount).toBe(4, 'updateChildMessageProp - parent')
+          expect(childRenderCount).toBe(3, 'updateChildMessageProp - child')
+        })
+      })
+      .then(done, done)
+  })
+
+
+  // it('can create partially applied Messages at a fair speed', () => {
+  //   const message = Message<[string, number]>('')
+
+  //   for (let i = 0; i < 15; i++) {
+  //     console.time(`Creating a Bound Message (${i})`)
+  //     message.with('' + i)
+  //     console.timeEnd(`Creating a Bound Message (${i})`)
+  //   }
+  // })
+
+
 })
+
+
+
+function nextFrame() {
+  return new Promise(resolve => requestAnimationFrame(resolve))
+}
+
+function RenderInto(arg1: any, arg2: any) {
+  return new Promise(resolve => Render.into(arg1, arg2, resolve))
+}
