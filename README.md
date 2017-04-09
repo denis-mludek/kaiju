@@ -948,7 +948,7 @@ Stores and Component can both send and listen to message. Indeed, each component
 Messages help debugging and communicate intent better than generic model-altering callbacks. Here's what you can do with messages:  
 
 <a name="api-message-create"></a>
-- Creating a custom application message used to either communicate between components or send to a [Store](#stores).  
+### Creating a custom application message used to either communicate between components or send to a [Store](#stores).
 
 ```ts
 import { Message } from 'kaiju'
@@ -967,12 +967,12 @@ incrementBy2.with(33) // Message<Event>
 
 
 <a name="api-message-send-store"></a>
-- Sending a message to a Store instance (usually to update application/domain state)
+### ending a message to a Store instance (usually to update application/domain state)
 See [store.send](#stores)  
 
 
 <a name="api-message-send-component"></a>
-- Sending a message to the current Component
+- **Sending a message to the current Component**
 
 ```ts
 function connect({ on, msg, props }: ConnectParams<Props, State>) {
@@ -981,7 +981,7 @@ function connect({ on, msg, props }: ConnectParams<Props, State>) {
 ```
 
 <a name="api-message-send-parent-component"></a>
-- Sending a message to the nearest parent Component  
+### Sending a message to the nearest parent Component
 
 ```ts
 function connect({ on, msg, props }: ConnectParams<Props, State>) {
@@ -993,7 +993,7 @@ function connect({ on, msg, props }: ConnectParams<Props, State>) {
 
 
 <a name="api-message-listen-observable"></a>
-- Create an Observable for all messages of a given type
+### Create an Observable for all messages of a given type
 
 `msg.listen` creates an [Observable](#observables) publishing every `Message` of that type.
 This can be useful to transform the observable before handling the Message or creating reusable abstractions.  
@@ -1009,7 +1009,7 @@ function connect({ on, msg, props }: ConnectParams<Props, State>) {
 
 
 <a name="api-message-listen-bubbling"></a>
-- Listen to all Messages bubbling up a particular DOM Element
+### Listen to all Messages bubbling up a particular DOM Element
 This should rarely be useful. It can be used when a Component (e.g a popup) renders its content in another part of the DOM tree and Messages should be listened from there instead of locally.  
 
 ```ts
@@ -1022,7 +1022,7 @@ function connect({ on, msg, props }: ConnectParams<Props, State>) {
 ```
 
 <a name="api-message-partially-apply"></a>
-- Partially apply a Message's payload
+### Partially apply a Message's payload
 
 Use cases
 1) Reuse a Message inside a Component's VDOM but with a different payload
@@ -1039,11 +1039,12 @@ function render() {
   })
 }
 
+```
+
 Note 1: Partially applying a Message has a little performance cost, roughly equal to a lambda creation. However, unlike in some other VDOM frameworks,
 the component will not re-render if the payload wasn't actually changed.  
 
 Note2: A partially applied Message is only to be used for sending, not receiving. Always listen to the original Message.  
-```
 
 
 <a name="api-message-unhandled"></a>
