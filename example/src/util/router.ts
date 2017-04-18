@@ -169,7 +169,7 @@ export function Router<Routes extends RouteMap>(options: RouterOptions<Routes>):
   router.on('ended', () => {
     const newAppNode = components.reduceRight((previous, current) => {
       return current(currentRoute!, previous)
-    }, emptyVNode)
+    }, emptyVNode())
 
     if (currentVNode) {
       Render.into(currentVNode, newAppNode)
@@ -235,4 +235,4 @@ function makeRoute(route: RouteDef<{}, {}>, params: {}, paramsDiff: ParamsDiff) 
   }
 }
 
-const emptyVNode = h('div', { key: '_emptyVNode' })
+const emptyVNode = () => h('div', { key: '_emptyVNode' })

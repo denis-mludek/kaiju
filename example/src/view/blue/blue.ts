@@ -1,9 +1,9 @@
 const styles = require('./blue.styl')
 
 import { h, Component, ConnectParams, RenderParams, VNode, Node } from 'kaiju'
-import { update as copy } from 'immupdate'
+import { update as copy } from 'space-lift'
 
-import sectionAnimation from 'widget/animation/section'
+import slideDownAnimation from 'widget/animation/single/slideDown'
 import green from 'view/blue/green'
 import red from 'view/blue/red'
 import { AppStore, incrementCounter } from 'view/app/store'
@@ -92,6 +92,6 @@ function render({ props, state }: RenderParams<Props, State>): Node[] {
       'Count: ' + state.count,
       h('button', { events: { click: incrementCounter } }, 'Increment')
     ]),
-    sectionAnimation('section', child)
+    slideDownAnimation(child, 'section')
   ]
 }

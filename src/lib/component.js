@@ -137,7 +137,7 @@ function rendered(component, newVnode) {
   component.vnode = newVnode
 
   // For now, only lift the hook of non Array render outputs
-  if (!Array.isArray(newVnode)) {
+  if (newVnode && !Array.isArray(newVnode)) {
     // Lift any 'remove' hook to our placeholder vnode for it to be called
     // as the placeholder is all our parent vnode knows about.
     // TODO: Call all the hooks of an Array VNode?

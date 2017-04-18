@@ -2,16 +2,19 @@ import { h, VNode } from 'kaiju'
 import lift from 'space-lift'
 
 
-/* Container animating its children in and out. children must have keys to be properly differentiated */
-
+/**
+ * Container animating its children in and out.
+ * children must have keys to be properly differentiated.
+ * The exit and enter animations run in parallel.
+ */
 export default function animate(animations: Animations) {
-  return (sel: string, children: VNode[] | VNode) => {
+  return (children: VNode[], sel: string) => {
     const props = {
-      key: 'animationHook',
+      key: 'groupAnimation',
       animations,
       hook: { prepatch }
     }
-    return h(sel, props, Array.isArray(children) ? children : [children])
+    return h(sel, props, children)
   }
 }
 
@@ -31,9 +34,9 @@ function prepatch(oldVNode: VNode, newVNode: VNode) {
     child.data.hook = child.data.hook || {}
 
     const otherHook = child.data.hook.remove
-    child.data.hook.remove = (vnode: VNode, cb: Function) => {
+    child.data.hook.remove = (vnode: VNode.Assigned, cb: Function) => {
       if (otherHook) otherHook(vnode, noop)
-      animations.remove(vnode, cb)
+      animations.remove(vnode.elm, cb)
     }
   })
 
@@ -44,16 +47,16 @@ function prepatch(oldVNode: VNode, newVNode: VNode) {
     child.data.hook = child.data.hook || {}
 
     const otherHook = child.data.hook.create
-    child.data.hook.create = (emptyNode: VNode, vnode: VNode) => {
+    child.data.hook.create = (emptyNode: {}, vnode: VNode.Assigned) => {
       if (otherHook) otherHook(emptyNode, vnode)
-      animations.create(emptyNode, vnode)
+      animations.create(vnode.elm)
     }
   })
 }
 
 interface Animations {
-  create: (empty: VNode, vnode: VNode) => void
-  remove: (vnode: VNode, cb: Function) => void
+  create: (elm: Element) => void
+  remove: (elm: Element, cb: Function) => void
 }
 
 function noop() {}

@@ -49,7 +49,7 @@ const proto = {
 
   subscribe: function(cb) {
     const self = this
-    const { _subscribers, _add, _activate, _name, _parentName } = this
+    const { _subscribers, _add, _activate, _name } = this
 
     if (_subscribers.length === 0)
       if (_activate) this._unsubscribe = _activate(_add)
@@ -57,7 +57,7 @@ const proto = {
     _subscribers.push(cb)
 
     if (this._lastValue !== UNSET)
-      cb(this._lastValue, _name || _parentName)
+      cb(this._lastValue, _name || this._parentName)
 
     return function _unsubscribe() {
       const index = _subscribers.indexOf(cb)

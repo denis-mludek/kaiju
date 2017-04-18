@@ -1,9 +1,9 @@
 require('./app.styl')
 
 import { h, Component, ConnectParams, RenderParams, Node, VNode } from 'kaiju'
-import { update as copy } from 'immupdate'
+import { update as copy } from 'space-lift'
 
-import pageAnimation from 'widget/animation/page'
+import fadeAnimation from 'widget/animation/single/fade'
 import link from 'widget/link'
 import index from 'view/index'
 import blue from 'view/blue'
@@ -74,6 +74,6 @@ function render({ props, state }: RenderParams<Props, State>): Node[] {
       }),
       String(state.count)
     ]),
-    pageAnimation('main', child)
+    fadeAnimation(child, 'main')
   ]
 }

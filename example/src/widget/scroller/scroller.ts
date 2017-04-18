@@ -69,7 +69,7 @@ function render({ props, msg }: RenderParams<Props, {}>) {
 
   const attrs = styleName ? { class: styleName } : undefined
   const events = scrollOwner ? undefined : { scroll: locallyScrolled }
-  const hook = scrollOwner ? undefined : { insert: (vnode: VNode) => msg.send(setScroller(vnode.elm)) }
+  const hook = scrollOwner ? undefined : { insert: (vnode: VNode.Assigned) => msg.send(setScroller(vnode.elm)) }
 
   return (
     h('div', {

@@ -96,35 +96,16 @@ function popupWithContent(content: VNode[]) {
 }
 
 
-const insertAnimation = (vnode: VNode) => {
-  const overlay = vnode.elm
+const insertAnimation = (vnode: VNode.Assigned) => {
   const popup = vnode.elm.firstChild as HTMLElement
-
-  popup.style.visibility = 'hidden'
-
-  overlay.animate(
-    { opacity: [0, 1] },
-    { duration: 150, easing: 'ease-out' }
-  )
-  .onfinish = () => {
-    popup.style.visibility = 'visible'
-    popup.animate(
-      { transform: ['translateY(-100px)', 'translateY(0)'], opacity: [0, 1] },
-      { duration: 240, easing: 'ease-out' }
-    )
-  }
-
+  popup.classList.add(styles.insertAnimation)
 }
 
-const removeAnimation = (vnode: VNode, cb: Function) => {
+const removeAnimation = (vnode: VNode.Assigned, cb: Function) => {
   const overlay = vnode.elm
-
-  overlay.animate(
-    { opacity: [1, 0] },
-    { duration: 120, easing: 'linear', fill: 'forwards' }
-  )
-  .onfinish = () => {
+  overlay.classList.add(styles.removeAnimation)
+  overlay.addEventListener('animationend', () => {
     cb()
     popupLayer.removeChild(popupLayer.firstChild!)
-  }
+  })
 }

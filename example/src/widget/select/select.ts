@@ -107,17 +107,12 @@ function renderItem(item: string) {
 }
 
 const animationHook = {
-  insert: (vnode: VNode) => {
-    vnode.elm.animate(
-      { opacity: [0, 1], transform: ['translateY(-20px)', 'translateY(0)'] },
-      { duration: 300, easing: 'cubic-bezier(0.2, 0.6, 0.3, 1)', fill: 'forwards' }
-    )
+  insert: (vnode: VNode.Assigned) => {
+    vnode.elm.classList.add(styles.insertAnimation)
   },
 
-  remove: (vnode: VNode, cb: Function) => {
-    vnode.elm.animate(
-      { opacity: [1, 0], transform: ['translateY(0)', 'translateY(-20px)'] },
-      { duration: 200, easing: 'cubic-bezier(0.2, 0.6, 0.3, 1)', fill: 'forwards' }
-    ).onfinish = cb
+  remove: (vnode: VNode.Assigned, cb: () => void) => {
+    vnode.elm.classList.add(styles.removeAnimation)
+    vnode.elm.addEventListener('animationend', cb)
   }
 }

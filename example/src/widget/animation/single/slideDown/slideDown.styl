@@ -1,0 +1,14 @@
+.slideDown {
+  :global { animation: slideDown 300ms ease-out both }
+}
+
+@keyframes :global(slideDown) {
+  from {
+    opacity: 0
+    transform: translateY(-20px)
+  }
+  to {
+    opacity: 1
+    transform: translateY(0)
+  }
+}

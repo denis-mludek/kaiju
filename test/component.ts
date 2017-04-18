@@ -378,7 +378,7 @@ describe('Component', () => {
         })
       }
 
-      function onInsert(vnode: VNode) {
+      function onInsert(vnode: VNode.Assigned) {
         Render.scheduleDOMRead(() => {
           calls.push('scheduleDOMReadFromInsert')
           let height = vnode.elm.clientHeight
@@ -397,7 +397,7 @@ describe('Component', () => {
         calls.push('onInsert')
       }
 
-      function onUpdate(_: VNode, vnode: VNode) {
+      function onUpdate(_: {}, vnode: VNode.Assigned) {
         Render.scheduleDOMRead(() => {
           calls.push('scheduleDOMReadFromUpdate')
           let height = vnode.elm.clientHeight
@@ -704,6 +704,31 @@ describe('Component', () => {
         })
       })
       .then(done, done)
+  })
+
+  it('can render nothing', done => {
+
+    const comp = (() => {
+
+      function initState() { return {} }
+
+      function connect() {}
+
+      function render() {
+        return undefined
+      }
+
+      return function() {
+        return Component<{}, {}>({ name: 'child', initState, connect, render })
+      }
+    })()
+
+    Render.into(document.body, comp(), () => {
+      expect(document.body.firstElementChild!.tagName).toBe('COMPONENT')
+      expect(document.body.firstElementChild!.firstElementChild).toBe(null!)
+      done()
+    })
+
   })
 
 

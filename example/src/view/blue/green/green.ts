@@ -2,12 +2,12 @@ const styles = require('./green.styl')
 const listStyles = require('./list.styl')
 
 import { Component, h, Message, ConnectParams, RenderParams, Hook } from 'kaiju'
-import { update as copy } from 'immupdate'
+import { update as copy } from 'space-lift'
 
 import { editIcon } from 'icon'
 import popup, * as Popup from 'widget/popup'
 import button from 'widget/button'
-import groupFadeAnimation from 'widget/animation/groupFade'
+import fadeScaleAnimation from 'widget/animation/group/fadeScale'
 import { RouteDef, Router, Route } from 'router'
 
 
@@ -156,7 +156,7 @@ const list = (() => {
       ])
     ))
 
-    return groupFadeAnimation(`ul.${listStyles.list}`, itemEls)
+    return fadeScaleAnimation(itemEls, `ul.${listStyles.list}`)
   }
 
   return (props: Props) => {

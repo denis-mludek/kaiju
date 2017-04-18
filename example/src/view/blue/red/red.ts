@@ -1,6 +1,6 @@
 const styles = require('./red.styl')
 
-import { update as copy } from 'immupdate'
+import { update as copy } from 'space-lift'
 import { h, Component, ConnectParams, RenderParams, Message } from 'kaiju'
 
 import { RouteDef } from 'router'

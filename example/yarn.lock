@@ -1588,13 +1588,9 @@ ieee754@^1.1.4:
   version "1.1.8"
   resolved "https://registry.yarnpkg.com/ieee754/-/ieee754-1.1.8.tgz#be33d40ac10ef1926701f6f08a2d86fbfd1ad3e4"
 
-immupdate@1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/immupdate/-/immupdate-1.0.0.tgz#cad372987252d0072f3c366c38c70b11c335416e"
-
-immupdate@1.0.1:
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/immupdate/-/immupdate-1.0.1.tgz#0d172cbd6659343a1919f74163c3b3077009d368"
+immupdate@1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/immupdate/-/immupdate-1.0.2.tgz#9720e545b4d2a8e2a22e6b35c67684f3b34c893d"
 
 imurmurhash@^0.1.4:
   version "0.1.4"
@@ -1863,9 +1859,9 @@ jsprim@^1.2.2:
     json-schema "0.2.3"
     verror "1.3.6"
 
-kaiju@0.22.4:
-  version "0.22.4"
-  resolved "https://registry.yarnpkg.com/kaiju/-/kaiju-0.22.4.tgz#b319d03737253a3c67c9c40d73001fed73faad35"
+kaiju@0.24.0:
+  version "0.24.0"
+  resolved "https://registry.yarnpkg.com/kaiju/-/kaiju-0.24.0.tgz#d899bf1790da84272b2750ff600bda8e5b63d333"
 
 kind-of@^3.0.2:
   version "3.1.0"
@@ -2190,9 +2186,9 @@ optimist@~0.6.0:
     minimist "~0.0.1"
     wordwrap "~0.0.2"
 
-option.ts@0.1.6:
-  version "0.1.6"
-  resolved "https://registry.yarnpkg.com/option.ts/-/option.ts-0.1.6.tgz#d3da6c0421cd13da01424beee8e9d77a2d9e98e0"
+option.ts@0.3.0:
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/option.ts/-/option.ts-0.3.0.tgz#21bf1733be89a08817b5a0858e9f86924c2fa694"
 
 os-browserify@^0.2.0:
   version "0.2.1"
@@ -2901,9 +2897,9 @@ slide@^1.1.5:
   version "1.1.6"
   resolved "https://registry.yarnpkg.com/slide/-/slide-1.1.6.tgz#56eb027d65b4d2dce6cb2e2d32c4d4afc9e1d707"
 
-snabbdom@0.6.5:
-  version "0.6.5"
-  resolved "https://registry.yarnpkg.com/snabbdom/-/snabbdom-0.6.5.tgz#01b0cba8d623eca19e570876630c12c057830066"
+snabbdom@0.6.7:
+  version "0.6.7"
+  resolved "https://registry.yarnpkg.com/snabbdom/-/snabbdom-0.6.7.tgz#045d9fc292574fe3597578bde2d9c403f79a1352"
 
 sntp@1.x.x:
   version "1.0.9"
@@ -2937,12 +2933,12 @@ source-map@^0.5.0, source-map@^0.5.3, source-map@^0.5.6, source-map@~0.5.1, sour
   version "0.5.6"
   resolved "https://registry.yarnpkg.com/source-map/-/source-map-0.5.6.tgz#75ce38f52bf0733c5a7f0c118d81334a2bb5f412"
 
-space-lift@0.0.3:
-  version "0.0.3"
-  resolved "https://registry.yarnpkg.com/space-lift/-/space-lift-0.0.3.tgz#429d8aaf7d26c80decaa3fe45f7102499a79dbb1"
+space-lift@0.1.1:
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/space-lift/-/space-lift-0.1.1.tgz#a6b03485b97899ef8d7a30d2def0344abc2f1fc5"
   dependencies:
-    immupdate "1.0.0"
-    option.ts "0.1.6"
+    immupdate "1.0.2"
+    option.ts "0.3.0"
 
 spdx-correct@~1.0.0:
   version "1.0.2"
@@ -3210,8 +3206,8 @@ tweetnacl@^0.14.3, tweetnacl@~0.14.0:
   resolved "https://registry.yarnpkg.com/tweetnacl/-/tweetnacl-0.14.5.tgz#5ae68177f192d4456269d108afa93ff8743f4f64"
 
 typescript@next:
-  version "2.3.0-dev.20170313"
-  resolved "https://registry.yarnpkg.com/typescript/-/typescript-2.3.0-dev.20170313.tgz#9fe7e4b8c4ee5106ced0dea59e621d403a079969"
+  version "2.3.0-dev.20170329"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-2.3.0-dev.20170329.tgz#29e6132d3003e4b1f5742fadf5854d5b4067719f"
 
 uglify-js@^2.7.5:
   version "2.7.5"

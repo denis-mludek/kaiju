@@ -1,4 +1,4 @@
-import { update as copy } from 'immupdate'
+import { update as copy } from 'space-lift'
 import Store, { Store as StoreType } from 'kaiju/store'
 import { Message } from 'kaiju'
 

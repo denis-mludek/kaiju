@@ -53,7 +53,7 @@ interface ComponentOptions<P extends { key?: string | number }, S extends {}> {
   props?: P
   initState: (initProps: P) => S
   connect: (params: ConnectParams<P, S>) => void
-  render: (params: RenderParams<P, S>) => VNode | Node[]
+  render: (params: RenderParams<P, S>) => Node | Node[]
 }
 
 /**
@@ -280,15 +280,15 @@ export interface VNode {
   data: VNodeData
   children: Array<VNode> | undefined
   text: string | undefined
-
-  /*
-   * Technically, elm can actually be undefined in two scenarios:
-   * 1) If we access it on a VNode that was never used for patching
-   * 2) From a init() hook
-   * Since these are very marginal uses, make it non nullable for convenience in all the other cases.
-   */
-  elm: Element
+  elm: Element | undefined
   key: string | undefined
+}
+
+export namespace VNode {
+  /** An Assigned VNode is a node that went through the patching process and got assigned a DOM Element */
+  interface Assigned extends VNode {
+    elm: Element
+  }
 }
 
 export type Node = VNode | string | null | undefined
@@ -296,13 +296,13 @@ export type Node = VNode | string | null | undefined
 export interface Hook {
   pre?: () => void
   init?: (node: VNode) => void
-  create?: (emptyNode: any, node: VNode) => void
-  insert?: (node: VNode) => void
-  prepatch?: (oldVNode: VNode, node: VNode) => void
-  update?: (oldVNode: VNode, node: VNode) => void
-  postpatch?: (oldVNode: VNode, node: VNode) => void
-  destroy?: (node: VNode) => void
-  remove?: (node: VNode, cb: () => void) => void
+  create?: (emptyNode: {}, node: VNode.Assigned) => void
+  insert?: (node: VNode.Assigned) => void
+  prepatch?: (oldVNode: VNode.Assigned, node: VNode.Assigned) => void
+  update?: (oldVNode: VNode.Assigned, node: VNode.Assigned) => void
+  postpatch?: (oldVNode: VNode.Assigned, node: VNode.Assigned) => void
+  destroy?: (node: VNode.Assigned) => void
+  remove?: (node: VNode.Assigned, cb: () => void) => void
   post?: () => void
 }
 

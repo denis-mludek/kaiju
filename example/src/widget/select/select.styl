@@ -37,3 +37,23 @@
   justify-content: center
   align-items: center
 }
+
+
+.insertAnimation {
+  :global { animation: selectInsertAnimation 200ms ease-out both }
+}
+
+@keyframes :global(selectInsertAnimation) {
+  from { opacity: 0; transform: translateY(-20px) }
+  to { opacity: 1; transform: translateY(0) }
+}
+
+
+.removeAnimation {
+  :global { animation: selectRemoveAnimation 150ms ease-out both }
+}
+
+@keyframes :global(selectRemoveAnimation) {
+  from { opacity: 1; transform: translateY(0) }
+  to { opacity: 0; transform: translateY(-20px) }
+}
