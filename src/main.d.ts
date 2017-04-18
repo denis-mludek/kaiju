@@ -230,10 +230,10 @@ interface VNodeData {
     disabled?: boolean
     checked?: boolean
     autofocus?: boolean
-    readOnly?: boolean
+    readonly?: boolean
     src?: string
     srcset?: string
-    tabIndex?: number
+    tabindex?: number
     spellcheck?: boolean
     [index: string]: any
   }
