@@ -127,8 +127,9 @@ describe('Component', () => {
   it('can render an Array of VNodes', done => {
 
     let forceReRender: Function = () => {}
-
     const reRender = Message('reRender')
+
+    let destroyCalled = false
 
     const bag = (() => {
 
@@ -146,7 +147,7 @@ describe('Component', () => {
           null,
           h(state.swap ? 'p' : 'div'),
           undefined,
-          h('span')
+          h('span', { hook: { destroy: () => destroyCalled = true } })
         ]
       }
 
@@ -184,7 +185,11 @@ describe('Component', () => {
       expect(comp.children[2]).toBe(spanEl)
 
       // Destroy the component
-      Render.into(app, h('div'), done)
+      Render.into(app, h('div'), () => {
+        expect(document.body.firstElementChild!.tagName).toBe('DIV')
+        expect(destroyCalled).toBe(true)
+        done()
+      })
     })
   })
 

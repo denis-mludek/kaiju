@@ -16,7 +16,7 @@
   "atom": {
     "rewriteTsconfig": false
   },
-  "filesGlob": [
+  "include": [
     "src/**/*.*",
     "typings/**/*.d.ts"
   ]

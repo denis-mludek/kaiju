@@ -150,7 +150,10 @@ function destroy(vnode) {
   const comp = vnode.data.component
   comp.vnode.elm.__comp__ = null
 
-  destroyVnode(comp.vnode)
+  Array.isArray(comp.vnode)
+    ? comp.vnode.forEach(destroyVnode)
+    : destroyVnode(comp.vnode)
+
   comp.store.destroy()
 
   comp.destroyed = true

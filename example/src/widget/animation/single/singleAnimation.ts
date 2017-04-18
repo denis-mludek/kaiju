@@ -7,7 +7,7 @@ import { update } from 'space-lift'
  * The entering element is not added to the DOM till the exiting element completely finished its animation.
  * This has a few benefits:
  *  - There is no need to bother with changing the entering node's display to 'none' since it's not in the DOM yet
- *  - More performant: Only one VDOM tree renderered at any given time; particularly interesting at animation time
+ *  - More performant: Only one VDOM tree rendered at any given time; particularly noticeable at animation time
  *  - This is less work and is thus less confusing for browsers (fixes a rendering bug with Chrome 46)
  */
 export default function animate(animations: Animations) {
@@ -48,7 +48,7 @@ function connect({ on, msg, props }: ConnectParams<Props, State>) {
     const newKey = keyOf(newProps.child)
     const oldKey = keyOf(oldProps.child)
 
-    // A remove animation is already playing, leave it and rely on it to then introduce the most recent child.
+    // A remove animation is already playing, leave it and rely on it to then introduce the most recent child
     if (isPlayingRemoveAnimation) return
 
     // Stable child; nothing to do but update with the new reference
