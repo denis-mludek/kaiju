@@ -9,8 +9,8 @@
     "loop": "node node_modules/devloop/bin/main.js"
   },
   "dependencies": {
-    "typescript": "next",
-    "kaiju": "0.24.1",
+    "typescript": "2.3.2",
+    "kaiju": "0.25.0",
     "snabbdom": "0.6.7",
     "abyssa": "8.0.3",
     "space-lift": "0.1.1"

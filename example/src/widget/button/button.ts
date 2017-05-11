@@ -9,7 +9,7 @@ interface Props {
   icon?: VNode
   label?: string
   className?: string
-  events?: { mousedown: EventHandler }
+  events?: { mousedown?: EventHandler<MouseEvent> }
 }
 
 export default function button({ icon, label, className = '', events }: Props) {

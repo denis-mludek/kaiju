@@ -23,7 +23,7 @@ function initState() {
 
 /** Used in the popup DOM content. Requests the popup's parent to close it */
 export const close = Message('close')
-const overlayClick = Message<Event>('overlayClick')
+const overlayClick = Message<MouseEvent>('overlayClick')
 
 
 // Listen for messages inside the popup container, and redispatch at the Popup launcher level.
@@ -33,14 +33,14 @@ function connect({ on, props, msg }: ConnectParams<Props, {}>) {
 
   on(msg.listenAt(popupLayer), (_, message) => {
 
-    if (message.is(close))
+    if (message.is(close)) {
       requestClose()
-
-    if (message.is(overlayClick)) {
+    }
+    else if (message.is(overlayClick)) {
       if (!findParentByAttr('data-popup', message.payload.target as Element))
         requestClose()
     }
-
+    else msg.sendToParent(message)
   })
 
   on(Observable.fromEvent('keydown', window), (_, evt) => {

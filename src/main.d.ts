@@ -201,11 +201,11 @@ interface Messages {
 
 // snabbdom
 
-type EventHandler =
+type EventHandler<E> =
   // Either A new created Message<Event>
-  DefaultMessage<Event> |
+  DefaultMessage<E> |
   // or a Message<[X, Event]> that was partially applied
-  PartiallyAppliedMessage<Event> |
+  PartiallyAppliedMessage<E> |
   // or a NoArgMessage that was not partially applied.
   DefaultNoArgMessage
 
@@ -237,40 +237,7 @@ interface VNodeData {
     spellcheck?: boolean
     [index: string]: any
   }
-	events?: {
-    'blur'?: EventHandler
-    'change'?: EventHandler
-    'click'?: EventHandler
-    'dblclick'?: EventHandler
-    'drag'?: EventHandler
-    'dragend'?: EventHandler
-    'dragenter'?: EventHandler
-    'dragexit'?: EventHandler
-    'dragleave'?: EventHandler
-    'dragover'?: EventHandler
-    'dragstart'?: EventHandler
-    'drop'?: EventHandler
-    'focus'?: EventHandler
-    'input'?: EventHandler
-    'keydown'?: EventHandler
-    'keypress'?: EventHandler
-    'keyup'?: EventHandler
-    'load'?: EventHandler
-    'mousedown'?: EventHandler
-    'mouseenter'?: EventHandler
-    'mouseleave'?: EventHandler
-    'mousemove'?: EventHandler
-    'mouseout'?: EventHandler
-    'mouseover'?: EventHandler
-    'mouseup'?: EventHandler
-    'mousewheel'?: EventHandler
-    'scroll'?: EventHandler
-    'submit'?: EventHandler
-    'touchcancel'?: EventHandler
-    'touchend'?: EventHandler
-    'touchmove'?: EventHandler
-    'touchstart'?: EventHandler
-  }
+  events?: { [K in keyof HTMLElementEventMap]?: EventHandler<HTMLElementEventMap[K]> }
   [s: string]: any
 }
 

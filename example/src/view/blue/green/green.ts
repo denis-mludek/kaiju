@@ -46,7 +46,7 @@ function initState(props: Props) {
 
 
 const inputChanged = Message<Event>('inputChanged')
-const showPopup = Message<Event>('showPopup')
+const showPopup = Message<MouseEvent>('showPopup')
 const hidePopup = Message('hidePopup')
 
 function connect({ on, props }: ConnectParams<Props, State>) {

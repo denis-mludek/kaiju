@@ -23,7 +23,7 @@ function initState() {
 
 
 const setScroller = Message<Element>('setScroller')
-const locallyScrolled = Message<Event>('locallyScrolled')
+const locallyScrolled = Message<UIEvent>('locallyScrolled')
 const scrollChanged = Message('scrollChanged')
 
 

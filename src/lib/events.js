@@ -10,29 +10,31 @@ function updateEventListeners(oldVnode, vnode) {
 
   if (!events) return
 
+  const listeners = oldEvents ? oldEvents.listeners : {}
+  events.listeners = listeners
+
   for (name in events) {
     const current = events[name]
     const old = oldEvents && oldEvents[name]
 
-    if (old !== current) {
+    if (current && current !== old) {
 
-      if (old && current && isSameMessageAndPayload(
+      if (old && isSameMessageAndPayload(
         current,
         current.payload,
         old,
-        old.payload)) return
+        old.payload)) continue
 
-      vnode.elm['on' + name] = current
-        ? evt => _sendToElement(evt.currentTarget, current(evt))
-        : null
+      listeners[name] = evt => _sendToElement(evt.currentTarget, current(evt))
+      vnode.elm.addEventListener(name, listeners[name])
     }
   }
 
   if (!oldEvents) return
 
   for (name in oldEvents) {
-    if (events[name] == null)
-      vnode.elm['on' + name] = null
+    if (events[name] === undefined)
+      vnode.elm.removeEventListener(name, listeners[name])
   }
 }
 

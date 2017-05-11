@@ -31,6 +31,12 @@ function dispatchMouseEventOn(target: EventTarget, name: string) {
   target.dispatchEvent(evt)
 }
 
+function dispatchTouchEventOn(target: EventTarget, name: string) {
+  const evt = document.createEvent('TouchEvent')
+  evt.initEvent(name, true, true)
+  target.dispatchEvent(evt)
+}
+
 /** Tests **/
 
 describe('Component', () => {
@@ -194,41 +200,48 @@ describe('Component', () => {
   })
 
 
-  it('can receive local messages', () => {
+  it('can receive local messages', done => {
 
     let receivedClickMessage = false
-    let receivedMouseDownMessage = false
+    let receivedTouchStartMessage = false
+    let stopListeningToClickNow: Function = () => {}
 
     const div = (() => {
-      const clickMsg = Message<Event>('click')
-      const mouseDownMsg = Message<[number, Event]>('mousedown')
+      const clickMsg = Message<MouseEvent>('click')
+      const touchStartMsg = Message<[number, TouchEvent]>('touchStart')
+      const stopListeningToClick = Message('stopListeningToClick')
 
-      function initState() { return {} }
+      type State = { listenToClick: boolean }
+      function initState() { return { listenToClick: true } }
 
-      function connect({ on }: ConnectParams<{}, {}>) {
+      function connect({ on, msg }: ConnectParams<{}, {}>) {
+        stopListeningToClickNow = () => msg.send(stopListeningToClick())
+
         on(clickMsg, (state, evt) => {
           expect(evt.currentTarget).toExist()
           receivedClickMessage = true
         })
 
-        on(mouseDownMsg, (state, [data, evt]) => {
+        on(touchStartMsg, (state, [data, evt]) => {
           expect(evt.currentTarget).toExist()
           expect(data).toBe(13)
-          receivedMouseDownMessage = true
+          receivedTouchStartMessage = true
         })
+
+        on(stopListeningToClick, state => ({ listenToClick: false }))
       }
 
-      function render() {
+      function render({ state }: RenderParams<{}, State>) {
         return h('div', {
           events: {
-            click: clickMsg,
-            mousedown: mouseDownMsg.with(13)
+            click: state.listenToClick ? clickMsg : undefined,
+            touchstart: touchStartMsg.with(13)
           }
         })
       }
 
       return function() {
-        return Component({ name: 'div', initState, connect, render })
+        return Component<{}, State>({ name: 'div', initState, connect, render })
       }
     })()
 
@@ -241,16 +254,25 @@ describe('Component', () => {
     dispatchMouseEventOn(divEl, 'click')
     expect(receivedClickMessage).toBe(true)
 
-    dispatchMouseEventOn(divEl, 'mousedown')
-    expect(receivedMouseDownMessage).toBe(true)
+    dispatchTouchEventOn(divEl, 'touchstart')
+    expect(receivedTouchStartMessage).toBe(true)
+
+    receivedClickMessage = false
+    stopListeningToClickNow()
+
+    requestAnimationFrame(() => {
+      dispatchMouseEventOn(divEl, 'click')
+      expect(receivedClickMessage).toBe(false)
+      done()
+    })
   })
 
 
   it('can forward some messages to its parent', () => {
 
-    const local = Message<Event>('local')
-    const forwarded = Message<Event>('forwarded')
-    const unknown = Message<Event>('unknown')
+    const local = Message<MouseEvent>('local')
+    const forwarded = Message<MouseEvent>('forwarded')
+    const unknown = Message<MouseEvent>('unknown')
 
     const receivedMessages: string[] = []
 
@@ -464,7 +486,7 @@ describe('Component', () => {
     let compMsg: Messages
     const texts: string[] = []
 
-    const ping = Message<[string, Event]>('ping')
+    const ping = Message<[string, MouseEvent]>('ping')
 
     const comp = (() => {
       function initState() { return {} }
@@ -494,7 +516,7 @@ describe('Component', () => {
 
       expect(texts).toEqual(['ping'])
 
-      compMsg.send(ping.with('pong')(new Event('click')))
+      compMsg.send(ping.with('pong')(new MouseEvent('click')))
 
       expect(texts).toEqual(['ping', 'pong'])
 
@@ -507,8 +529,8 @@ describe('Component', () => {
   it('can listen to any messages transiting through a DOM Element', done => {
     const receivedMessages: string[] = []
 
-    const messageFromTheRight = Message<[string, Event]>('messageFromTheRight')
-    const messageFromTheRight2 = Message<[string, Event]>('messageFromTheRight2')
+    const messageFromTheRight = Message<[string, MouseEvent]>('messageFromTheRight')
+    const messageFromTheRight2 = Message<[string, MouseEvent]>('messageFromTheRight2')
 
     const leftEl = document.createElement('main')
     document.body.appendChild(leftEl)
