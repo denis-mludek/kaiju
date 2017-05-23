@@ -1,3 +1,5 @@
+import { Result } from 'space-lift/result'
+
 /**
  * Either a Promise value or an Error thrown by the promise.
  */
@@ -139,24 +141,24 @@ export interface ObservableObject {
 
   /**
    * Creates a new Observable from a Promise. The observable will produce only one value:
-   * Either a { value: T } or an { error: any } object based on the result of the Promise.
+   * Either an Ok, or an Err (see space-lift/result) object based on the result of the Promise.
    */
-  fromPromise<T>(promise: Promise<T>): Observable<PromiseResult<T>>
+  fromPromise<T, E = never>(promise: Promise<T>): Observable<Result<E, T>>
 
   /**
    * Creates a new observable that produces undefined values at the provided interval in milliseconds.
    */
-   interval(time: number): Observable<undefined>
+  interval(time: number): Observable<undefined>
 
    /**
     * Merges all the observables into one
     */
-   merge<T>(...obss: Array<Observable<T>>): Observable<T>
+  merge<T>(...obss: Array<Observable<T>>): Observable<T>
 
    /**
     * Creates a new observable that produces one value immediately.
     */
-   pure<A>(value: A): Observable<A>
+  pure<A>(value: A): Observable<A>
 }
 
 /**

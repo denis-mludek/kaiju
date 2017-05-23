@@ -1,6 +1,6 @@
 {
   "name": "kaiju",
-  "version": "0.25.0",
+  "version": "0.26.0",
   "main": "main",
   "typings": "main.d.ts",
   "description": "Virtual dom, observables / streams and isolated components",
@@ -15,6 +15,10 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/AlexGalays/kaiju/"
+  },
+
+  "dependencies": {
+    "space-lift": "0.3.0"
   },
 
   "devDependencies": {

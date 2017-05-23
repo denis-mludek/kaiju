@@ -1,4 +1,5 @@
 import { Observable } from './'
+import { Ok, Err } from 'space-lift/result'
 
 
 export default function fromPromise(promise) {
@@ -6,8 +7,8 @@ export default function fromPromise(promise) {
     let active = true
 
     promise.then(
-      value => { if (active) add({ type: 'success', value }) },
-      error => { if (active) add({ type: 'failure', error }) }
+      value => { if (active) add(Ok(value)) },
+      error => { if (active) add(Err(error)) }
     )
 
     return () => { active = false }

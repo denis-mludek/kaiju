@@ -57,9 +57,10 @@ export default function observeAjax(options: any): any {
     ? Observable.merge(call, Observable.pure(options.callNowWith!))
     : call
 
-  const result = trigger.flatMapLatest(arg => Observable.fromPromise(ajax(arg))).map(r =>
-    r.type === 'success' ? Success(r.value) : Failure(r.error)
-  )
+  const result = trigger.flatMapLatest(arg =>
+    Observable.fromPromise<{}, {}>(ajax(arg))).map(r =>
+      r.fold(Failure, Success)
+    )
 
   const loading = trigger.map(_ => Loading)
 
