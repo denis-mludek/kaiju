@@ -1,6 +1,6 @@
 import { h, Component, VNode, Message, NoArgMessage, ConnectParams, RenderParams } from 'kaiju'
 import { Observable } from 'kaiju/observable'
-import { Option } from 'option.ts'
+import { Option } from 'space-lift'
 
 
 interface Props {
@@ -32,20 +32,20 @@ function connect({ on, props, msg }: ConnectParams<Props, {}>) {
   let scroller: Element | undefined
   const onScrollChanged = () => msg.send(scrollChanged())
 
-  Option(props().scrollOwner).match({
-    Some: scrollOwner => {
-      scroller = scrollOwner
-      onScrollChanged()
-      on(Observable.fromEvent('scroll', scrollOwner).debounce(60), onScrollChanged)
-    },
-    None: () => {
+  Option(props().scrollOwner).fold(
+    () => {
       on(setScroller, (_, localScroller) => {
         scroller = localScroller
         onScrollChanged()
       })
       on(msg.listen(locallyScrolled).debounce(60), onScrollChanged)
-    }
-  })
+    },
+    scrollOwner => {
+      scroller = scrollOwner
+      onScrollChanged()
+      on(Observable.fromEvent('scroll', scrollOwner).debounce(60), onScrollChanged)
+    },
+  )
 
   on(Observable.fromEvent('resize', window).debounce(600), onScrollChanged)
 

@@ -2,7 +2,7 @@ const styles = require('./select.styl')
 
 import { update as copy } from 'immupdate'
 import { Component, h, Message, ConnectParams, RenderParams, VNode, NoArgMessage } from 'kaiju'
-import { Option } from 'option.ts'
+import { Option } from 'space-lift'
 
 import scroller from 'widget/scroller'
 import loader from 'widget/loader'
