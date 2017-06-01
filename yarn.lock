@@ -597,7 +597,7 @@ babel-preset-stage-3@^6.3.13:
     babel-plugin-transform-exponentiation-operator "^6.22.0"
     babel-plugin-transform-object-rest-spread "^6.22.0"
 
-babel-register@6.3.13:
+babel-register@6.3.13, babel-register@^6.3.13:
   version "6.3.13"
   resolved "https://registry.yarnpkg.com/babel-register/-/babel-register-6.3.13.tgz#858b77cd7765aa5a82a33c26bbb1bc7b264713bf"
   dependencies:
@@ -609,7 +609,7 @@ babel-register@6.3.13:
     path-exists "^1.0.0"
     source-map-support "^0.2.10"
 
-babel-register@^6.24.0, babel-register@^6.3.13:
+babel-register@^6.24.0:
   version "6.24.0"
   resolved "https://registry.yarnpkg.com/babel-register/-/babel-register-6.24.0.tgz#5e89f8463ba9970356d02eb07dabe3308b080cfd"
   dependencies:
@@ -1214,6 +1214,10 @@ http-signature@~1.1.0:
 iconv-lite@0.4.13:
   version "0.4.13"
   resolved "https://registry.yarnpkg.com/iconv-lite/-/iconv-lite-0.4.13.tgz#1f88aba4ab0b1508e8312acc39345f36e992e2f2"
+
+immupdate@1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/immupdate/-/immupdate-1.1.0.tgz#e465e60320762dbd48533b984731de5d85fefc99"
 
 indent-string@^2.1.0:
   version "2.1.0"
@@ -2049,6 +2053,12 @@ source-map@~0.2.0:
   resolved "https://registry.yarnpkg.com/source-map/-/source-map-0.2.0.tgz#dab73fbcfc2ba819b4de03bd6f6eaa48164b3f9d"
   dependencies:
     amdefine ">=0.0.4"
+
+space-lift@0.3.0:
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/space-lift/-/space-lift-0.3.0.tgz#ff9b13b89c2bc30d47a1c86d2356127d63a68b4a"
+  dependencies:
+    immupdate "1.1.0"
 
 spdx-correct@~1.0.0:
   version "1.0.2"

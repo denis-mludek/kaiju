@@ -1,5 +1,0 @@
-
-
-interface Element {
-  animate: any
-}

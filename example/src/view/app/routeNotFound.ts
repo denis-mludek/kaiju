@@ -1,11 +1,9 @@
 import { h } from 'kaiju'
 
-import { RouteDef } from 'router'
+import { RouteDef } from 'route'
 
 
-export default function route() {
-  return RouteDef('notFound', {}, {
-    enter: () => () => h('h1', { key: 'notFound' }, '404 :-('),
-    children: {}
-  })
-}
+export default RouteDef('notFound', {
+  enter: () => () => h('h1', { key: 'notFound' }, '404 :-('),
+  children: {}
+})

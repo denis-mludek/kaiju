@@ -1,7 +1,7 @@
 require('./app.styl')
 
 import { h, Component, ConnectParams, RenderParams, Node, VNode } from 'kaiju'
-import { update as copy } from 'space-lift'
+import { update } from 'space-lift'
 
 import fadeAnimation from 'widget/animation/single/fade'
 import link from 'widget/link'
@@ -9,22 +9,22 @@ import index from 'view/index'
 import blue from 'view/blue'
 import notFound from 'view/app/routeNotFound'
 import createAppStore, { AppStore } from 'view/app/store'
-import { routes, RouteDef, Router, Route } from 'router'
+import { RouteDef, Router, Route, href } from 'route'
 
 
-export default function route() {
+export default (() => {
   const appStore = createAppStore()
 
-  return RouteDef('', {}, {
+  return RouteDef('', {
     enter: router => (route, child) => app({ appStore, child, router, route }),
 
     children: {
       index: index(),
       blue: blue(() => appStore),
-      notFound: notFound()
+      notFound: notFound
     }
   })
-}
+})()
 
 
 function app(props: Props) {
@@ -34,7 +34,7 @@ function app(props: Props) {
 type Props = {
   appStore: AppStore
   router: Router
-  route: Route<{}>
+  route: Route
   child: VNode
 }
 
@@ -50,7 +50,7 @@ function initState() {
 function connect({ on, props }: ConnectParams<Props, State>) {
   const store = props().appStore
 
-  on(store.state, (state, app) => copy(state, { count: app.blue.count }))
+  on(store.state, (state, app) => update(state, { count: app.blue.count }))
 }
 
 
@@ -60,17 +60,14 @@ function render({ props, state }: RenderParams<Props, State>): Node[] {
   return [
     h('header', [
       link({
-        router,
-        route: routes.index,
+        href: href(router, 'index', {}),
         label: 'Index',
-        isActive: route.isIn(routes.index)
+        isActive: route.isIn('index')
       }),
       link({
-        router,
-        route: routes.blue,
-        params: { id: '33' },
+        href: href(router, 'blue', { id: '33' }),
         label: 'Blue',
-        isActive: route.isIn(routes.blue)
+        isActive: route.isIn('blue')
       }),
       String(state.count)
     ]),

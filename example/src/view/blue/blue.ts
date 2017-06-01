@@ -3,22 +3,19 @@ const styles = require('./blue.styl')
 import { h, Component, ConnectParams, RenderParams, VNode, Node } from 'kaiju'
 import { update as copy } from 'space-lift'
 
-import slideDownAnimation from 'widget/animation/single/slideDown'
+import { RouteDef, Router, Route, href } from 'route'
 import green from 'view/blue/green'
 import red from 'view/blue/red'
 import { AppStore, incrementCounter } from 'view/app/store'
-import { routes, RouteDef, Router, Route } from 'router'
-import link from 'widget/link'
 import { UserStore } from 'view/blue/userStore'
+import link from 'widget/link'
+import slideDownAnimation from 'widget/animation/single/slideDown'
 
-
-
-type Params = { id: string }
 
 export default function blueRoute(appStore: () => AppStore) {
   let userStore: UserStore
 
-  return RouteDef('blue/:id', <Params>{}, {
+  return RouteDef('blue/:id', {
 
     enter: (router) => {
       userStore = UserStore()
@@ -36,7 +33,6 @@ export default function blueRoute(appStore: () => AppStore) {
   })
 }
 
-
 function blue(props: Props) {
   return Component<Props, State>({ name: 'blue', props, initState, connect, render })
 }
@@ -45,7 +41,7 @@ function blue(props: Props) {
 interface Props {
   child: VNode
   router: Router
-  route: Route<Params>
+  route: Route
   appStore: AppStore
 }
 
@@ -75,18 +71,14 @@ function render({ props, state }: RenderParams<Props, State>): Node[] {
   return [
     h('h1', 'Blue screen'),
     link({
-      router,
-      route: routes.blue.green,
-      params: { id },
+      href: href(router, 'blue.green', { id }),
       label: 'Green',
-      isActive: route.isIn(routes.blue.green)
+      isActive: route.isIn('blue.green')
     }),
     link({
-      router,
-      route: routes.blue.red,
-      params: { id },
+      href: href(router, 'blue.red', { id }),
       label: 'Red',
-      isActive: route.isIn(routes.blue.red)
+      isActive: route.isIn('blue.red')
     }),
     h(`div.${styles.increment}`, [
       'Count: ' + state.count,

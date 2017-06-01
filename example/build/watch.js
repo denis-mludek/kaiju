@@ -10,9 +10,6 @@ var extractStyl = ExtractTextPlugin.extract({
   ]
 })
 
-var tsconfig = path.resolve('../tsconfig')
-
-
 module.exports = {
   entry: './src/main.ts',
 

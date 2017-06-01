@@ -2,19 +2,17 @@ const styles = require('./green.styl')
 const listStyles = require('./list.styl')
 
 import { Component, h, Message, ConnectParams, RenderParams, Hook } from 'kaiju'
-import { update as copy } from 'space-lift'
+import { update } from 'space-lift'
 
 import { editIcon } from 'icon'
 import popup, * as Popup from 'widget/popup'
 import button from 'widget/button'
 import fadeScaleAnimation from 'widget/animation/group/fadeScale'
-import { RouteDef, Router, Route } from 'router'
+import { RouteDef, Router, Route } from 'route'
 
-
-type Params = { id: string, popup?: string }
 
 export default function route() {
-  return RouteDef('green?popup', <Params>{}, {
+  return RouteDef('green?popup', {
     enter: router => route => green({ router, route }),
     children: {}
   })
@@ -28,7 +26,7 @@ function green(props: Props) {
 
 interface Props {
   router: Router
-  route: Route<Params>
+  route: Route
 }
 
 interface State {
@@ -54,20 +52,20 @@ function connect({ on, props }: ConnectParams<Props, State>) {
 
   on(inputChanged, (state, evt) => {
     const { name, value } = evt.target as HTMLInputElement
-    const newForm = copy(state.form, { [name]: value })
-    return copy(state, { form: newForm })
+    const newForm = update(state.form, { [name]: value })
+    return update(state, { form: newForm })
   })
 
   on(showPopup, state => {
-    const params = copy(props().route.params, { popup: 'true' })
+    const params = update(props().route.params, { popup: 'true' })
     router.replaceParams(params)
-    return copy(state, { popupOpened: true })
+    return update(state, { popupOpened: true })
   })
 
   on(hidePopup, state => {
-    const params = copy(props().route.params, { popup: undefined })
+    const params = update(props().route.params, { popup: undefined! })
     router.replaceParams(params)
-    return copy(state, { popupOpened: false })
+    return update(state, { popupOpened: false })
   })
 }
 

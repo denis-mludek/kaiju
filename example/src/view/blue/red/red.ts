@@ -3,14 +3,14 @@ const styles = require('./red.styl')
 import { update as copy } from 'space-lift'
 import { h, Component, ConnectParams, RenderParams, Message } from 'kaiju'
 
-import { RouteDef } from 'router'
+import { RouteDef } from 'route'
 import { UserStore, Users, reloadUsers, loadNextUserPage } from 'view/blue/userStore'
 import select from 'widget/select'
 import { unpack } from 'util/remoteData'
 
 
 export default function route(userStore: () => UserStore) {
-  return RouteDef('red', {}, {
+  return RouteDef('red', {
     enter: () => () => red({ userStore: userStore() }),
     children: {}
   })
