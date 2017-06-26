@@ -1,5 +1,7 @@
 # dompteuse
 
+# **NOTE: This an archive branch of the first flux-based approach to modelize local state **
+
 ![© DC Comics](http://i171.photobucket.com/albums/u320/boubiyeah/Original_Catwoman_Design_zpsokgquwmu.jpg)
 
 Fast Virtual DOM with Reactive updating.
