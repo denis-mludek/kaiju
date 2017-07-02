@@ -47,7 +47,12 @@ export interface RenderParams<P, S> {
   context: {}
 }
 
-interface ComponentOptions<P extends { key?: string | number }, S extends {}> {
+interface Props {
+  key?: string | number
+  [key: string]: any
+}
+
+interface ComponentOptions<P extends Props, S extends {}> {
   name: string
   sel?: string
   props?: P
@@ -59,7 +64,7 @@ interface ComponentOptions<P extends { key?: string | number }, S extends {}> {
 /**
  * Creates a VNode that has a Component lifecycle.
  */
-export function Component<P extends { key?: string | number }, S extends {}>(options: ComponentOptions<P, S>): VNode
+export function Component<P extends Props, S extends {}>(options: ComponentOptions<P, S>): VNode
 
 // Internals
 

@@ -597,18 +597,6 @@ babel-preset-stage-3@^6.3.13:
     babel-plugin-transform-exponentiation-operator "^6.22.0"
     babel-plugin-transform-object-rest-spread "^6.22.0"
 
-babel-register@6.3.13, babel-register@^6.3.13:
-  version "6.3.13"
-  resolved "https://registry.yarnpkg.com/babel-register/-/babel-register-6.3.13.tgz#858b77cd7765aa5a82a33c26bbb1bc7b264713bf"
-  dependencies:
-    babel-core "^6.3.13"
-    babel-runtime "^5.0.0"
-    core-js "^1.0.0"
-    home-or-tmp "^1.0.0"
-    lodash "^3.10.0"
-    path-exists "^1.0.0"
-    source-map-support "^0.2.10"
-
 babel-register@^6.24.0:
   version "6.24.0"
   resolved "https://registry.yarnpkg.com/babel-register/-/babel-register-6.24.0.tgz#5e89f8463ba9970356d02eb07dabe3308b080cfd"
@@ -620,6 +608,18 @@ babel-register@^6.24.0:
     lodash "^4.2.0"
     mkdirp "^0.5.1"
     source-map-support "^0.4.2"
+
+babel-register@^6.3.13:
+  version "6.3.13"
+  resolved "https://registry.yarnpkg.com/babel-register/-/babel-register-6.3.13.tgz#858b77cd7765aa5a82a33c26bbb1bc7b264713bf"
+  dependencies:
+    babel-core "^6.3.13"
+    babel-runtime "^5.0.0"
+    core-js "^1.0.0"
+    home-or-tmp "^1.0.0"
+    lodash "^3.10.0"
+    path-exists "^1.0.0"
+    source-map-support "^0.2.10"
 
 babel-runtime@^5.0.0:
   version "5.8.38"
@@ -2016,9 +2016,9 @@ slash@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/slash/-/slash-1.0.0.tgz#c41f2f6c39fc16d1cd17ad4b5d896114ae470d55"
 
-snabbdom@0.6.5:
-  version "0.6.5"
-  resolved "https://registry.yarnpkg.com/snabbdom/-/snabbdom-0.6.5.tgz#01b0cba8d623eca19e570876630c12c057830066"
+snabbdom@0.6.7:
+  version "0.6.7"
+  resolved "https://registry.yarnpkg.com/snabbdom/-/snabbdom-0.6.7.tgz#045d9fc292574fe3597578bde2d9c403f79a1352"
 
 sntp@1.x.x:
   version "1.0.9"
@@ -2202,9 +2202,9 @@ type-check@~0.3.2:
   dependencies:
     prelude-ls "~1.1.2"
 
-typescript@2.3.2:
-  version "2.3.2"
-  resolved "https://registry.yarnpkg.com/typescript/-/typescript-2.3.2.tgz#f0f045e196f69a72f06b25fd3bd39d01c3ce9984"
+typescript@2.4.1:
+  version "2.4.1"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-2.4.1.tgz#c3ccb16ddaa0b2314de031e7e6fee89e5ba346bc"
 
 uid-number@~0.0.6:
   version "0.0.6"

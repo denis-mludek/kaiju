@@ -758,6 +758,56 @@ describe('Component', () => {
 
   })
 
+  it('can render another component', done => {
+
+    let divDestroyed = false
+
+    const childComp = (() => {
+
+      function initState() { return {} }
+
+      function connect() {}
+
+      function render() {
+        return [h('div', { hook: { destroy: () => divDestroyed = true } })]
+      }
+
+      return function() {
+        return Component<{}, {}>({ name: 'child', initState, connect, render })
+      }
+    })()
+
+    const comp = (() => {
+
+      function initState() { return {} }
+
+      function connect() {}
+
+      function render() {
+        return childComp()
+      }
+
+      return function() {
+        return Component<{}, {}>({ name: 'parent', initState, connect, render })
+      }
+    })()
+
+    const app = comp()
+
+    Render.into(document.body, app, () => {
+      expect(document.body.firstElementChild!.tagName).toBe('COMPONENT')
+      expect(document.body.firstElementChild!.firstElementChild!.tagName).toBe('COMPONENT')
+      expect(document.body.firstElementChild!.firstElementChild!.firstElementChild!.tagName).toBe('DIV')
+
+      // Destroy the component
+      Render.into(app, h('div'), () => {
+        expect(divDestroyed).toBe(true)
+        done()
+      })
+    })
+
+  })
+
 
   // it('can create partially applied Messages at a fair speed', () => {
   //   const message = Message<[string, number]>('')
