@@ -112,7 +112,11 @@ describe('Store', () => {
       on(pong, state => store.send(ping()))
     })
 
-    expect(() => store.send(ping())).toThrow()
+    function sendPing() {
+      store.send(ping())
+    }
+
+    expect(sendPing).toThrow()
 
     // Some cycles are allowed
     expect(pingCount).toBe(5)
