@@ -5,7 +5,7 @@
 kaiju is a view layer used to build an efficient tree of stateless/stateful components and help you manage that tree data.  
 
 
-- Data management (local/global/inter-component/intra-component) is unified
+- Data management (local/global/inter-component/intra-component) is unified via stores (FSM)
 - Fast, thanks to [snabbdom](https://github.com/paldepind/snabbdom), aggressive component rendering isolation (a key stroke in one input component should not re-evaluate the whole app) and async RAF rendering
 - Changes can easily be animated (also thanks to snabbdom)
 - Global and local state can optionally use Observables for greater composition

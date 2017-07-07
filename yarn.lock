@@ -2016,9 +2016,9 @@ slash@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/slash/-/slash-1.0.0.tgz#c41f2f6c39fc16d1cd17ad4b5d896114ae470d55"
 
-snabbdom@0.6.7:
-  version "0.6.7"
-  resolved "https://registry.yarnpkg.com/snabbdom/-/snabbdom-0.6.7.tgz#045d9fc292574fe3597578bde2d9c403f79a1352"
+snabbdom@0.6.9:
+  version "0.6.9"
+  resolved "https://registry.yarnpkg.com/snabbdom/-/snabbdom-0.6.9.tgz#65a392f4c82ca7e8ec72aa0d2fa797cf5c73b8d7"
 
 sntp@1.x.x:
   version "1.0.9"
@@ -2054,9 +2054,9 @@ source-map@~0.2.0:
   dependencies:
     amdefine ">=0.0.4"
 
-space-lift@0.3.0:
-  version "0.3.0"
-  resolved "https://registry.yarnpkg.com/space-lift/-/space-lift-0.3.0.tgz#ff9b13b89c2bc30d47a1c86d2356127d63a68b4a"
+space-lift@0.3.1:
+  version "0.3.1"
+  resolved "https://registry.yarnpkg.com/space-lift/-/space-lift-0.3.1.tgz#1e3d260e2957015f7e547d162ff93de8ea04bdb7"
   dependencies:
     immupdate "1.1.0"
 

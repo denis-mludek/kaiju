@@ -1,6 +1,6 @@
 {
   "name": "kaiju",
-  "version": "0.26.2",
+  "version": "0.26.3",
   "main": "main",
   "typings": "main.d.ts",
   "description": "Virtual dom, observables / streams and isolated components",
@@ -17,13 +17,10 @@
     "url": "https://github.com/AlexGalays/kaiju/"
   },
 
-  "dependencies": {
-    "space-lift": "0.3.1"
-  },
-
   "devDependencies": {
     "typescript": "2.4.1",
-    "snabbdom": "0.6.7",
+    "snabbdom": "0.6.9",
+    "space-lift": "0.3.1",
     "babel-cli": "6.4.5",
     "babel-preset-es2015": "6.14.0",
     "babel-preset-es2015-loose": "7.0.0",
