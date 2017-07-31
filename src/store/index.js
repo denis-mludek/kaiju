@@ -7,7 +7,7 @@ import log from '../lib/log'
  * A Store is an Observable that is guaranteed to have an initial value
  * and can be modified from the outside by type-safe messages.
  */
-export default function Store(initialState, registerHandlers, options = empty) {
+export function Store(initialState, registerHandlers, options = empty) {
   const store = {}
 
   // Message handlers for the on(message) syntax

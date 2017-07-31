@@ -1,9 +1,7 @@
 {
   "name": "kaiju",
-  "version": "0.26.3",
-  "main": "main",
-  "typings": "main.d.ts",
-  "description": "Virtual dom, observables / streams and isolated components",
+  "version": "0.27.0",
+  "description": "Virtual dom, observables / streams and stateful components",
   "keywords": ["virtual dom", "vdom", "model", "stream", "observable", "component", "framework"],
   "homepage": "https://github.com/AlexGalays/kaiju/",
 
@@ -17,14 +15,22 @@
     "url": "https://github.com/AlexGalays/kaiju/"
   },
 
+  "main": "commonjs/main",
+  "module": "es/main",
+  "typings": "commonjs/main.d.ts",
+
+  "files": [
+    "commonjs",
+    "es"
+  ],
+
   "devDependencies": {
-    "typescript": "2.4.1",
+    "typescript": "2.4.2",
     "snabbdom": "0.6.9",
-    "space-lift": "0.3.1",
+    "space-lift": "0.4.1",
     "babel-cli": "6.4.5",
-    "babel-preset-es2015": "6.14.0",
-    "babel-preset-es2015-loose": "7.0.0",
-    "babel-preset-stage-2": "6.3.13",
+    "babel-preset-es2015": "6.24.0",
+    "babel-preset-es2015-no-commonjs": "0.0.2",
     "mocha": "2.2.5",
     "expect": "1.8.0",
     "jsdom": "10.1.0",
@@ -32,22 +38,18 @@
   },
 
   "scripts": {
-    "copy-typings": "cd src && find . -name '*.d.ts' | cpio -pdm ../temp",
-    "babel": "node node_modules/babel-cli/bin/babel.js src --out-dir temp",
-    "copy-lib-to-root": "cp -r temp/. .",
-    "copy-lib-to-example": "cp -rf temp/. example/node_modules/kaiju",
-    "delete-temp-folder": "rm -rf temp",
-    "build": "npm run copy-typings && npm run babel && npm run copy-lib-to-root && npm run delete-temp-folder",
-    "example-dev": "npm run copy-typings && npm run babel && npm run copy-lib-to-root && npm run copy-lib-to-example && npm run delete-temp-folder",
+    "copy-typings-commonjs": "cd src && find . -name '*.d.ts' | cpio -pdm ../commonjs",
+    "copy-typings-es": "cd src && find . -name '*.d.ts' | cpio -pdm ../es",
+
+    "babel-commonjs": "BABEL_ENV=commonjs node node_modules/babel-cli/bin/babel.js src --out-dir commonjs",
+    "babel-es": "BABEL_ENV=es node node_modules/babel-cli/bin/babel.js src --out-dir es",
+
+    "copy-lib-to-example": "cp -rf commonjs/. example/node_modules/kaiju/commonjs",
+    "example-dev": "npm run copy-typings-commonjs && npm run babel-commonjs && npm run copy-lib-to-example",
+
+    "build": "npm run copy-typings-commonjs && npm run copy-typings-es && npm run babel-commonjs && npm run babel-es",
+    
     "pretest": "npm run build && find test -name '*.ts' | xargs tsc --outDir ./test --noImplicitAny --strictNullChecks --lib dom,es5,es6",
     "test": "mocha --recursive --timeout 300"
-  },
-
-  "files": [
-    "observable",
-    "store",
-    "lib",
-    "main.js",
-    "main.d.ts"
-  ]
+  }
 }

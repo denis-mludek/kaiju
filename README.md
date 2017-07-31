@@ -306,7 +306,7 @@ To see observables in action, check the [example's ajax abstraction](https://git
 
 
 ```ts
-import { Observable } from 'kaiju/observable'
+import { Observable } from 'kaiju'
 
 const obs = Observable.pure(100).map(x => x * 2).delay(200)
 ```
@@ -542,7 +542,7 @@ function connect({ on }: ConnectProps<Props, State>) {
 As an intellectual exercice, this is what happens under the hood:   
 
 ```ts
-import Observable from 'kaiju/observable'
+import { Observable } from 'kaiju'
 
 function connect({ on }: ConnectProps<Props, State>) {
   const observeDestruction = Observable(_ => () => {
@@ -626,8 +626,7 @@ The difference is that a Store's state can be updated from the outside via `Mess
 Example:  
 ```ts
 
-import { Message } from 'kaiju'
-import Store from 'kaiju/store'
+import { Store, Message } from 'kaiju'
 import merge from './util/obj/merge' // Fictitious
 
 
@@ -737,7 +736,7 @@ Note 1: props and state are separated exactly like in `React` as it works great.
 Note 2: If you wish to compute some state or generally perform a side effect based on whether some part of the props changed (similar to using `componentWillReceiveProps` in react) you can use the sliding2 combinator to compare the previous props with the ones:  
 
 ```ts
-import { Observable } from 'kaiju/observable'
+import { Observable } from 'kaiju'
 
 on(props.sliding2(), (state, [newProps, oldProps]) => ...)
 ```

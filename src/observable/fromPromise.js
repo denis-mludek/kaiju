@@ -1,5 +1,5 @@
 import { Observable } from './'
-import { Ok, Err } from 'space-lift/result'
+import { Ok, Err } from 'space-lift'
 
 
 export default function fromPromise(promise) {

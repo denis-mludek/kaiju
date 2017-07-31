@@ -3,7 +3,7 @@ import { renderComponentNextFrame, renderComponentNow, renderNewComponentNow } f
 import { shallowEqual } from './util'
 import Messages from './messages'
 import { Observable } from '../observable'
-import Store from '../store'
+import { Store } from '../store'
 import log, { shouldLog } from './log'
 
 

@@ -72,7 +72,7 @@ interface StoreOptions {
 /**
  * Creates a new store.
  */
-export default function Store<S>(
+export function Store<S>(
   initialState: S,
   registerHandlers: (on: RegisterMessages<S>, msg: Messages) => void,
   options?: StoreOptions

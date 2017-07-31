@@ -1,5 +1,5 @@
 import * as expect from 'expect'
-import { Observable } from '../observable'
+import { Observable } from '..'
 
 
 describe('Observable', () => {

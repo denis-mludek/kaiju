@@ -7,6 +7,8 @@ import { setPatchFunction, renderSync, Render } from './lib/render'
 import Component from './lib/component'
 import Message from './lib/message'
 import { eventsModule } from './lib/events'
+import { Observable } from './observable'
+import { Store } from './store'
 import log from './lib/log'
 
 
@@ -19,6 +21,8 @@ function startApp({ app, elm, replaceElm, snabbdomModules }) {
 export {
   Component,
   Message,
+  Observable,
+  Store,
   startApp,
   log,
   Render,

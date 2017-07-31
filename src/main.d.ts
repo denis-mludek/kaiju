@@ -102,11 +102,11 @@ export interface NoArgMessage {
   (): MessagePayload<undefined>
 }
 
-interface DefaultNoArgMessage extends NoArgMessage {
+export interface DefaultNoArgMessage extends NoArgMessage {
   type: 'defaultNoArgMessage'
 }
 
-interface DefaultMessage<P> extends Message<P> {
+export interface DefaultMessage<P> extends Message<P> {
   type: 'defaultMessage'
 
   /**
@@ -150,7 +150,7 @@ export var Message: MessageObject
 /**
  * The payload of a Message.
  */
-interface MessagePayload<P> {
+export interface MessagePayload<P> {
   _id: number
   _name: string
   payload: P
@@ -166,7 +166,7 @@ interface MessagePayload<P> {
   is<T>(message: Message<T>): this is MessagePayload<T>
 }
 
-interface Messages {
+export interface Messages {
   /**
    * Listens to a message sent from immediate VNodes or component children
    */
@@ -300,3 +300,6 @@ export const Render: {
   /** Schedules a DOM write operation to be batched with all the other writes at the end of next frame's render. Prevents layout trashing. **/
   scheduleDOMWrite(callback: () => void): void
 }
+
+export { Observable } from './observable'
+export { Store } from './store'

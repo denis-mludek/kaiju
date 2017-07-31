@@ -2,7 +2,7 @@ require('jsdom-global')()
 global.requestAnimationFrame = (fn: Function) => setTimeout(fn, 1)
 
 import * as expect from 'expect'
-import { Render, h, Component, startApp, VNode } from '../'
+import { Render, h, Component, startApp, VNode } from '..'
 
 
 describe('Render', () => {

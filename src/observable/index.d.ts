@@ -1,4 +1,4 @@
-import { Result } from 'space-lift/result'
+import { Result } from 'space-lift'
 
 /**
  * Either a Promise value or an Error thrown by the promise.

@@ -1,10 +1,9 @@
 .DS_Store
 node_modules
 
-/observable
-/store
-/lib
+commonjs
+es
+
 /test/*.js
-/main.js
-/main.d.ts
+
 *.log

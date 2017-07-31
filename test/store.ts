@@ -1,7 +1,5 @@
 import * as expect from 'expect'
-import { Observable } from '../observable'
-import { Message } from '../'
-import Store from '../store'
+import { Message, Observable, Store } from '..'
 
 
 describe('Store', () => {
