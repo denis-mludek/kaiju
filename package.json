@@ -1,7 +1,7 @@
 {
   "name": "kaiju",
-  "version": "0.27.0",
-  "description": "Virtual dom, observables / streams and stateful components",
+  "version": "0.27.1",
+  "description": "Virtual dom, observables and stateful components",
   "keywords": ["virtual dom", "vdom", "model", "stream", "observable", "component", "framework"],
   "homepage": "https://github.com/AlexGalays/kaiju/",
 
@@ -27,7 +27,7 @@
   "devDependencies": {
     "typescript": "2.4.2",
     "snabbdom": "0.6.9",
-    "space-lift": "0.4.1",
+    "space-lift": "0.4.3",
     "babel-cli": "6.4.5",
     "babel-preset-es2015": "6.24.0",
     "babel-preset-es2015-no-commonjs": "0.0.2",

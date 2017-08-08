@@ -2091,9 +2091,9 @@ source-map@~0.2.0:
   dependencies:
     amdefine ">=0.0.4"
 
-space-lift@0.4.1:
-  version "0.4.1"
-  resolved "https://registry.yarnpkg.com/space-lift/-/space-lift-0.4.1.tgz#c901322fb9399fa9de028d8208cf3532a505a5f4"
+space-lift@0.4.3:
+  version "0.4.3"
+  resolved "https://registry.yarnpkg.com/space-lift/-/space-lift-0.4.3.tgz#9e751505796c302dff8d4aa01e8354e6c30ab344"
   dependencies:
     immupdate "1.1.4"
 
