@@ -760,7 +760,8 @@ describe('Component', () => {
 
   it('can render another component', done => {
 
-    let divDestroyed = false
+    let childWasDestroyed = false
+    const childDestroyed = Message('childDestroyed')
 
     const childComp = (() => {
 
@@ -768,8 +769,12 @@ describe('Component', () => {
 
       function connect() {}
 
-      function render() {
-        return [h('div', { hook: { destroy: () => divDestroyed = true } })]
+      function render({ msg }: RenderParams<{}, {}>) {
+        return h('div', {
+          hook: {
+            destroy: () => msg.sendToParent(childDestroyed())
+          }
+        })
       }
 
       return function() {
@@ -781,7 +786,9 @@ describe('Component', () => {
 
       function initState() { return {} }
 
-      function connect() {}
+      function connect({ on }: ConnectParams<{}, {}>) {
+        on(childDestroyed, () => childWasDestroyed = true)
+      }
 
       function render() {
         return childComp()
@@ -801,7 +808,7 @@ describe('Component', () => {
 
       // Destroy the component
       Render.into(app, h('div'), () => {
-        expect(divDestroyed).toBe(true)
+        expect(childWasDestroyed).toBe(true)
         done()
       })
     })
