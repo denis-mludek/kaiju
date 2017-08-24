@@ -2,7 +2,7 @@
 
 ![logo](https://s-media-cache-ak0.pinimg.com/236x/b4/c5/20/b4c5200e59fceaf6a5a92c11a77db95f.jpg)
 
-kaiju is a view layer used to build an efficient tree of stateless/stateful components and help you manage that tree data.  
+kaiju is a view layer used to build an efficient tree of stateless/stateful components and help you manage that tree data.
 
 
 - Data management (local/global/inter-component/intra-component) is unified via stores (FSM)
@@ -43,11 +43,11 @@ kaiju is a view layer used to build an efficient tree of stateless/stateful comp
 <a name="componentization"></a>
 # Components: step by step guide
 
-`kaiju` adds the concept of encapsulated components to `snabbdom`'s pure functional virtual dom.  
+`kaiju` adds the concept of encapsulated components to `snabbdom`'s pure functional virtual dom.
 Standard Virtual nodes and components are composed to build a `VNode` tree that can scale in size and complexity.
 A `VNode` is what you get when calling `snabbdom`'s `h` function for instance.
 
-A component is simply a function that takes an option object as an argument and returns a `VNode` ready to be used inside its parent children, i.e, this is a valid array of `VNodes`:  
+A component is simply a function that takes an option object as an argument and returns a `VNode` ready to be used inside its parent children, i.e, this is a valid array of `VNodes`:
 
 ```ts
 [
@@ -67,7 +67,7 @@ function button() {
 }
 ```
 
-1) For comparison sake, here is the simplest stateful component definition one can write:  
+1) For comparison sake, here is the simplest stateful component definition one can write:
 
 ```ts
 import { Component, h } from 'kaiju'
@@ -87,7 +87,7 @@ function render() {
 
 Now, that isn't terribly useful because we really want our component to be stateful, else we would just use a regular `VNode` object.
 
-2) Let's add some state, and make it change over time:  
+2) Let's add some state, and make it change over time:
 
 
 ```ts
@@ -120,10 +120,10 @@ function render({ state }: RenderParams<void, State>) {
 }
 ```
 
-Now we created a `Message` named click that is locally sent to our component whenever the user clicks on the button.  
-We handle that message in `connect` and return the new state of our component. The component will then redraw with that new state.  
+Now we created a `Message` named click that is locally sent to our component whenever the user clicks on the button.
+We handle that message in `connect` and return the new state of our component. The component will then redraw with that new state.
 
-Using explicit Messages instead of callbacks to update our state brings consistency with other kinds of (external) state management and makes state debugging easier since messages can be traced and logged (see [logging](#api-logging)).  
+Using explicit Messages instead of callbacks to update our state brings consistency with other kinds of (external) state management and makes state debugging easier since messages can be traced and logged (see [logging](#api-logging)).
 
 
 In the above code, `on(click)` is in fact a shortcut for `on(msg.listen(click))`.
@@ -136,8 +136,8 @@ function connect({ on, msg }: ConnectParams<{}, State>) {
 ```
 
 What `msg.listen(click)` returns is an [Observable](#observables) that emits new values (the payload of each message)
-every time the message is sent.  
-This is very useful because observables can easily be composed:  
+every time the message is sent.
+This is very useful because observables can easily be composed:
 
 ```ts
 
@@ -148,10 +148,10 @@ function connect({ on, msg }: ConnectParams<{}, State>) {
 }
 ```
 
-Now, the state is only updated if we stopped clicking for 1 second.  
+Now, the state is only updated if we stopped clicking for 1 second.
 
-We could also decide to just perform a side effect, instead of updating the component's state.  
-When performing side effects (void/undefined is returned) the component is not redrawn:  
+We could also decide to just perform a side effect, instead of updating the component's state.
+When performing side effects (void/undefined is returned) the component is not redrawn:
 
 ```ts
 
@@ -163,7 +163,7 @@ function connect({ on, msg }: ConnectParams<{}, State>) {
 ```
 
 
-Our component now has an internal state and we know how to update it. But it's also completely opaque from the outside!  
+Our component now has an internal state and we know how to update it. But it's also completely opaque from the outside!
 In a tree of `VNodes`, parents must often be able to influence the rendering of their children.
 
 3) For that purpose, we introduce props:
@@ -209,12 +209,12 @@ function render({ props, state }: RenderParams<Props, State>) {
 ```
 
 Now our parent can render the component with more control: It can set the default text that should be displayed initially, but also
-directly sets the paragraph text of the `p` tag.  
+directly sets the paragraph text of the `p` tag.
 
 When composing components, you must choose which component should own which piece of state. Disregarding global state for now, local state can reside in a component or any of its parent hierarchy.
 
 
-4) Let's see how we can move the previous button `text` state one level up, so that the component parent can directly change that state:  
+4) Let's see how we can move the previous button `text` state one level up, so that the component parent can directly change that state:
 
 
 ```ts
@@ -285,7 +285,7 @@ function button(props: Props) {
 # Observables
 
 `kaiju` comes with an implementation of observables (also known as streams) so that components can more easily declare
-how their state should change based on user input and any other observable changes in the application.  
+how their state should change based on user input and any other observable changes in the application.
 
 Observables are completely optional: If you are more confident with just sending messages around every time the state should update, you can do that too.
 
@@ -311,7 +311,7 @@ import { Observable } from 'kaiju'
 const obs = Observable.pure(100).map(x => x * 2).delay(200)
 ```
 
-The Observable OO API:  
+The Observable OO API:
 
 ```ts
 interface Observable<T> {
@@ -342,7 +342,7 @@ interface Observable<T> {
   delay(delay: number): Observable<T>
 
   /**
-   * Drops 'count' initial values.  
+   * Drops 'count' initial values.
    * Note: This can also be used to drop the initial value when subscribing to an Observable, if it had seen a value previously.
    */
   drop(count: number): Observable<T>
@@ -390,7 +390,7 @@ interface Observable<T> {
 }
 ```
 
-The Observable static API:  
+The Observable static API:
 
 ```ts
 
@@ -441,7 +441,7 @@ component's initial state is updated immediately.
 Both `initState` and `connect` are called only once when the component first appears.
 
 ## Update
-- At any point in time, the component will re-render if either is true:  
+- At any point in time, the component will re-render if either is true:
   - The parent rerenders the component with **changed** props (shallow comparison)
   - An Observable registered in `connect` is updated, and an **updated** state (shallow comparison) is returned in its handler.
 
@@ -456,7 +456,7 @@ Additionally, for any of these phases, the snabbdom [hooks](https://github.com/s
 
 **Initiate the component state from the initial props**
 
-Return the init state in `initState`:  
+Return the init state in `initState`:
 ```ts
 function initState(props: Props) {
    return { enabled: props.isEnabledByDefault }
@@ -465,7 +465,7 @@ function initState(props: Props) {
 
 **Continuously compute a part of the component state from its props (e.g perf optimization)**
 
-Derive some state from the props Observable in `connect`:  
+Derive some state from the props Observable in `connect`:
 
 ```ts
 function connect({ on, props }: ConnectParams<Props, State>) {
@@ -478,7 +478,7 @@ an observable that always have an initial value (the handler will be called sync
 **Recompute the component state if its props changed in a specific way**
 
 This is a specialization of the above that avoid doing unnecessary work.
-We just have to remember the last props and compare it with the new ones:  
+We just have to remember the last props and compare it with the new ones:
 
 ```ts
 function connect({ on, props }: ConnectParams<Props, State>) {
@@ -492,13 +492,13 @@ Note however that for inexpensive computations, it is generally advised to simpl
 
 **Perform a side effect when the component is added or removed**
 
-Use a snabbdom hook.  
-Note: refrain from sending a message in those hooks, it is generally a design smell.  
+Use a snabbdom hook.
+Note: refrain from sending a message in those hooks, it is generally a design smell.
 
-`create` is called before the element is added to the DOM,  
-`insert` is called after the element is added the DOM,  
-`remove` is called when the node's direct parent removes this node,  
-`destroy` is called when this node is directly or indirectly being removed from the vnode tree.  
+`create` is called before the element is added to the DOM,
+`insert` is called after the element is added the DOM,
+`remove` is called when the node's direct parent removes this node,
+`destroy` is called when this node is directly or indirectly being removed from the vnode tree.
 
 ```ts
 function render() {
@@ -510,7 +510,7 @@ function render() {
 
 **Alter the DOM when the component was rendered**
 
-Use the `postpatch` snabbdom hook.  
+Use the `postpatch` snabbdom hook.
 
 ```ts
 function render() {
@@ -521,9 +521,9 @@ function render() {
 ```
 
 
-**Clean up a setInterval or remove a DOM event listener when the component is removed**  
-Good news everyone! You don't need to, if you use observables.  
-Observables are automatically cleaned up when the component is removed.  
+**Clean up a setInterval or remove a DOM event listener when the component is removed**
+Good news everyone! You don't need to, if you use observables.
+Observables are automatically cleaned up when the component is removed.
 
 ```ts
 function connect({ on }: ConnectProps<Props, State>) {
@@ -539,28 +539,28 @@ function connect({ on }: ConnectProps<Props, State>) {
 }
 ```
 
-As an intellectual exercice, this is what happens under the hood:   
+As an intellectual exercice, this is what happens under the hood:
 
 ```ts
 import { Observable } from 'kaiju'
 
 function connect({ on }: ConnectProps<Props, State>) {
   const observeDestruction = Observable(_ => () => {
-    /* This is the cleanup function that is called when there are no longer any subscribers  
-       to the observable. It will be  called when the component gets removed,  
+    /* This is the cleanup function that is called when there are no longer any subscribers
+       to the observable. It will be  called when the component gets removed,
        provided the component was the sole subscriber */
   })
   on(observeDestruction, () => {})
 }
 ```
 
-**Store some info in the current component for later use**  
-e.g  
-**Instantiate/destroy a vanillaJS widget when the component is added/removed**  
+**Store some info in the current component for later use**
+e.g
+**Instantiate/destroy a vanillaJS widget when the component is added/removed**
 
-We can send a message from a DOM hook.  
+We can send a message from a DOM hook.
 
-Assuming we found some vanillaJS widget named `widget.Map` that has a `create` and `destroy` method:  
+Assuming we found some vanillaJS widget named `widget.Map` that has a `create` and `destroy` method:
 ```ts
 
 const inserted = Message<Element>('inserted')
@@ -583,8 +583,8 @@ function render({ props, state, msg }: RenderParams<Props, State> & { context: C
   )
 }
 ```
-Note that this kind of Message sent from a DOM lifecycle hook should always perform side effects only.  
-If the state is updated, a warning will be logged and the component will ignore that change.  
+Note that this kind of Message sent from a DOM lifecycle hook should always perform side effects only.
+If the state is updated, a warning will be logged and the component will ignore that change.
 
 
 <a name="localglobalstate"></a>
@@ -596,19 +596,20 @@ based on new needs.
 
 You typically want to keep very transient state as local as possible so that it remains encapsulated in a component and do not leak up. Less stateful components are more flexible because their parents can do what they want with that
 component, but stateful components are more productive and less error prone, as you can skip having boilerplate to wire the same
-parent state => component props everywhere it's used.  
+parent state => component props everywhere it's used.
 
-<br />
+
 **Example of typically local state**
 * Whether a select dropdown is opened
 * Whether the component is focused
 * Which grid row is highlighted
 * Basically any state that resets if the user navigates away then comes back
 
-Additionally, keeping state that is only useful to one screen should be kept inside the top-most component of that screen and no higher. Else, you would have to manually clean up that state when exiting the component.  
+Additionally, keeping state that is only useful to one screen should be kept inside the top-most component of that screen and no higher. Else, you would have to manually clean up that state when exiting the component.
 
-That just leaves global state, which can be updated from anywhere and is accessed from multiple screens.  
-<br />
+That just leaves global state, which can be updated from anywhere and is accessed from multiple screens.
+
+
 **Example of typically global state**
 * The current url route
 * User preferences
@@ -618,12 +619,12 @@ That just leaves global state, which can be updated from anywhere and is accesse
 <a name="stores"></a>
 ## Stores
 
-A construct is provided to easily build push-based observables in a type-safe manner. This is entirely optional.  
+A construct is provided to easily build push-based observables in a type-safe manner. This is entirely optional.
 
 If you need a piece of state to live outside a component (it's not tied to a particular component's lifecycle), or you want your components to only care about presentational logic, you can either use Observables or Stores.
-The difference is that a Store's state can be updated from the outside via `Messages` and is guaranteed to have an initial value whereas an Observable can only be transformed via operators.   
+The difference is that a Store's state can be updated from the outside via `Messages` and is guaranteed to have an initial value whereas an Observable can only be transformed via operators.
 
-Example:  
+Example:
 ```ts
 
 import { Store, Message } from 'kaiju'
@@ -677,15 +678,15 @@ userStore.send(setUserName('Monique'))
 <a name="api-h"></a>
 ## Creating a VNode with h
 
-Creates a `VNode`  
+Creates a `VNode`
 This is proxied to [snabbdom's h](https://github.com/paldepind/snabbdom/blob/master/h.js) so we can add our type definitions transparently.
 
 ```ts
 import { h } from 'kaiju'
 h('div', 'hello')
 ```
-On top of the `snabbdom` modules you may feed to `startApp`, an extra module is always installed by `kaiju`: `events`.  
-`events` is like `snabbdom`'s own `on` module except it works with `Messages` instead of just any event handler.  
+On top of the `snabbdom` modules you may feed to `startApp`, an extra module is always installed by `kaiju`: `events`.
+`events` is like `snabbdom`'s own `on` module except it works with `Messages` instead of just any event handler.
 
 ```ts
 
@@ -707,33 +708,33 @@ h('div', { events: { click: anotherMessage.with({ x: 3 }) } })
 <a name="api-component"></a>
 ## Creating a component
 
-The `Component` factory function takes an object with the following properties:  
+The `Component` factory function takes an object with the following properties:
 
 ### name
 
-Mandatory `String`  
+Mandatory `String`
 This is the standard Virtual DOM `key` used in the diffing algorithm to uniquely identify this `VNode`.
 It is also used for logging purposes, so it is usually just the name of the component.
-By default, components have a `key` set to their `name` to differentiate them from other components.  
-However, you can also set an external `key` by defining a key property inside the Component's props. The overall key will then be name + _ + your key.  
-This can be useful when switching between two instances of the same component but without reusing any of its state.  
+By default, components have a `key` set to their `name` to differentiate them from other components.
+However, you can also set an external `key` by defining a key property inside the Component's props. The overall key will then be name + _ + your key.
+This can be useful when switching between two instances of the same component but without reusing any of its state.
 
 ### sel
-Optional `String`  
-An alternative hyperscript selector to use instead of `component`.  
-Example:  
+Optional `String`
+An alternative hyperscript selector to use instead of `component`.
+Example:
 ```ts
 Component<Props, State>({ sel: `div.${styles.div}` })
 ```
 
 ### props
 
-Optional `Object`  
+Optional `Object`
 An object representing all the properties passed by our parent.
-Typically props either represents state that is maintained outside the component or properties used to tweak the component's behavior.  
+Typically props either represents state that is maintained outside the component or properties used to tweak the component's behavior.
 The `render` function will be called if the props object changed shallowly (any of its property references changed), hence it's a good practice to try and use a flat object.
 Note 1: props and state are separated exactly like in `React` as it works great. The same design best practices apply.
-Note 2: If you wish to compute some state or generally perform a side effect based on whether some part of the props changed (similar to using `componentWillReceiveProps` in react) you can use the sliding2 combinator to compare the previous props with the ones:  
+Note 2: If you wish to compute some state or generally perform a side effect based on whether some part of the props changed (similar to using `componentWillReceiveProps` in react) you can use the sliding2 combinator to compare the previous props with the ones:
 
 ```ts
 import { Observable } from 'kaiju'
@@ -743,21 +744,21 @@ on(props.sliding2(), (state, [newProps, oldProps]) => ...)
 
 ### initState
 
-Mandatory `Object`  
-A function taking the initial props as an argument and returning the starting state.  
+Mandatory `Object`
+A function taking the initial props as an argument and returning the starting state.
 Note: Any synchronous observables further modifying the state in `connect` will effectively change the state used for the first render.
 
 ### connect
 
-Mandatory `function({ on, msg, props }: ConnectParams<Props, State>): void`  
-Connects the component to the app and computes the local state of the component.  
-`connect` is called only once when the component is mounted.  
+Mandatory `function({ on, msg, props }: ConnectParams<Props, State>): void`
+Connects the component to the app and computes the local state of the component.
+`connect` is called only once when the component is mounted.
 
-`connect` is called with three arguments, encapsulated in a `ConnectParams` object:  
+`connect` is called with three arguments, encapsulated in a `ConnectParams` object:
 
-- `on` registers a `Message` or `Observable` that modifies the component local state.  
-The Observable will be automatically unsubscribed from when the component is unmounted.  
-Returning the current state or `undefined` in an `on` handler will skip rendering and can be used to do side effects.  
+- `on` registers a `Message` or `Observable` that modifies the component local state.
+The Observable will be automatically unsubscribed from when the component is unmounted.
+Returning the current state or `undefined` in an `on` handler will skip rendering and can be used to do side effects.
 
 Full interface:
 
@@ -829,12 +830,12 @@ Just like with props, a redraw will only get scheduled if the state object chang
 
 ### render
 
-Mandatory `function({ props, state, msg }: RenderParams<Props, State>): VNode | Node[]`  
+Mandatory `function({ props, state, msg }: RenderParams<Props, State>): VNode | Node[]`
 
-Returns the current VNode tree of the component based on its props and state.  
-You can also return an Array of `Node`s, where a `Node` is either a `VNode`, a `string`, `null` or `undefined`.  
+Returns the current VNode tree of the component based on its props and state.
+You can also return an Array of `Node`s, where a `Node` is either a `VNode`, a `string`, `null` or `undefined`.
 
-Example:  
+Example:
 
 ```ts
 import { h, Message, RenderParams } from 'kaiju'
@@ -873,7 +874,6 @@ function startApp<S>(options: {
 ```
 
 ```ts
-
 import { startApp } from 'kaiju'
 import app from './app'
 
@@ -886,8 +886,9 @@ const snabbdomModules = [
 ]
 
 startApp({ app, snabbdomModules, elm: document.body })
-
 ```
+
+For more information about snabbdom modules see the [official documentation](https://github.com/snabbdom/snabbdom#modules-documentation)
 
 <a name="api-renderInto"></a>
 ## Render.into
@@ -906,7 +907,7 @@ Render.into(document.body, firstVDom)
 
 // Patch that div so that it becomes a span
 const cancel = Render.into(firstVDom, h('span'), () => {
-  // Inside the rendered callback  
+  // Inside the rendered callback
 })
 ```
 
@@ -914,12 +915,12 @@ const cancel = Render.into(firstVDom, h('span'), () => {
 <a name="api-renderSchedule"></a>
 ## Render.scheduleDOMWrite
 
-The virtual DOM abstraction pretty much guarantees an optimal way of creating and updating the DOM in a single pass, without any layout trashing.  
-Sometimes, however, you may want to further alter the DOM in an imperative way when it's not possible to have a straightforward state->view binding.  
-Kaiju provides two functions to do that without causing layout trashing:  
-`Render.scheduleDOMRead` and `Render.scheduleDOMWrite`.  
-Both are called at the end of a render cycle (so still inside a requestAnimationFrame context)  
-The reads and writes are batched, reads are called first.  
+The virtual DOM abstraction pretty much guarantees an optimal way of creating and updating the DOM in a single pass, without any layout trashing.
+Sometimes, however, you may want to further alter the DOM in an imperative way when it's not possible to have a straightforward state->view binding.
+Kaiju provides two functions to do that without causing layout trashing:
+`Render.scheduleDOMRead` and `Render.scheduleDOMWrite`.
+Both are called at the end of a render cycle (so still inside a requestAnimationFrame context)
+The reads and writes are batched, reads are called first.
 
 ```ts
 import { Render, VNode } from 'kaiju'
@@ -943,8 +944,8 @@ function increaseHeight(vnode: VNode) {
 <a name="api-message"></a>
 ## Message
 
-Stores and Component can both send and listen to message. Indeed, each component has a private Store to manage its state.  
-Messages help debugging and communicate intent better than generic model-altering callbacks. Here's what you can do with messages:  
+Stores and Component can both send and listen to message. Indeed, each component has a private Store to manage its state.
+Messages help debugging and communicate intent better than generic model-altering callbacks. Here's what you can do with messages:
 
 <a name="api-message-create"></a>
 ### Creating a custom application message used to either communicate between components or send to a [Store](#stores).
@@ -967,7 +968,7 @@ incrementBy2.with(33) // Message<Event>
 
 <a name="api-message-send-store"></a>
 ### Sending a message to a Store instance (usually to update application/domain state)
-See [store.send](#stores)  
+See [store.send](#stores)
 
 
 <a name="api-message-send-component"></a>
@@ -995,7 +996,7 @@ function connect({ on, msg, props }: ConnectParams<Props, State>) {
 ### Create an Observable for all messages of a given type
 
 `msg.listen` creates an [Observable](#observables) publishing every `Message` of that type.
-This can be useful to transform the observable before handling the Message or creating reusable abstractions.  
+This can be useful to transform the observable before handling the Message or creating reusable abstractions.
 
 ```ts
 function connect({ on, msg, props }: ConnectParams<Props, State>) {
@@ -1009,7 +1010,7 @@ function connect({ on, msg, props }: ConnectParams<Props, State>) {
 
 <a name="api-message-listen-bubbling"></a>
 ### Listen to all Messages bubbling up a particular DOM Element
-This should rarely be useful. It can be used when a Component (e.g a popup) renders its content in another part of the DOM tree and Messages should be listened from there instead of locally.  
+This should rarely be useful. It can be used when a Component (e.g a popup) renders its content in another part of the DOM tree and Messages should be listened from there instead of locally.
 
 ```ts
 function connect({ on, msg, props }: ConnectParams<Props, State>) {
@@ -1041,15 +1042,15 @@ function render() {
 ```
 
 Note 1: Partially applying a Message has a little performance cost, roughly equal to a lambda creation. However, unlike in some other VDOM frameworks,
-the component will not re-render if the payload wasn't actually changed.  
+the component will not re-render if the payload wasn't actually changed.
 
-Note2: A partially applied Message is only to be used for sending, not receiving. Always listen to the original Message.  
+Note2: A partially applied Message is only to be used for sending, not receiving. Always listen to the original Message.
 
 
 <a name="api-message-unhandled"></a>
 ### Catching unhandled messages
 
-Messages sent by the `events` snabbdom module or when using `Messages.sendToParent` will bubble up the DOM till it finds the nearest parent component.  
+Messages sent by the `events` snabbdom module or when using `Messages.sendToParent` will bubble up the DOM till it finds the nearest parent component.
 Sometimes, this is not wanted as the nearest component could be a generic component that shouldn't listen to your business messages, only to its own messages.
 
 For instance, inside a utility component, we could forward any messages we're not interested in to our parent (e.g explicit bubbling):
@@ -1089,7 +1090,11 @@ log.message = 'popup'
 
 You will want to change the log values as early as possible in your program so that no logs are missed.
 
-Note: The render durations are more interesting as a relative measurement to spot bottlenecks and focus any optimization effort.  
-The absolute durations may be heavily influenced by the `console` itself sometimes being very slow.  
+Note: The render durations are more interesting as a relative measurement to spot bottlenecks and focus any optimization effort.
+The absolute durations may be heavily influenced by the `console` itself sometimes being very slow.
 
 ![slow-console](http://i171.photobucket.com/albums/u320/boubiyeah/console.log.cost_zps4n1pvodl.png)
+
+#Full TS Example
+
+A full application [example](https://github.com/AlexGalays/kaiju/tree/master/example/src) using TypeScript
