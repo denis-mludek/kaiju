@@ -22,7 +22,7 @@ export interface Observable<T> {
   /**
    * Reads the current value of the observable or returns undefined if no value was ever pushed in the observable.
    */
-  (): T | void
+  (): T | undefined
 
   /**
    * Delays values until a certain amount of silence has passed.

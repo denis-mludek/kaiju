@@ -95,7 +95,7 @@ import { Component, h, Message, ConnectParams, RenderParams } from 'kaiju'
 
 
 export default function() {
-  return Component<void, State>({ name: 'button', initState, connect, render })
+  return Component<{}, State>({ name: 'button', initState, connect, render })
 }
 
 interface State {
@@ -115,7 +115,7 @@ function connect({ on }: ConnectParams<{}, State>) {
 }
 
 
-function render({ state }: RenderParams<void, State>) {
+function render({ state }: RenderParams<{}, State>) {
   return h('button', { events: { click } }, state.text)
 }
 ```
@@ -222,7 +222,7 @@ import { Component, h, Message, ConnectParams, RenderParams } from 'kaiju'
 
 
 export default function(props: Props) {
-  return Component<Props, void>({ name: 'button', props, initState, connect, render })
+  return Component<Props, {}>({ name: 'button', props, initState, connect, render })
 }
 
 interface Props {
@@ -245,7 +245,7 @@ function connect({ on, props, msg }: ConnectParams<Props, State>) {
 }
 
 
-function render({ props, state }: RenderParams<Props, void>) {
+function render({ props, state }: RenderParams<Props, {}>) {
   return (
     h('div', [
       h('button', { events: { click } }, props.text),
@@ -257,7 +257,7 @@ function render({ props, state }: RenderParams<Props, void>) {
 ```
 
 We now delegate and send a message to our direct parent component so that it can, in turn, listen to that message from its `connect` function and update its own state.
-Note: The child component could send the same Message to its parent (delegation) but we choose to go with a `onClick` property to increase semantics, cohesion and typesafety.
+Note: The child component could send the same Message to its parent (delegation) but we choose to go with an explicit `onClick` property to increase semantics, cohesion and typesafety.
 
 At this point, the component is no longer stateful and providing it didn't have any other state, should be refactored back to a simple function returning a `VNode`:
 
@@ -281,6 +281,45 @@ function button(props: Props) {
 }
 ```
 
+Finally, if we wanted a generic component we could declare it like so:  
+
+```ts
+
+export default function<T>(props: Props<T>) {
+  return select(props)
+}
+
+type Props<T> = {
+  items: T[]
+  selectedItem: T
+  onChange: Message<T>
+}
+
+type State = {
+  focusedIndex: number | undefined
+}
+
+const select = (function<T>() {
+
+  function initState() {
+    return { focusedIndex: undefined }
+  }
+
+  function connect({}: ConnectParams<Props<T>, State>) {}
+
+  function render({}: RenderParams<Props<T>, State>) {
+    return h('ul')
+  }
+
+  return function(props: Props<T>) {
+    return Component<Props<T>, State>({ name: 'select', props, initState, connect, render })
+  }
+
+})()
+
+```
+
+
 <a name="observables"></a>
 # Observables
 
@@ -292,8 +331,7 @@ Observables are completely optional: If you are more confident with just sending
 The characteristics of this observable implementation are:
 
 * Tiny abstraction, fast
-* Has a functional style: all combinators are standalone functions that won't be compiled in your code if you don't import them
-* Also has an OO style, optionally
+* OO style chaining
 * Multicast: All observables are aware that multiple subscribers may be present
 * The last value of an observable can be read by invoking the observable as a function
 * Synchronous: Easier to reason about and friendlier stack traces
@@ -328,7 +366,7 @@ interface Observable<T> {
   /**
    * Reads the current value of the observable or returns undefined if no value was ever pushed in the observable.
    */
-  (): T | void
+  (): T | undefined
 
   /**
    * Delays values until a certain amount of silence has passed.
@@ -482,7 +520,7 @@ We just have to remember the last props and compare it with the new ones:
 
 ```ts
 function connect({ on, props }: ConnectParams<Props, State>) {
-   on(props.sliding(2), (state, [newProps, oldProps]) => {
+   on(props.sliding2, (state, [newProps, oldProps]) => {
       if (!oldProps || newProps.expr !== oldProps.expr)
         return ({ expr: parseExpr(newProps) })
    })
@@ -493,7 +531,6 @@ Note however that for inexpensive computations, it is generally advised to simpl
 **Perform a side effect when the component is added or removed**
 
 Use a snabbdom hook.
-Note: refrain from sending a message in those hooks, it is generally a design smell.
 
 `create` is called before the element is added to the DOM,
 `insert` is called after the element is added the DOM,
@@ -538,24 +575,26 @@ function connect({ on }: ConnectProps<Props, State>) {
   })
 }
 ```
-
-As an intellectual exercice, this is what happens under the hood:
+You can also reproduce the same behavior imperatively:
 
 ```ts
 import { Observable } from 'kaiju'
 
 function connect({ on }: ConnectProps<Props, State>) {
+  const pingTimeout = setTimeout(() => console.log('ping!'), 2000)
+
   const observeDestruction = Observable(_ => () => {
+
     /* This is the cleanup function that is called when there are no longer any subscribers
        to the observable. It will be  called when the component gets removed,
        provided the component was the sole subscriber */
+
+    clearTimeout(pingTimeout)
   })
   on(observeDestruction, () => {})
 }
 ```
 
-**Store some info in the current component for later use**
-e.g
 **Instantiate/destroy a vanillaJS widget when the component is added/removed**
 
 We can send a message from a DOM hook.
