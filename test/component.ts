@@ -730,32 +730,73 @@ describe('Component', () => {
           expect(childRenderCount).toBe(3, 'updateChildMessageProp - child')
         })
       })
-      .then(done, done)
+      .then(done)
+      .catch(err => console.error(err) && done())
   })
 
   it('can render nothing', done => {
 
+    let renderPhase: number = -1
+
     const comp = (() => {
+
+      type Props = {
+        renderPhase: number
+      }
 
       function initState() { return {} }
 
       function connect() {}
 
-      function render() {
-        return undefined
+      function render({ props }: RenderParams<Props, {}>) {
+        const { renderPhase } = props
+
+        if (renderPhase === 0 || renderPhase === 2) return null
+        if (renderPhase === 1 || renderPhase === 4) return h('div')
+        if (renderPhase === 3) return undefined
       }
 
-      return function() {
-        return Component<{}, {}>({ name: 'child', initState, connect, render })
+      return function(props: Props) {
+        return Component<{}, {}>({ name: 'child', initState, props, connect, render })
       }
     })()
 
-    Render.into(document.body, comp(), () => {
-      expect(document.body.firstElementChild!.tagName).toBe('COMPONENT')
-      expect(document.body.firstElementChild!.firstElementChild).toBe(null!)
-      done()
-    })
+    let previousComp: VNode
+    function renderNextPhase() {
+      renderPhase++
+      const newComp = comp({ renderPhase })
+      const promise = RenderInto(previousComp || document.body, newComp)
+      previousComp = newComp
+      return promise
+    }
 
+    renderNextPhase()
+      .then(() => {
+        expect(document.body.firstElementChild!.tagName).toBe('COMPONENT')
+        expect(document.body.firstElementChild!.firstElementChild).toBe(null!)
+      })
+      .then(renderNextPhase)
+      .then(() => {
+        expect(document.body.firstElementChild!.tagName).toBe('COMPONENT')
+        expect(document.body.firstElementChild!.firstElementChild!.tagName).toBe('DIV')
+      })
+      .then(renderNextPhase)
+      .then(() => {
+        expect(document.body.firstElementChild!.tagName).toBe('COMPONENT')
+        expect(document.body.firstElementChild!.firstElementChild).toBe(null!)
+      })
+      .then(renderNextPhase)
+      .then(() => {
+        expect(document.body.firstElementChild!.tagName).toBe('COMPONENT')
+        expect(document.body.firstElementChild!.firstElementChild).toBe(null!)
+      })
+      .then(renderNextPhase)
+      .then(() => {
+        expect(document.body.firstElementChild!.tagName).toBe('COMPONENT')
+        expect(document.body.firstElementChild!.firstElementChild!.tagName).toBe('DIV')
+      })
+      .then(_ => done())
+      .catch(e => console.error(e) && done())
   })
 
   it('can render another component', done => {

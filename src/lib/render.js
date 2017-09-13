@@ -104,14 +104,14 @@ function renderComponent(component) {
   // This can happen if the parent renders first and decide a child component should be removed.
   if (destroyed) return
 
-  const isNew = vnode === undefined
-
   let beforeRender
 
   if (log.render) beforeRender = performance.now()
 
-  const newVNode = render({ props, state: store.state(), msg: messages })
-  patchInto(vnode || elm, newVNode)
+  const target = vnode || elm
+  const newVNode = render({ props, state: store.state(), msg: messages }) || emptyNode()
+
+  patchInto(target, newVNode)
 
   if (shouldLog(log.render, component.key)) {
     const renderTime = Math.round((performance.now() - beforeRender) * 100) / 100
@@ -252,3 +252,5 @@ function mapPrimitiveNodes(arr) {
       arr[i] = VNode(undefined, undefined, undefined, node)
   }
 }
+
+const emptyNode = () => VNode('!', {}, [], undefined, undefined)
