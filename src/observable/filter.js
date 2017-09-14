@@ -1,5 +1,5 @@
 
-import { Observable } from './'
+import { Observable } from './observable'
 
 
 export default function filter(predicate, source) {

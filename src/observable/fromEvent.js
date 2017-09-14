@@ -1,4 +1,4 @@
-import { Observable } from './'
+import { Observable } from './observable'
 import { Set } from '../lib/util'
 
 

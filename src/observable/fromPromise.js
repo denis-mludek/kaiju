@@ -1,4 +1,4 @@
-import { Observable } from './'
+import { Observable } from './observable'
 import { Ok, Err } from 'space-lift'
 
 
