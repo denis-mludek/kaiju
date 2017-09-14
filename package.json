@@ -1,6 +1,6 @@
 {
   "name": "kaiju",
-  "version": "0.27.2",
+  "version": "0.27.3",
   "description": "Virtual dom, observables and stateful components",
   "keywords": ["virtual dom", "vdom", "model", "stream", "observable", "component", "framework"],
   "homepage": "https://github.com/AlexGalays/kaiju/",
