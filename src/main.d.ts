@@ -221,7 +221,7 @@ interface VNodeData {
   key?: string | number
   hook?: Hook
   class?: { [index: string]: boolean }
-  styles?: { [index: string]: string }
+  style?: { [index: string]: string }
   props?: {
     name?: string
     value?: string
