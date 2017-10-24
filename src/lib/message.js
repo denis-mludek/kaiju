@@ -31,7 +31,7 @@ function messageIs(ofType) {
 function PartiallyAppliedMessage(message, payload) {
 
   function result(maybeOtherPayload) {
-    return message(maybeOtherPayload ? [payload, maybeOtherPayload] : payload)
+    return message(arguments.length !== 0 ? [payload, maybeOtherPayload] : payload)
   }
 
   result.type = 'partiallyAppliedMessage'
