@@ -751,28 +751,27 @@ The `Component` factory function takes an object with the following properties:
 
 ### name
 
-Mandatory `String`
-This is the standard Virtual DOM `key` used in the diffing algorithm to uniquely identify this `VNode`.
-It is also used for logging purposes, so it is usually just the name of the component.
+Mandatory `String`  
+This is the standard Virtual DOM `key` used in the diffing algorithm to uniquely identify this `VNode`.  
+It is also used for logging purposes, so it is usually just the name of the component.  
 By default, components have a `key` set to their `name` to differentiate them from other components.
 However, you can also set an external `key` by defining a key property inside the Component's props. The overall key will then be name + _ + your key.
 This can be useful when switching between two instances of the same component but without reusing any of its state.
 
 ### sel
-Optional `String`
+Optional `String`  
 An alternative hyperscript selector to use instead of `component`.
-Example:
 ```ts
 Component<Props, State>({ sel: `div.${styles.div}` })
 ```
 
 ### props
 
-Optional `Object`
-An object representing all the properties passed by our parent.
-Typically props either represents state that is maintained outside the component or properties used to tweak the component's behavior.
-The `render` function will be called if the props object changed shallowly (any of its property references changed), hence it's a good practice to try and use a flat object.
-Note 1: props and state are separated exactly like in `React` as it works great. The same design best practices apply.
+Optional `Object`  
+An object representing all the properties passed by our parent.  
+Typically props either represents state that is maintained outside the component or properties used to tweak the component's behavior.  
+The `render` function will be called if the props object changed shallowly (any of its property references changed), hence it's a good practice to try and use a flat object.  
+Note 1: props and state are separated exactly like in `React` as it works great. The same design best practices apply.  
 Note 2: If you wish to compute some state or generally perform a side effect based on whether some part of the props changed (similar to using `componentWillReceiveProps` in react) you can use the sliding2 combinator to compare the previous props with the ones:
 
 ```ts
@@ -783,20 +782,20 @@ on(props.sliding2(), (state, [newProps, oldProps]) => ...)
 
 ### initState
 
-Mandatory `Object`
-A function taking the initial props as an argument and returning the starting state.
+Mandatory `Object`  
+A function taking the initial props as an argument and returning the starting state.  
 Note: Any synchronous observables further modifying the state in `connect` will effectively change the state used for the first render.
 
 ### connect
 
-Mandatory `function({ on, msg, props }: ConnectParams<Props, State>): void`
-Connects the component to the app and computes the local state of the component.
-`connect` is called only once when the component is mounted.
+Mandatory `function({ on, msg, props }: ConnectParams<Props, State>): void`  
+Connects the component to the app and computes the local state of the component.  
+`connect` is called only once when the component is mounted.  
 
-`connect` is called with three arguments, encapsulated in a `ConnectParams` object:
+`connect` is called with three arguments, encapsulated in a `ConnectParams` object:  
 
 - `on` registers a `Message` or `Observable` that modifies the component local state.
-The Observable will be automatically unsubscribed from when the component is unmounted.
+The Observable will be automatically unsubscribed from when the component is unmounted.  
 Returning the current state or `undefined` in an `on` handler will skip rendering and can be used to do side effects.
 
 Full interface:
@@ -932,7 +931,7 @@ For more information about snabbdom modules see the [official documentation](htt
 <a name="api-renderInto"></a>
 ## Render.into
 
-This function is made available after the app was created with `startApp`.
+This function is made available after the app was created with `startApp`.  
 This can be used to create some advanced components with their own internal rendering needs (e.g: Efficient popups, alerts, etc).
 It renders either synchronously if called from an ongoing rendering phase, or asynchronously.
 
