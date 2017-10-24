@@ -772,7 +772,7 @@ An object representing all the properties passed by our parent.
 Typically props either represents state that is maintained outside the component or properties used to tweak the component's behavior.  
 The `render` function will be called if the props object changed shallowly (any of its property references changed), hence it's a good practice to try and use a flat object.  
 Note 1: props and state are separated exactly like in `React` as it works great. The same design best practices apply.  
-Note 2: If you wish to compute some state or generally perform a side effect based on whether some part of the props changed (similar to using `componentWillReceiveProps` in react) you can use the sliding2 combinator to compare the previous props with the ones:
+Note 2: If you wish to compute some state or generally perform a side effect based on whether some part of the props changed (similar to using `componentWillReceiveProps` in react) you can use the sliding2 combinator to compare the previous props with the new ones:
 
 ```ts
 import { Observable } from 'kaiju'
