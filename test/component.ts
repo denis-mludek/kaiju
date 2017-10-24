@@ -526,6 +526,54 @@ describe('Component', () => {
   })
 
 
+  it('can use any sort of Messages in an interop way', () => {
+
+    const myBoundMessage: Message<MouseEvent> = Message<[string, MouseEvent]>('').with('ping') 
+
+    const myBoundNoArgMessage: NoArgMessage = Message<string>('hey').with('oh')
+
+    const myBoundOneArgMessage = Message<[string, number]>('hey').with('oh')
+
+    const myBoundOneArgEventMessage = Message<[string, MouseEvent]>('hey').with('oh')
+
+    const myRegularNoArgMessage: NoArgMessage = Message('hey')
+
+    h('div', {
+      events: { click: myBoundOneArgEventMessage  }
+    })
+
+    // These should not compile, as the compiler can't garantee these messages were not bound
+
+    // h('div', {
+    //   events: { click: myBoundNoArgMessage  }
+    // })
+
+    // h('div', {
+    //   events: { click: myBoundOneArgMessage  }
+    // })
+
+    // const comp = (() => {
+    //   function initState() { return {} }
+
+    //   const boundMessage = Message<[string, number]>('bound').with('')
+
+    //   function connect({ on, msg }: ConnectParams<{}, {}>) {
+
+    //     on(boundMessage, () => {})
+    //   }
+
+    //   function render() {
+    //     return null
+    //   }
+
+    //   return function() {
+    //     return Component({ name: '', initState, connect, render })
+    //   }
+    // })()
+
+  })
+
+
   it('can listen to any messages transiting through a DOM Element', done => {
     const receivedMessages: string[] = []
 
