@@ -217,18 +217,18 @@ describe('Component', () => {
       function connect({ on, msg }: ConnectParams<{}, {}>) {
         stopListeningToClickNow = () => msg.send(stopListeningToClick())
 
-        on(clickMsg, (state, evt) => {
+        on(clickMsg, evt => {
           expect(evt.currentTarget).toExist()
           receivedClickMessage = true
         })
 
-        on(touchStartMsg, (state, [data, evt]) => {
+        on(touchStartMsg, ([data, evt]) => {
           expect(evt.currentTarget).toExist()
           expect(data).toBe(13)
           receivedTouchStartMessage = true
         })
 
-        on(stopListeningToClick, state => ({ listenToClick: false }))
+        on(stopListeningToClick, () => ({ listenToClick: false }))
       }
 
       function render({ state }: RenderParams<{}, State>) {
@@ -283,22 +283,22 @@ describe('Component', () => {
       function initState() { return {} }
 
       function connect({ on }: ConnectParams<Props, {}>) {
-        on(local, (state, evt) => {
+        on(local, evt => {
           // Should not happen
           receivedMessages.push('parentLocal')
         })
 
-        on(forwarded, (state, evt) => {
+        on(forwarded, evt => {
           expect(evt.currentTarget).toExist()
           receivedMessages.push('parentForwarded')
         })
 
-        on(unknown, (state, evt) => {
+        on(unknown, evt => {
           expect(evt.currentTarget).toExist()
           receivedMessages.push('parentUnknown')
         })
 
-        on(Message.unhandled, (state, message) => {
+        on(Message.unhandled, message => {
           // Should not happen
           receivedMessages.push('parentUnhandled')
         })
@@ -318,20 +318,20 @@ describe('Component', () => {
 
       function initState() { return { bla: 33 } }
 
-      function connect({ on, msg }: ConnectParams<{}, {}>) {
-        on(local, (state, evt) => {
+      function connect({ on, msg, state }: ConnectParams<{}, {}>) {
+        on(local, evt => {
           expect(evt.currentTarget).toExist()
           receivedMessages.push('childLocal')
         })
 
-        on(forwarded, (state, evt) => {
+        on(forwarded, evt => {
           expect(evt.currentTarget).toExist()
           receivedMessages.push('childForwarded')
           msg.sendToParent(forwarded(evt))
         })
 
-        on(Message.unhandled, (state, message) => {
-          expect(state).toEqual({ bla: 33 })
+        on(Message.unhandled, message => {
+          expect(state()).toEqual({ bla: 33 })
           receivedMessages.push('childUnknown')
           msg.sendToParent(message)
         })
@@ -391,7 +391,7 @@ describe('Component', () => {
           calls.push('scheduleDOMReadFromConnect')
         })
 
-        on(reRender, _ => ({ swap: true }))
+        on(reRender, () => ({ swap: true }))
       }
 
       function render() {
@@ -494,7 +494,7 @@ describe('Component', () => {
       function connect({ on, msg }: ConnectParams<{}, {}>) {
         compMsg = msg
 
-        on(ping, (state, [text, evt]) => {
+        on(ping, ([text, evt]) => {
           expect(evt.currentTarget).toNotBe(undefined!)
           texts.push(text)
         })
@@ -528,7 +528,7 @@ describe('Component', () => {
 
   it('can use any sort of Messages in an interop way', () => {
 
-    const myBoundMessage: Message<MouseEvent> = Message<[string, MouseEvent]>('').with('ping') 
+    const myBoundMessage: Message<MouseEvent> = Message<[string, MouseEvent]>('').with('ping')
 
     const myBoundNoArgMessage: NoArgMessage = Message<string>('hey').with('oh')
 
@@ -591,7 +591,7 @@ describe('Component', () => {
 
       function connect({ on, msg }: ConnectParams<{}, {}>) {
 
-        on(msg.listenAt(rightEl), (state, message) => {
+        on(msg.listenAt(rightEl), message => {
 
           if (message.is(messageFromTheRight)) {
             expect(message.payload[1].currentTarget).toExist()
@@ -621,7 +621,7 @@ describe('Component', () => {
 
       function connect({ on, msg }: ConnectParams<{}, {}>) {
 
-        on(Message.unhandled, (state, payload) => {
+        on(Message.unhandled, payload => {
           msg.sendToParent(payload)
         })
 
@@ -684,16 +684,16 @@ describe('Component', () => {
         }
       }
 
-      function connect({ on, msg }: ConnectParams<{}, {}>) {
+      function connect({ on, msg, state }: ConnectParams<{}, {}>) {
         parentMsg = msg
 
-        on(updateParentStateWithNoop, state => Object.assign({}, state))
+        on(updateParentStateWithNoop, () => Object.assign({}, state()))
 
-        on(updateParentStateWithNewDate, state => Object.assign({}, state, { ts: Date.now() }))
+        on(updateParentStateWithNewDate, () => Object.assign({}, state(), { ts: Date.now() }))
 
-        on(updateChildProp, state => Object.assign({}, state, { childProp: 20 }))
+        on(updateChildProp, () => Object.assign({}, state(), { childProp: 20 }))
 
-        on(updateChildMessageProp, state => Object.assign({}, state, { childMessageProp: 200 }))
+        on(updateChildMessageProp, () => Object.assign({}, state(), { childMessageProp: 200 }))
       }
 
       function render({ props, state }: RenderParams<{}, State>) {

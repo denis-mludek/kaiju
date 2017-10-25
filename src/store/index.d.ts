@@ -9,21 +9,21 @@ export interface RegisterMessages<S> {
    * The handler is called with the current state and the new value of the observable.
    * Returning undefined or the current state in the handler is a no-op.
    */
-  <T>(observable: Observable<T>, handler: (state: S, value: T) => S|void): void
+  <T>(observable: Observable<T>, handler: (value: T) => S|void): void
 
   /**
    * Registers a Message and call the handler function every time the message is sent.
    * The handler is called with the current state.
    * Returning undefined or the current state in the handler is a no-op.
    */
-  (message: DefaultNoArgMessage, handler: (state: S) => S|void): void
+  (message: DefaultNoArgMessage, handler: () => S|void): void
 
   /**
    * Registers a Message and call the handler function every time the message is sent.
    * The handler is called with the current state and the payload of the message.
    * Returning undefined or the current state in the handler is a no-op.
    */
-  <P>(message: DefaultMessage<P>, handler: (state: S, payload: P) => S|void): void
+  <P>(message: DefaultMessage<P>, handler: (payload: P) => S|void): void
 }
 
 export interface Messages {
@@ -69,11 +69,17 @@ interface StoreOptions {
   log?: boolean
 }
 
+interface RegisterHandlersParams<S> {
+  on: RegisterMessages<S>
+  msg: Messages
+  state: ObservableWithInitialValue<S>
+}
+
 /**
  * Creates a new store.
  */
 export function Store<S>(
   initialState: S,
-  registerHandlers: (on: RegisterMessages<S>, msg: Messages) => void,
+  registerHandlers: (params: RegisterHandlersParams<S>) => void,
   options?: StoreOptions
 ): Store<S>

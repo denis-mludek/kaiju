@@ -2091,9 +2091,9 @@ source-map@~0.2.0:
   dependencies:
     amdefine ">=0.0.4"
 
-space-lift@0.4.3:
-  version "0.4.3"
-  resolved "https://registry.yarnpkg.com/space-lift/-/space-lift-0.4.3.tgz#9e751505796c302dff8d4aa01e8354e6c30ab344"
+space-lift@>=0.0.0:
+  version "0.6.0"
+  resolved "https://registry.yarnpkg.com/space-lift/-/space-lift-0.6.0.tgz#6e5c8fc3930526a4e47f7a7c1452b46e62a481e6"
   dependencies:
     immupdate "1.1.4"
 
@@ -2239,9 +2239,9 @@ type-check@~0.3.2:
   dependencies:
     prelude-ls "~1.1.2"
 
-typescript@2.4.2:
-  version "2.4.2"
-  resolved "https://registry.yarnpkg.com/typescript/-/typescript-2.4.2.tgz#f8395f85d459276067c988aa41837a8f82870844"
+typescript@2.5.3:
+  version "2.5.3"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-2.5.3.tgz#df3dcdc38f3beb800d4bc322646b04a3f6ca7f0d"
 
 uid-number@~0.0.6:
   version "0.0.6"

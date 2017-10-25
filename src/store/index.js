@@ -30,10 +30,17 @@ export function Store(initialState, registerHandlers, options = empty) {
   const msg = {
     send: m => store.send(m), // Late binding as store.send is not yet defined
     listen: message => {
-      const observable = Observable().named(message._name)
-      let obss = listened[message._id]
-      if (!obss) obss = listened[message._id] = []
-      obss.push(observable)
+      const observable = Observable(() => {
+        let obss = listened[message._id]
+        if (!obss) obss = listened[message._id] = []
+        obss.push(observable)
+
+        return () => {
+          obss.splice(obss.indexOf(observable), 1)
+        }
+      })
+      .named(message._name)
+
       return observable
     }
   }
@@ -62,19 +69,27 @@ export function Store(initialState, registerHandlers, options = empty) {
     let state = store.state()
 
     try {
+      // This outer loop is used in case a change in the store.state actually triggers more state changes
       while (queue.length) {
-        const { sourceName, handler, arg } = queue.shift()
-        stack++
 
-        if (shouldLog)
-          console.log(
-            `%c${sourceName} %creceived by %c${storeName}`,
-            'color: #B31EA6', 'color: black',
-            'font-weight: bold', 'with', arg
-          )
+        // This inner loop is here to dequeue as many messages as possible before committing a state change
+        while (queue.length) {
+          const { sourceName, handler, arg } = queue.shift()
+          stack++
 
-        const result = handler(state, arg)
-        if (result !== undefined) state = result
+          if (shouldLog)
+            console.log(
+              `%c${sourceName} %creceived by %c${storeName}`,
+              'color: #B31EA6', 'color: black',
+              'font-weight: bold', 'with', arg
+            )
+
+          const result = handler(arg)
+          if (result !== undefined) state = result
+        }
+
+        if (state !== store.state() && state !== undefined)
+          store.state(state)
       }
     }
     finally {
@@ -82,16 +97,13 @@ export function Store(initialState, registerHandlers, options = empty) {
       queue.length = 0
       stack = 0
     }
-
-    if (state !== store.state() && state !== undefined)
-      store.state(state)
   }
 
   store.state = Observable()(initialState).named(`${storeName}.state`)
   // Eagerly activate (hot)
   store.state.subscribe(x => x)
 
-  registerHandlers(on, msg)
+  registerHandlers({on, msg, state: store.state})
 
   store.send = function(message) {
     const { _id, _name, payload } = message

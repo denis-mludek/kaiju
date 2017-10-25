@@ -36,6 +36,13 @@ export interface Observable<T> {
   delay(delay: number): Observable<T>
 
   /**
+   * Creates a new Observable with adjacent repeated values removed.
+   * A compare function can optionally be passed to implement user-defined equality instead of strict reference equality.
+   * The functions should return true if the two values are equal.
+   */
+  distinct(compareFunction?: (previousValue: T, currentValue: T) => boolean): Observable<T>
+
+  /**
    * Drops 'count' initial values.  
    * Note: This can also be used to drop the initial value when subscribing to an Observable, if it had seen a value previously.
    */

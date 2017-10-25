@@ -197,4 +197,63 @@ describe('Observable', () => {
     expect(drop1AfterTheFactValues).toEqual([6, 7])
   })
 
+
+  it('can filter equal adjacent values with distinct()', () => {
+
+    // basic distinct using ===
+
+    const numberList: number[] = []
+    const distinctNumberList: number[] = []
+
+    let addToNumbers: (value: number) => void = undefined!
+    const numbers = Observable<number>(add => {
+      addToNumbers = add
+    })
+    const distinctNumbers = numbers.distinct()
+
+    numbers.subscribe(n => numberList.push(n))
+    distinctNumbers.subscribe(n => distinctNumberList.push(n))
+
+    addToNumbers(1)
+    addToNumbers(2)
+    addToNumbers(2)
+    addToNumbers(3)
+    addToNumbers(4)
+    addToNumbers(4)
+
+    expect(numberList).toEqual([1, 2, 2, 3, 4, 4])
+    expect(distinctNumberList).toEqual([1, 2, 3, 4])
+
+    // distinct using user-defined equality
+
+    type User = { id: number, name: string }
+    const userList: User[] = []
+    const distinctUserList: User[] = []
+
+    let addToUsers: (user: User) => void = undefined!
+    const users = Observable<User>(add => {
+      addToUsers = add
+    })
+    const distinctUsers = users.distinct((u1, u2) => u1.id === u2.id)
+
+    users.subscribe(n => userList.push(n))
+    distinctUsers.subscribe(n => distinctUserList.push(n))
+
+    addToUsers({ id: 1, name: 'Joe' })
+    addToUsers({ id: 1, name: 'Linda' })
+    addToUsers({ id: 2, name: 'Bob' })
+    addToUsers({ id: 3, name: 'Sarah' })
+    addToUsers({ id: 3, name: 'Jon' })
+    addToUsers({ id: 3, name: 'Homer' })
+    addToUsers({ id: 1, name: 'Joe' })
+
+    expect(distinctUserList).toEqual([
+      { id: 1, name: 'Joe' },
+      { id: 2, name: 'Bob' },
+      { id: 3, name: 'Sarah' },
+      { id: 1, name: 'Joe' }
+    ])
+
+  })
+
 })

@@ -36,6 +36,7 @@ import { RegisterMessages } from './store'
 export interface ConnectParams<P, S> {
   on: RegisterMessages<S>
   props: ObservableWithInitialValue<P>
+  state: ObservableWithInitialValue<S>
   msg: Messages
   context: {}
 }

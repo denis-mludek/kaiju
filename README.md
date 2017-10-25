@@ -111,7 +111,7 @@ const click = Message('click')
 
 
 function connect({ on }: ConnectParams<{}, State>) {
-  on(click, state => ({ text: 'clicked' }))
+  on(click, () => ({ text: 'clicked' }))
 }
 
 
@@ -131,7 +131,7 @@ In the above code, `on(click)` is in fact a shortcut for `on(msg.listen(click))`
 Here's the longer form:
 ```ts
 function connect({ on, msg }: ConnectParams<{}, State>) {
-  on(msg.listen(click), state => ({ text: 'clicked' }))
+  on(msg.listen(click), () => ({ text: 'clicked' }))
 }
 ```
 
@@ -144,7 +144,7 @@ This is very useful because observables can easily be composed:
 function connect({ on, msg }: ConnectParams<{}, State>) {
   const clicks = msg.listen(click).debounce(1000)
 
-  on(clicks, state => ({ text: 'clicked' }))
+  on(clicks, () => ({ text: 'clicked' }))
 }
 ```
 
@@ -194,7 +194,7 @@ const click = Message('click')
 
 
 function connect({ on }: ConnectParams<Props, State>) {
-  on(click, state => ({ text: 'clicked' }))
+  on(click, () => ({ text: 'clicked' }))
 }
 
 
@@ -380,6 +380,13 @@ interface Observable<T> {
   delay(delay: number): Observable<T>
 
   /**
+   * Creates a new Observable with adjacent repeated values removed.
+   * A compare function can optionally be passed to implement user-defined equality instead of strict reference equality.
+   * The functions should return true if the two values are equal.
+   */
+  distinct(compareFunction?: (previousValue: T, currentValue: T) => boolean): Observable<T>
+
+  /**
    * Drops 'count' initial values.
    * Note: This can also be used to drop the initial value when subscribing to an Observable, if it had seen a value previously.
    */
@@ -507,7 +514,7 @@ Derive some state from the props Observable in `connect`:
 
 ```ts
 function connect({ on, props }: ConnectParams<Props, State>) {
-   on(props, (state, newProps) => ({ statePart: expensiveOperation(newProps) }))
+   on(props, newProps => ({ statePart: expensiveOperation(newProps) }))
 }
 ```
 There is no need to also derive the state in `initState`, since `props` is
@@ -520,7 +527,7 @@ We just have to remember the last props and compare it with the new ones:
 
 ```ts
 function connect({ on, props }: ConnectParams<Props, State>) {
-   on(props.sliding2, (state, [newProps, oldProps]) => {
+   on(props.sliding2, ([newProps, oldProps]) => {
       if (!oldProps || newProps.expr !== oldProps.expr)
         return ({ expr: parseExpr(newProps) })
    })
@@ -565,12 +572,12 @@ Observables are automatically cleaned up when the component is removed.
 ```ts
 function connect({ on }: ConnectProps<Props, State>) {
   const polling = Observable.interval(2000)
-  on(polling, state => {
+  on(polling, () => {
     // This handler will not be called once the component is removed
     callSomeAjax()
   })
 
-  on(Observable.fromEvent('click', document.body), (state, evt) => {
+  on(Observable.fromEvent('click', document.body), evt => {
     // This handler will not be called once the component is removed (the event handler is removed)
   })
 }
@@ -608,7 +615,7 @@ const destroyed = Message('destroyed')
 function connect({ on }: RenderParams<Props, State> & { context: Context }) {
   let mapWidget: MapWidget | undefined
 
-  on(inserted, (state, elm) => { mapWidget = widget.Map.create(elm) })
+  on(inserted, elm => { mapWidget = widget.Map.create(elm) })
 
   on(destroyed, () => mapWidget.destroy())
 }
@@ -680,9 +687,9 @@ interface UserState {
 const initialState = { name: 'bob' }
 
 // This exports a store containing an observable ready to be used in a component's connect function
-export default Store<UserState>(initialState, on => {
-  on(setUserName, (state, name) =>
-    merge(state, { name })
+export default Store<UserState>(initialState, ({on, state}) => {
+  on(setUserName, name =>
+    merge(state(), { name })
   )
 })
 
@@ -697,10 +704,10 @@ function initialState() {
   }
 }
 
-function connect({ on }: ConnectParams<{}, State>) {
-  on(userStore.state, (state, user) => {
+function connect({ on, state }: ConnectParams<{}, State>) {
+  on(userStore.state, user => {
     // Copies the global user name into our local component state to make it available to `render`
-    return merge(state, { userName: user.name })
+    return merge(state(), { userName: user.name })
   })
 }
 
@@ -792,7 +799,7 @@ Mandatory `function({ on, msg, props }: ConnectParams<Props, State>): void`
 Connects the component to the app and computes the local state of the component.  
 `connect` is called only once when the component is mounted.  
 
-`connect` is called with three arguments, encapsulated in a `ConnectParams` object:  
+`connect` is called with four arguments, encapsulated in a `ConnectParams` object:  
 
 - `on` registers a `Message` or `Observable` that modifies the component local state.
 The Observable will be automatically unsubscribed from when the component is unmounted.  
@@ -806,21 +813,21 @@ Full interface:
  * The handler is called with the current component state and the new value of the observable.
  * Returning undefined or the current state in the handler is a no-op.
  */
-<T>(observable: Observable<T>, handler: (state: S, value: T) => S|void): void
+<T>(observable: Observable<T>, handler: (value: T) => S|void): void
 
 /**
  * Registers a Message and call the handler function every time the message is sent.
  * The handler is called with the current component state.
  * Returning undefined or the current state in the handler is a no-op.
  */
-(message: NoArgMessage, handler: (state: S) => S|void): void
+(message: NoArgMessage, handler: () => S|void): void
 
 /**
  * Registers a Message and call the handler function every time the message is sent.
  * The handler is called with the current component state and the payload of the message.
  * Returning undefined or the current state in the handler is a no-op.
  */
-<P>(message: Message<P>, handler: (state: S, payload: P) => S|void): void
+<P>(message: Message<P>, handler: (payload: P) => S|void): void
 ```
 
 - `msg` is the interface used to send and listen to messages.
@@ -864,6 +871,8 @@ sendToParent<P>(payload: MessagePayload<P>): void
 It is often enough to simply let the `render` function take care of these new props but advanced users may sometimes want to derive some state from props.
 
 Just like with props, a redraw will only get scheduled if the state object changed shallowly.
+
+- `state` The Observable current state.
 
 
 ### render
@@ -1013,8 +1022,8 @@ See [store.send](#stores)
 - **Sending a message to the current Component**
 
 ```ts
-function connect({ on, msg, props }: ConnectParams<Props, State>) {
-  on(click, (state, evt) => msg.send(sheReallyClicked(evt))
+function connect({ on, msg, props, state }: ConnectParams<Props, State>) {
+  on(click, evt => msg.send(sheReallyClicked(evt))
 }
 ```
 
@@ -1022,10 +1031,10 @@ function connect({ on, msg, props }: ConnectParams<Props, State>) {
 ### Sending a message to the nearest parent Component
 
 ```ts
-function connect({ on, msg, props }: ConnectParams<Props, State>) {
+function connect({ on, msg, props, state }: ConnectParams<Props, State>) {
   // Whenever a click message is received by this component, notify our parent.
   // We read which message should be sent from the Props as it should be our parent's decision.
-  on(click, (state, evt) => msg.sendToParent(props().onClick(evt)))
+  on(click, evt => msg.sendToParent(props().onClick(evt)))
 }
 ```
 
@@ -1041,7 +1050,7 @@ function connect({ on, msg, props }: ConnectParams<Props, State>) {
 
   const clicks = msg.listen(click).debounce(800)
 
-  on(clicks, (state, evt) => console.log(evt))
+  on(clicks, evt => console.log(evt))
 }
 ```
 
@@ -1055,7 +1064,7 @@ function connect({ on, msg, props }: ConnectParams<Props, State>) {
 
   const messagesFromPopup = msg.listenAt('#popup')
 
-  on(messagesFromPopup, (state, message) => console.log(message))
+  on(messagesFromPopup, message => console.log(message))
 }
 ```
 
@@ -1094,11 +1103,11 @@ Sometimes, this is not wanted as the nearest component could be a generic compon
 For instance, inside a utility component, we could forward any messages we're not interested in to our parent (e.g explicit bubbling):
 
 ```ts
-function connect({ on, msg, props }: ConnectParams<Props, State>) {
+function connect({ on, msg, props, state }: ConnectParams<Props, State>) {
 
-  on(click, (state, evt) => update(state, { text: 'clicked!' }))
+  on(click, evt => update(state(), { text: 'clicked!' }))
 
-  on(Message.unhandled, (state, message) => msg.sendToParent(message))
+  on(Message.unhandled, message => msg.sendToParent(message))
 
 }
 ```

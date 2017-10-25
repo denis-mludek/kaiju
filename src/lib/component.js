@@ -60,11 +60,12 @@ function insert(vnode) {
   // the ObservableWithInitialValue interface contract.
   propsObservable.subscribe(x => x)
 
-  component.store = Store(initState(props), (on, msg) => {
+  component.store = Store(initState(props), ({on, msg, state}) => {
     messages.storeMsg = msg
 
     const connectParams = {
       on,
+      state,
       props: propsObservable,
       msg: messages
     }

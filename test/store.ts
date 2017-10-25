@@ -9,8 +9,8 @@ describe('Store', () => {
     const increaseBy = Message<number>('increaseBy')
 
     const initState = { num: 10 }
-    const store = Store(initState, on => {
-      on(increaseBy, (state, by) => ({ num: state.num + by }))
+    const store = Store(initState, ({ on, state }) => {
+      on(increaseBy, by => ({ num: state().num + by }))
     })
 
     expect(store.state()).toEqual({ num: 10 })
@@ -33,17 +33,17 @@ describe('Store', () => {
     const observableNum = Observable<number>()(30)
 
     const initState = { num: 10 }
-    const store = Store(initState, (on, msg) => {
-      on(observableNum, (state, by) => ({ num: state.num + by }))
+    const store = Store(initState, ({ on, msg, state }) => {
+      on(observableNum, by => ({ num: state().num + by }))
 
-      on(observableNum.map(x => x * 2), (state, by) => ({ num: state.num + by }))
+      on(observableNum.map(x => x * 2), by => ({ num: state().num + by }))
 
-      on(increaseBy, (state, by) => ({ num: state.num + by }))
+      on(increaseBy, by => ({ num: state().num + by }))
 
       // Alternatively, we can listen to a Message to create an observable out of it
-      on(msg.listen(increaseBy).delay(20).map(x => x * 2), (state, by) => ({ num: state.num + by }))
+      on(msg.listen(increaseBy).delay(20).map(x => x * 2), by => ({ num: state().num + by }))
 
-      on(msg.listen(increaseBy), (state, by) => ({ num: state.num + by }))
+      on(msg.listen(increaseBy), by => ({ num: state().num + by }))
     })
 
     // Observables fire synchronously
@@ -81,10 +81,10 @@ describe('Store', () => {
     const pleaseIncreaseByObservable = Observable<number>().named('pleaseIncreaseBy')
 
     const initState = { num: 10 }
-    const store = Store(initState, (on, msg) => {
-      on(pleaseIncreaseBy, (state, by) => store.send(increaseBy(by)))
-      on(pleaseIncreaseByObservable, (state, by) => store.send(increaseBy(by)))
-      on(increaseBy, (state, by) => ({ num: state.num + by }))
+    const store = Store(initState, ({on, msg, state}) => {
+      on(pleaseIncreaseBy, by => store.send(increaseBy(by)))
+      on(pleaseIncreaseByObservable, by => store.send(increaseBy(by)))
+      on(increaseBy, by => ({ num: state().num + by }))
     })
 
     store.send(pleaseIncreaseBy(5))
@@ -102,12 +102,12 @@ describe('Store', () => {
     const ping = Message('ping')
     const pong = Message('pong')
 
-    const store = Store({}, on => {
-      on(ping, state => {
+    const store = Store({}, ({on, state}) => {
+      on(ping, () => {
         pingCount++
         store.send(pong())
       })
-      on(pong, state => store.send(ping()))
+      on(pong, () => store.send(ping()))
     })
 
     function sendPing() {
@@ -118,6 +118,81 @@ describe('Store', () => {
 
     // Some cycles are allowed
     expect(pingCount).toBe(5)
+  })
+
+
+  it('can derive a state piece from another', () => {
+
+    const setList = Message<number[]>('setList')
+
+    const initState: { list: number[], filteredList: number[] } = { list: [], filteredList: [] }
+
+    const store = Store(initState, ({on, state}) => {
+
+      on(setList, newList => {
+        return Object.assign({}, state(), { list: newList })
+      })
+
+      on(state.map(s => s.list).distinct(), newList => {
+        return Object.assign({}, state(), { filteredList: newList.filter(n => n > 100) })
+      })
+
+    }, { name: 'number' })
+
+    expect(store.state()).toEqual({ list: [], filteredList: [] })
+
+    store.send(setList([1, 10, 100, 1000, 10000]))
+
+    expect(store.state()).toEqual({
+      list: [1, 10, 100, 1000, 10000],
+      filteredList: [1000, 10000]
+    })
+  })
+
+
+  it('can work with multiple msg.listen for the same Message', () => {
+
+    const click = Message('click')
+
+    const toggleObs = Observable()(true)
+
+    let clicks = 0
+
+    const store = Store({}, ({ on, msg }) => {
+
+      on(msg.listen(click), () => {
+        clicks++
+      })
+
+      on(msg.listen(click), () => {
+        clicks++
+      })
+
+      on(toggleObs.flatMapLatest(t => t ? msg.listen(click) : Observable()), () => {
+        clicks++
+      })
+
+    })
+
+    expect(clicks).toBe(0)
+
+    store.send(click())
+
+    expect(clicks).toBe(3)
+
+    toggleObs(false)
+
+    expect(clicks).toBe(3)
+
+    store.send(click())
+
+    expect(clicks).toBe(5)
+
+    toggleObs(true)
+
+    store.send(click())
+
+    expect(clicks).toBe(8)
   })
 
 
