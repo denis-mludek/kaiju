@@ -25,6 +25,10 @@ function updateEventListeners(oldVnode, vnode) {
         old,
         old.payload)) continue
 
+
+      if (listeners[name])
+        vnode.elm.removeEventListener(name, listeners[name])
+
       listeners[name] = evt => _sendToElement(evt.currentTarget, current(evt))
       vnode.elm.addEventListener(name, listeners[name])
     }
