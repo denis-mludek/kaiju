@@ -44,7 +44,7 @@ export interface Observable<T> {
   /**
    * Filters the values of this observable.
    */
-  filter<T>(predicate: (t: T) => boolean): Observable<T>
+  filter(predicate: (t: T) => boolean): Observable<T>
 
   /*
    * Maps and flattens this observable then only publish values from the observable mapped last.
