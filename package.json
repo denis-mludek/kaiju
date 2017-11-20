@@ -34,15 +34,16 @@
     "mocha": "2.2.5",
     "expect": "1.8.0",
     "jsdom": "10.1.0",
-    "jsdom-global": "3.0.2"
+    "jsdom-global": "3.0.2",
+    "cross-env": "5.1.1"
   },
 
   "scripts": {
     "copy-typings-commonjs": "cd src && find . -name '*.d.ts' | cpio -pdm ../commonjs",
     "copy-typings-es": "cd src && find . -name '*.d.ts' | cpio -pdm ../es",
 
-    "babel-commonjs": "BABEL_ENV=commonjs node node_modules/babel-cli/bin/babel.js src --out-dir commonjs",
-    "babel-es": "BABEL_ENV=es node node_modules/babel-cli/bin/babel.js src --out-dir es",
+    "babel-commonjs": "cross-env BABEL_ENV=commonjs node node_modules/babel-cli/bin/babel.js src --out-dir commonjs",
+    "babel-es": "cross-env BABEL_ENV=es node node_modules/babel-cli/bin/babel.js src --out-dir es",
 
     "copy-lib-to-example": "cp -rf commonjs/. example/node_modules/kaiju/commonjs",
     "example-dev": "npm run copy-typings-commonjs && npm run babel-commonjs && npm run copy-lib-to-example",
