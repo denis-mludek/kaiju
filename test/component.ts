@@ -26,16 +26,6 @@ const button = (() => {
   }
 })()
 
-function dispatchMouseEventOn(target: EventTarget, name: string) {
-  const evt = new MouseEvent(name)
-  target.dispatchEvent(evt)
-}
-
-function dispatchTouchEventOn(target: EventTarget, name: string) {
-  const evt = document.createEvent('TouchEvent')
-  evt.initEvent(name, true, true)
-  target.dispatchEvent(evt)
-}
 
 /** Tests **/
 
@@ -904,6 +894,71 @@ describe('Component', () => {
 
   })
 
+  it('removes previously bound messages DOM listeners', done => {
+    
+    const clickPayloads: number[] = []
+    const click = Message<[number, MouseEvent]>('click')
+
+    const Button = (() => {
+
+      type State = {
+        currentPayload: number
+      }
+
+      function initState() {
+        return {
+          currentPayload: 0
+        }
+      }
+
+      function connect({ on, state }: ConnectParams<{}, State>) {
+        on(click, ([payload]) => {
+          clickPayloads.push(payload)
+          return { currentPayload: state().currentPayload + 1 }
+        })
+      }
+
+      function render({ state }: RenderParams<{}, State>) {
+        return h('button', { events: { click: click.with(state.currentPayload) } })
+      }
+
+      return function() {
+        return Component<{}, {}>({ name: 'button', initState, connect, render })
+      }
+    })()
+
+    const button = Button()
+
+    RenderInto(document.body, button)
+      .then(() => {
+        const buttonEl = document.body.firstElementChild!.firstElementChild!
+
+        expect(clickPayloads).toEqual([])
+
+        dispatchMouseEventOn(buttonEl, 'click')
+
+        expect(clickPayloads).toEqual([0])
+
+        return nextFrame().then(() => buttonEl)
+      })
+      .then(buttonEl => {
+
+        dispatchMouseEventOn(buttonEl, 'click')
+
+        expect(clickPayloads).toEqual([0, 1])
+
+        return nextFrame().then(() => buttonEl)
+      })
+      .then(buttonEl => {
+
+        dispatchMouseEventOn(buttonEl, 'click')
+
+        expect(clickPayloads).toEqual([0, 1, 2])
+      })
+      .then(done)
+      .catch(done)
+  })
+
 
   // it('can create partially applied Messages at a fair speed', () => {
   //   const message = Message<[string, number]>('')
@@ -926,4 +981,15 @@ function nextFrame() {
 
 function RenderInto(arg1: any, arg2: any) {
   return new Promise(resolve => Render.into(arg1, arg2, resolve))
+}
+
+function dispatchMouseEventOn(target: EventTarget, name: string) {
+  const evt = new MouseEvent(name)
+  target.dispatchEvent(evt)
+}
+
+function dispatchTouchEventOn(target: EventTarget, name: string) {
+  const evt = document.createEvent('TouchEvent')
+  evt.initEvent(name, true, true)
+  target.dispatchEvent(evt)
 }
