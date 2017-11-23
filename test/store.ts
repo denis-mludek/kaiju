@@ -196,4 +196,26 @@ describe('Store', () => {
   })
 
 
+  it('can send partially applied messages', () => {
+
+    const message = Message<string, number>('message')
+
+    let received: [string, number] | undefined
+
+    const store = Store({}, ({ on, msg }) => {
+      on(message, (str, num) => {
+        received = [str, num]
+      })
+    })
+
+    store.send(message.with('hey')(10))
+
+    expect(received).toEqual(['hey', 10])
+
+    store.send(message.with('oh').with(20)())
+
+    expect(received).toEqual(['oh', 20])
+  })
+
+
 })

@@ -47,11 +47,16 @@ export function Store(initialState, registerHandlers, options = empty) {
 
   function on(src, fn) {
     if (src._isMessage) {
+      if (src.type === 'partiallyAppliedMessage') {
+        console.error(`You should not use on() with a partially applied message - Ignoring "${src._name}"`)
+        return
+      }
+
       handlers[src._id] = fn
     }
     else {
       const unsubscribe = src.subscribe((val, name) => {
-        receive(name, fn, val)
+        receive(name, fn, [val])
       })
 
       subscriptions.push(unsubscribe)
@@ -84,7 +89,7 @@ export function Store(initialState, registerHandlers, options = empty) {
               'font-weight: bold', 'with', arg
             )
 
-          const result = handler(arg)
+          const result = handler.apply(null, arg)
           if (result !== undefined) state = result
         }
 
@@ -100,7 +105,7 @@ export function Store(initialState, registerHandlers, options = empty) {
   }
 
   store.state = Observable()(initialState).named(`${storeName}.state`)
-  // Eagerly activate (hot)
+  // Eagerly activate so that any backing resource is involved now.
   store.state.subscribe(x => x)
 
   registerHandlers({on, msg, state: store.state})
@@ -118,7 +123,7 @@ export function Store(initialState, registerHandlers, options = empty) {
     const obss = listened[_id]
 
     if (obss) {
-      obss.forEach(obs => obs(payload))
+      obss.forEach(obs => obs(unpackPayload(payload)))
       handled = true
     }
 
@@ -127,7 +132,7 @@ export function Store(initialState, registerHandlers, options = empty) {
     const unhandled = handlers[Message.unhandled._id]
 
     if (unhandled) {
-      receive(Message.unhandled._name, unhandled, message)
+      receive(Message.unhandled._name, unhandled, [message])
       return
     }
 
@@ -143,6 +148,12 @@ export function Store(initialState, registerHandlers, options = empty) {
   }
 
   return store
+}
+
+function unpackPayload(payload) {
+  if (payload.length === 0) return undefined
+  if (payload.length === 1) return payload[0]
+  return payload
 }
 
 const empty = {}

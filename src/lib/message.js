@@ -5,8 +5,12 @@ let messageId = 1
 export default function Message(name) {
   const _id = messageId++
 
-  function message(payload) {
-    const result = { _id, _name: name, payload }
+  function message(...payload) {
+    const result = {
+      _id,
+      _name: name,
+      payload
+    }
     result.is = messageIs
     return result
   }
@@ -28,16 +32,24 @@ function messageIs(ofType) {
 }
 
 /** Creates a new Message type that is partially applied with a payload */
-function PartiallyAppliedMessage(message, payload) {
+function PartiallyAppliedMessage(underlyingMessage, payload) {
 
-  function result(maybeOtherPayload) {
-    return message(arguments.length !== 0 ? [payload, maybeOtherPayload] : payload)
+  function message(...otherPayloads) {
+    return underlyingMessage.apply(null, [payload, ...otherPayloads])
   }
 
-  result.type = 'partiallyAppliedMessage'
-  result.payload = payload
+  message.type = 'partiallyAppliedMessage'
 
-  return result
+  message._id = underlyingMessage._id
+  message._name = underlyingMessage._name
+  message._isMessage = true
+
+  message.with = withPayload
+
+  // Used for VDOM Diffing (See util/shallowEqual)
+  message.payload = payload
+
+  return message
 }
 
 

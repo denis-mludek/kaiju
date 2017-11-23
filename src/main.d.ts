@@ -86,66 +86,76 @@ export var log: {
 
 // Messages
 
-/**
- * A Message taking a payload
- */
-export interface Message<P> {
+export namespace Message {
+
   /**
-   * Creates a new message payload, ready to be sent.
+   * A Message taking no payload
    */
-  (payload: P): MessagePayload<P>
+  export type NoPayload = {
+    /**
+     * Creates a new (empty) message payload, ready to be sent.
+     */
+    (): MessagePayload<never>
+  }
+
+  /**
+   * A Message taking one payload
+   */
+  export type OnePayload<P> = {
+    /**
+     * Creates a new message payload, ready to be sent.
+     */
+    (p: P): MessagePayload<[P]>
+
+    /**
+     * Creates a new Message that aleady has its payload set.
+     * The created Message can not be used with on().
+     */
+    with(p: P): Message.NoPayload
+  }
+
+  /**
+   * A Message taking two payloads
+   */
+  export type TwoPayloads<P1, P2> = {
+
+    /**
+     * Creates a new message payload, ready to be sent.
+     */
+    (p1: P1, p2: P2): MessagePayload<[P1, P2]>
+
+    /**
+     * Creates a new Message that has part of its payload set.
+     * The created Message can not be used with on().
+     * Note: A partially applied message originally taking a scalar payload cannot be used as a DOM handler as an Event is always passed.
+     */
+    with(p1: P1): Message.OnePayload<P2>
+  }
 }
 
-/**
- * A Message taking no payload
- */
-export interface NoArgMessage {
-  (): MessagePayload<undefined>
-}
-
-export interface DefaultNoArgMessage extends NoArgMessage {
-  type: 'defaultNoArgMessage'
-}
-
-export interface DefaultMessage<P> extends Message<P> {
-  type: 'defaultMessage'
+interface MessageFactory {
+  /**
+   * Creates a new Message type with a debug name. The message carries no payload.
+   */
+  (name: string): Message.NoPayload
 
   /**
-   * Creates a new Message that has part of its payload set.
-   * The created Message can not be used with on().
-   * Note: A partially applied message originally taking a scalar payload cannot be used as a DOM handler as an Event is always passed.
+   * Creates a new Message type with a debug name. The message carries one payload.
    */
-  with<P1, P2>(this: Message<[P1, P2]>, partOfThePayload: P1): PartiallyAppliedMessage<P2>
+  <P>(name: string): Message.OnePayload<P>
 
   /**
-   * Creates a new Message that aleady has its payload set.
-   * The created Message can not be used with on().
+   * Creates a new Message type with a debug name. The message carries two payloads.
    */
-  with<P1>(this: Message<P1>, payload: P1): PartiallyAppliedNoArgMessage
-}
-
-// Alias so we get more context in compilation errors.
-interface PartiallyAppliedMessage<P> extends Message<P> {}
-interface PartiallyAppliedNoArgMessage extends NoArgMessage {}
-
-interface MessageObject {
-  /**
-   * Creates a new Message type with a debug name. The message carry no payload.
-   */
-  (name: string): DefaultNoArgMessage
-
-  /**
-   * Creates a new Message type with a debug name. The message carry one payload.
-   */
-  <P>(name: string): DefaultMessage<P>
+  <P1, P2>(name: string): Message.TwoPayloads<P1, P2>
 
   /**
    * A special message sent when another message was not handled
    */
-  unhandled: DefaultMessage<MessagePayload<{}>>
+  unhandled: Message.OnePayload<MessagePayload<{}>>
 }
 
-export var Message: MessageObject
+export var Message: MessageFactory
 
 
 /**
@@ -159,24 +169,34 @@ export interface MessagePayload<P> {
   /**
    * Returns whether this payload was created using the given message
    */
-  is<T>(message: NoArgMessage): this is MessagePayload<undefined>
+  is<T>(message: Message.NoPayload): this is MessagePayload<never>
 
   /**
    * Returns whether this payload was created using the given message
    */
-  is<T>(message: Message<T>): this is MessagePayload<T>
+  is<T>(message: Message.OnePayload<T>): this is MessagePayload<[T]>
+
+  /**
+   * Returns whether this payload was created using the given message
+   */
+  is<T1, T2>(message: Message.TwoPayloads<T1, T2>): this is MessagePayload<[T1, T2]>
 }
 
 export interface Messages {
   /**
    * Listens to a message sent from immediate VNodes or component children
    */
-  listen<P>(message: DefaultMessage<P>): Observable<P>
+  listen<P1, P2>(message: Message.TwoPayloads<P1, P2>): Observable<[P1, P2]>
 
   /**
    * Listens to a message sent from immediate VNodes or component children
    */
-  listen(message: DefaultNoArgMessage): Observable<undefined>
+  listen<P>(message: Message.OnePayload<P>): Observable<P>
+
+  /**
+   * Listens to a message sent from immediate VNodes or component children
+   */
+  listen(message: Message.NoPayload): Observable<undefined>
 
   /**
    * Listens to all messages bubbling up to a particular DOM node
@@ -208,12 +228,8 @@ export interface Messages {
 // snabbdom
 
 type EventHandler<E> =
-  // Either A new created Message<Event>
-  DefaultMessage<E> |
-  // or a Message<[X, Event]> that was partially applied
-  PartiallyAppliedMessage<E> |
-  // or a NoArgMessage that was not partially applied.
-  DefaultNoArgMessage
+  Message.NoPayload |
+  Message.OnePayload<E>
 
 interface VNodeData {
   /* Work around structural typing */

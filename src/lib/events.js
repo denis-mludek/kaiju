@@ -14,22 +14,17 @@ function updateEventListeners(oldVnode, vnode) {
   events.listeners = listeners
 
   for (name in events) {
-    const current = events[name]
-    const old = oldEvents && oldEvents[name]
+    const message = events[name]
+    const oldMessage = oldEvents && oldEvents[name]
 
-    if (current && current !== old) {
+    if (message && message !== oldMessage) {
 
-      if (old && isSameMessageAndPayload(
-        current,
-        current.payload,
-        old,
-        old.payload)) continue
-
+      if (oldMessage && isSameMessageAndPayload(message, oldMessage)) continue
 
       if (listeners[name])
         vnode.elm.removeEventListener(name, listeners[name])
 
-      listeners[name] = evt => _sendToElement(evt.currentTarget, current(evt))
+      listeners[name] = evt => _sendToElement(evt.currentTarget, message(evt))
       vnode.elm.addEventListener(name, listeners[name])
     }
   }
@@ -42,8 +37,8 @@ function updateEventListeners(oldVnode, vnode) {
   }
 }
 
-function isSameMessageAndPayload(message, payload, oldMessage, oldPayload) {
-  return (message._id === oldMessage._id) && (payload === oldPayload)
+function isSameMessageAndPayload(message, oldMessage) {
+  return (message._id === oldMessage._id) && (message.payload === oldMessage.payload)
 }
 
 export const eventsModule = {

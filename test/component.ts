@@ -2,7 +2,7 @@ require('jsdom-global')()
 global.requestAnimationFrame = (fn: Function) => setTimeout(fn, 1)
 
 import * as expect from 'expect'
-import { Component, h, startApp, Render, ConnectParams, RenderParams, VNode, Messages, Message, NoArgMessage } from '..'
+import { Component, h, startApp, Render, ConnectParams, RenderParams, VNode, Messages, Message } from '..'
 
 
 /** Utils **/
@@ -198,7 +198,7 @@ describe('Component', () => {
 
     const div = (() => {
       const clickMsg = Message<MouseEvent>('click')
-      const touchStartMsg = Message<[number, TouchEvent]>('touchStart')
+      const touchStartMsg = Message<number, TouchEvent>('touchStart')
       const stopListeningToClick = Message('stopListeningToClick')
 
       type State = { listenToClick: boolean }
@@ -212,7 +212,7 @@ describe('Component', () => {
           receivedClickMessage = true
         })
 
-        on(touchStartMsg, ([data, evt]) => {
+        on(touchStartMsg, (data, evt) => {
           expect(evt.currentTarget).toExist()
           expect(data).toBe(13)
           receivedTouchStartMessage = true
@@ -476,7 +476,7 @@ describe('Component', () => {
     let compMsg: Messages
     const texts: string[] = []
 
-    const ping = Message<[string, MouseEvent]>('ping')
+    const ping = Message<string, MouseEvent>('ping')
 
     const comp = (() => {
       function initState() { return {} }
@@ -484,7 +484,7 @@ describe('Component', () => {
       function connect({ on, msg }: ConnectParams<{}, {}>) {
         compMsg = msg
 
-        on(ping, ([text, evt]) => {
+        on(ping, (text, evt) => {
           expect(evt.currentTarget).toNotBe(undefined!)
           texts.push(text)
         })
@@ -516,28 +516,23 @@ describe('Component', () => {
   })
 
 
-  it('can use any sort of Messages in an interop way', () => {
+  it('can use any sort of Messages in an interop way', done => {
 
-    const myBoundMessage: Message<MouseEvent> = Message<[string, MouseEvent]>('').with('ping')
+    const myBoundMessage: Message.OnePayload<MouseEvent> = Message<string, MouseEvent>('').with('ping')
 
-    const myBoundNoArgMessage: NoArgMessage = Message<string>('hey').with('oh')
+    const myBoundNoArgMessage: Message.NoPayload = Message<string>('hey').with('oh')
 
-    const myBoundOneArgMessage = Message<[string, number]>('hey').with('oh')
+    const myBoundOneArgMessage = Message<string, number>('hey').with('oh')
 
-    const myBoundOneArgEventMessage = Message<[string, MouseEvent]>('hey').with('oh')
+    const myBoundOneArgEventMessage = Message<string, MouseEvent>('hey').with('oh')
 
-    const myRegularNoArgMessage: NoArgMessage = Message('hey')
+    const myRegularNoArgMessage: Message.NoPayload = Message('hey')
 
     h('div', {
       events: { click: myBoundOneArgEventMessage  }
     })
 
-    // These should not compile, as the compiler can't garantee these messages were not bound
-
-    // h('div', {
-    //   events: { click: myBoundNoArgMessage  }
-    // })
-
+    // This should not compile as and event handler should either accept a NoPayload message or a OnePayload<Event> one
     // h('div', {
     //   events: { click: myBoundOneArgMessage  }
     // })
@@ -545,10 +540,10 @@ describe('Component', () => {
     // const comp = (() => {
     //   function initState() { return {} }
 
-    //   const boundMessage = Message<[string, number]>('bound').with('')
+    //   const boundMessage = Message<string, number>('bound').with('')
 
     //   function connect({ on, msg }: ConnectParams<{}, {}>) {
-
+    //     // This should print a console error as listening to a partially applied message makes no sense
     //     on(boundMessage, () => {})
     //   }
 
@@ -561,14 +556,18 @@ describe('Component', () => {
     //   }
     // })()
 
+    // RenderInto(document.body, comp())
+    //   .then(done)
+    //   .catch(done)
+    done()
   })
 
 
   it('can listen to any messages transiting through a DOM Element', done => {
     const receivedMessages: string[] = []
 
-    const messageFromTheRight = Message<[string, MouseEvent]>('messageFromTheRight')
-    const messageFromTheRight2 = Message<[string, MouseEvent]>('messageFromTheRight2')
+    const messageFromTheRight = Message<string, MouseEvent>('messageFromTheRight')
+    const messageFromTheRight2 = Message<string, MouseEvent>('messageFromTheRight2')
 
     const leftEl = document.createElement('main')
     document.body.appendChild(leftEl)
@@ -659,7 +658,7 @@ describe('Component', () => {
     const updateChildMessageProp = Message('')
 
     const onChildChange = Message<number>('')
-    const onComplete = Message<[number, string]>('')
+    const onComplete = Message<number, string>('')
 
     const parent = (() => {
       type State = {
@@ -708,8 +707,8 @@ describe('Component', () => {
       type Props = {
         id: string
         childProp: number
-        onChange: Message<number>
-        onComplete: Message<string>
+        onChange: Message.OnePayload<number>
+        onComplete: Message.OnePayload<string>
       }
 
       function initState() { return {} }
@@ -897,7 +896,7 @@ describe('Component', () => {
   it('removes previously bound messages DOM listeners', done => {
     
     const clickPayloads: number[] = []
-    const click = Message<[number, MouseEvent]>('click')
+    const click = Message<number, MouseEvent>('click')
 
     const Button = (() => {
 
@@ -912,7 +911,7 @@ describe('Component', () => {
       }
 
       function connect({ on, state }: ConnectParams<{}, State>) {
-        on(click, ([payload]) => {
+        on(click, payload => {
           clickPayloads.push(payload)
           return { currentPayload: state().currentPayload + 1 }
         })
@@ -958,7 +957,6 @@ describe('Component', () => {
       .then(done)
       .catch(done)
   })
-
 
   // it('can create partially applied Messages at a fair speed', () => {
   //   const message = Message<[string, number]>('')

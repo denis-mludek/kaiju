@@ -1,5 +1,5 @@
 
-import { DefaultMessage, DefaultNoArgMessage, MessagePayload } from '../main'
+import { Message, MessagePayload } from '../main'
 import { ObservableWithInitialValue, Observable } from '../observable'
 
 
@@ -16,26 +16,33 @@ export interface RegisterMessages<S> {
    * The handler is called with the current state.
    * Returning undefined or the current state in the handler is a no-op.
    */
-  (message: DefaultNoArgMessage, handler: () => S|void): void
+  (message: Message.NoPayload, handler: () => S|void): void
 
   /**
    * Registers a Message and call the handler function every time the message is sent.
    * The handler is called with the current state and the payload of the message.
    * Returning undefined or the current state in the handler is a no-op.
    */
-  <P>(message: DefaultMessage<P>, handler: (payload: P) => S|void): void
+  <P>(message: Message.OnePayload<P>, handler: (payload: P) => S|void): void
+
+  /**
+   * Registers a Message and call the handler function every time the message is sent.
+   * The handler is called with the current state and the payload of the message.
+   * Returning undefined or the current state in the handler is a no-op.
+   */
+  <P1, P2>(message: Message.TwoPayloads<P1, P2>, handler: (payload1: P1, payload2: P2) => S|void): void
 }
 
 export interface Messages {
   /**
    * Listens for a particular message. This is used to create a new Observable.
    */
-  listen<P>(message: DefaultMessage<P>): Observable<P>
+  listen<P>(message: Message.OnePayload<P>): Observable<P>
 
   /**
    * Listens for a particular message. This is used to create a new Observable.
    */
-  listen(message: DefaultNoArgMessage): Observable<undefined>
+  listen(message: Message.NoPayload): Observable<undefined>
 
   /**
    * Sends a message to self.
