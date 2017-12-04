@@ -1,19 +1,19 @@
 {
-	"compilerOptions": {
-		"lib": [ "es5", "es6", "es2015.core", "dom", "dom.iterable", "es2015.iterable" ],
-		"noEmit": true,
+  "compilerOptions": {
+    "lib": [ "es5", "es6", "es2015.core", "dom", "dom.iterable", "es2015.iterable" ],
+    "noEmit": true,
     "noImplicitAny": true,
     "strictNullChecks": true,
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "forceConsistentCasingInFileNames": true
-	},
-	"compileOnSave": false,
-	"atom": {
-		"rewriteTsconfig": false
-	},
-	"filesGlob": [
-		"src/**/*.d.ts",
+  },
+  "compileOnSave": false,
+  "atom": {
+    "rewriteTsconfig": false
+  },
+  "filesGlob": [
+    "src/**/*.d.ts",
     "test/**/*.ts"
-	]
+  ]
 }

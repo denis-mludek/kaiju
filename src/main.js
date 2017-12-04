@@ -5,6 +5,7 @@ import toVNode from 'snabbdom/tovnode'
 
 import { setPatchFunction, renderSync, Render } from './lib/render'
 import Component from './lib/component'
+import connectToStore from './lib/connectToStore'
 import Message from './lib/message'
 import { eventsModule } from './lib/events'
 import { Observable } from './observable'
@@ -20,6 +21,7 @@ function startApp({ app, elm, replaceElm, snabbdomModules }) {
 
 export {
   Component,
+  connectToStore,
   Message,
   Observable,
   Store,

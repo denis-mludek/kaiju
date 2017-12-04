@@ -37,6 +37,28 @@ describe('Render', () => {
     })
 
 
+    it('can diff a previously rendered element', done => {
+
+      function vdom(text: string) {
+        return h('div', h('p', text))
+      }
+
+      const firstVdom = vdom('Hi')
+
+      RenderInto(document.body, firstVdom).then(() =>
+        document.body.firstElementChild!
+      )
+      .then(div =>
+        RenderInto(firstVdom, vdom('Bye')).then(() => {
+          const divAfterUpdate = document.body.firstElementChild!
+          expect(div).toBe(divAfterUpdate)
+        })
+      )
+      .then(done)
+      .catch(done)
+    })
+
+
     it('can render an Array of VNodes into an element', done => {
 
       const init = [
@@ -169,3 +191,8 @@ describe('Render', () => {
 
 
 })
+
+
+function RenderInto(arg1: any, arg2: any) {
+  return new Promise(resolve => Render.into(arg1, arg2, resolve))
+}

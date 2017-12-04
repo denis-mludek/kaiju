@@ -63,7 +63,7 @@ export interface Store<S> {
   /**
    * Sends a message to this store.
    */
-  send: <P>(payload: MessagePayload<P>) => void
+  send<P>(payload: MessagePayload<P>): void
 
   /**
    * Destroys this transient store

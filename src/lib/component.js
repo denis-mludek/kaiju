@@ -10,14 +10,14 @@ import log, { shouldLog } from './log'
 const empty = {}
 
 export default function Component(options) {
-  const { name, props = empty, sel = 'component', initState, connect, render } = options
+  const { name, props = empty, sel = 'component', initState, connect, render, log = true } = options
 
   const key = props.key === undefined ? name : `${name}_${props.key}`
 
   const data = {
     key,
     hook: { insert, postpatch, destroy },
-    component: { props, initState, connect, render, key: name },
+    component: { props, initState, connect, render, key: name, log },
     attrs: { name }
   }
 
@@ -81,7 +81,7 @@ function insert(vnode) {
 
   }, {
     name: component.key,
-    log: shouldLog(log.message, component.key)
+    log: shouldLog(log.message, component)
   })
 
   component.store.state.sliding2().subscribe(([newState, oldState]) => {

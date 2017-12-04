@@ -7,9 +7,17 @@ export function Set() {
   return set
 }
 
+/* An optimized Object.assign */
+export function assign(t) {
+  for (var s, i = 1, n = arguments.length; i < n; i++) {
+    s = arguments[i]
+    for (var p in s) t[p] = s[p]
+  }
+  return t
+}
+
 
 /* Efficient shallow comparison of two objects */
-
 export function shallowEqual(objA, objB) {
   if (objA === objB) return true
 

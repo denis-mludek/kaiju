@@ -31,11 +31,12 @@
     "babel-cli": "6.4.5",
     "babel-preset-es2015": "6.24.0",
     "babel-preset-es2015-no-commonjs": "0.0.2",
-    "mocha": "2.2.5",
+    "mocha": "4.0.1",
     "expect": "1.8.0",
     "jsdom": "10.1.0",
     "jsdom-global": "3.0.2",
-    "cross-env": "5.1.1"
+    "cross-env": "5.1.1",
+    "ts-node": "3.3.0"
   },
 
   "scripts": {
@@ -49,8 +50,7 @@
     "example-dev": "npm run copy-typings-commonjs && npm run babel-commonjs && npm run copy-lib-to-example",
 
     "build": "npm run copy-typings-commonjs && npm run copy-typings-es && npm run babel-commonjs && npm run babel-es",
-    
-    "pretest": "npm run build && find test -name '*.ts' | xargs tsc --outDir ./test --noImplicitAny --strictNullChecks --lib dom,es5,es6",
-    "test": "mocha --recursive --timeout 300"
+
+    "test": "cross-env TS_NODE_COMPILER_OPTIONS={\\\"module\\\":\\\"commonjs\\\"} mocha --require ts-node/register test/*.ts"
   }
 }

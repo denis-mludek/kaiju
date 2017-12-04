@@ -113,7 +113,7 @@ function renderComponent(component) {
 
   patchInto(target, newVNode)
 
-  if (shouldLog(log.render, component.key)) {
+  if (shouldLog(log.render, component)) {
     const renderTime = Math.round((performance.now() - beforeRender) * 100) / 100
     console.log(`Render component %c${component.key}`,
       'font-weight: bold', renderTime + ' ms', '| props: ', props, '| state: ', store.state())

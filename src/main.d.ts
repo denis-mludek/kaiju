@@ -31,7 +31,7 @@ import { Observable, ObservableWithInitialValue } from './observable'
 
 // Components
 
-import { RegisterMessages } from './store'
+import { Store, RegisterMessages } from './store'
 
 export interface ConnectParams<P, S> {
   on: RegisterMessages<S>
@@ -56,6 +56,7 @@ interface Props {
 interface ComponentOptions<P extends Props, S extends {}> {
   name: string
   sel?: string
+  log?: boolean
   props?: P
   initState: (initProps: P) => S
   connect: (params: ConnectParams<P, S>) => void
@@ -317,6 +318,17 @@ export const Render: {
   /** Schedules a DOM write operation to be batched with all the other writes at the end of next frame's render. Prevents layout trashing. **/
   scheduleDOMWrite(callback: () => void): void
 }
+
+
+export function connectToStore<STORE extends Store<any>>(): <OWNPROPS, K extends keyof OWNPROPS>(
+  baseComponent: (baseProps: OWNPROPS) => VNode,
+  storeStateToProps: (store: STORE) => { [k in K]: OWNPROPS[K] }
+) => (mergedProps: Omit<OWNPROPS, K> & { store: STORE }) => VNode
+
+// Diff / Omit taken from https://github.com/Microsoft/TypeScript/issues/12215#issuecomment-311923766
+type Diff<T extends string, U extends string> = ({ [P in T]: P } & { [P in U]: never } & { [x: string]: never })[T]
+type Omit<T, K extends keyof T> = Pick<T, Diff<keyof T, K>>
+
 
 export { Observable } from './observable'
 export { Store } from './store'

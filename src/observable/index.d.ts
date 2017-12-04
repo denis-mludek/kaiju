@@ -9,6 +9,9 @@ export type PromiseResult<T> =
 
 
 export interface Observable<T> {
+
+  __T: T
+
   /**
    * Subscribes to this observable values and returns a function that may be used to unsubscribe.
    */

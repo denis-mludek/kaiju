@@ -2,7 +2,9 @@ require('jsdom-global')()
 global.requestAnimationFrame = (fn: Function) => setTimeout(fn, 1)
 
 import * as expect from 'expect'
-import { Component, h, startApp, Render, ConnectParams, RenderParams, VNode, Messages, Message } from '..'
+import { Component, h, startApp, Render, ConnectParams,
+  RenderParams, VNode, Messages, Message, connectToStore, Store } from '..'
+import { incrementCounter } from '../example/src/view/app/store';
 
 
 /** Utils **/
@@ -957,6 +959,91 @@ describe('Component', () => {
       .then(done)
       .catch(done)
   })
+
+
+  it('can be connected to a store via a Higher Order Component', done => {
+
+    const renderedProps: Props[] = []
+
+    const increaseBy = Message<number>('increaseBy')
+
+    const initState = { num: 1 }
+
+    const store = Store(initState, ({ on, state }) => {
+      on(increaseBy, by => ({ num: state().num + by }))
+    })
+
+    type StoreType = typeof store
+
+    type Props = {
+      counter: number // From the store
+      mode: '1' | '2' // From the direct parent
+      opt?: string
+    }
+
+    const BaseComponent = (() => {
+
+      function initState() { return {} }
+
+      function connect({}: ConnectParams<Props, {}>) {}
+
+      function render({ props }: RenderParams<Props, {}>) {
+        renderedProps.push(props)
+        return h('button')
+      }
+
+      return function(props: Props) {
+        return Component<Props, {}>({ name: 'baseComponent', props, log: false, initState, connect, render })
+      }
+    })()
+
+    const ConnectedComponent = connectToStore<StoreType>()(
+      BaseComponent,
+      store => ({ counter: store.state().num })
+    )
+
+    const initVDOM = ConnectedComponent({ mode: '1', store })
+
+    RenderInto(document.body, initVDOM)
+      .then(() => {
+        expect(renderedProps).toEqual([{ mode: '1', counter: 1 }])
+      })
+      .then(() => {
+        const newVDOM = ConnectedComponent({ mode: '1', store })
+        return RenderInto(initVDOM, newVDOM).then(() => newVDOM)
+      })
+      .then(currentVDOM => {
+        // This should be a noop as no props were changed
+        expect(renderedProps).toEqual([{ mode: '1', counter: 1 }])
+        renderedProps.length = 0
+
+        const newVDOM = ConnectedComponent({ mode: '2', store })
+        return RenderInto(currentVDOM, newVDOM)
+      })
+      .then(() => {
+        expect(renderedProps).toEqual([{ mode: '2', counter: 1 }])
+        renderedProps.length = 0
+      })
+      .then(() => {
+        store.send(increaseBy(1))
+        return nextFrame()
+      })
+      .then(() => {
+        expect(renderedProps).toEqual([{ mode: '2', counter: 2 }])
+        renderedProps.length = 0
+      })
+      .then(() => {
+        store.send(increaseBy(0))
+        return nextFrame()
+      })
+      .then(() => {
+        // This should be a noop as the store state didn't change
+        expect(renderedProps).toEqual([])
+      })
+      .then(done)
+      .catch(done)
+  })
+
 
   // it('can create partially applied Messages at a fair speed', () => {
   //   const message = Message<[string, number]>('')

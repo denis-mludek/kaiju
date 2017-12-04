@@ -5,6 +5,6 @@ export default {
   message: false
 }
 
-export function shouldLog(log, key) {
-  return (log === true || log === key)
+export function shouldLog(log, component) {
+  return (component.log === true && (log === true || log === component.key))
 }
