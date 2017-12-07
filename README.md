@@ -228,7 +228,7 @@ export default function(props: Props) {
 interface Props {
   text: string
   paragraph: string
-  onClick: Message<Event>
+  onClick: Message.OnePayload<Event>
 }
 
 
@@ -241,7 +241,7 @@ const click = Message('click')
 
 
 function connect({ on, props, msg }: ConnectParams<Props, State>) {
-  on(click, (_, event) => msg.sendToParent(props().onClick(event)))
+  on(click, event => msg.sendToParent(props().onClick(event)))
 }
 
 
@@ -259,14 +259,14 @@ function render({ props, state }: RenderParams<Props, {}>) {
 We now delegate and send a message to our direct parent component so that it can, in turn, listen to that message from its `connect` function and update its own state.
 Note: The child component could send the same Message to its parent (delegation) but we choose to go with an explicit `onClick` property to increase semantics, cohesion and typesafety.
 
-At this point, the component is no longer stateful and providing it didn't have any other state, should be refactored back to a simple function returning a `VNode`:
+At this point, the component is no longer stateful and providing it didn't have any other state, should probably be refactored back to a simple function returning a `VNode`:
 
 ```ts
 
 interface Props {
   text: string
   paragraph: string
-  onClick: Message<Event>
+  onClick: Message.OnePayload<Event>
 }
 
 function button(props: Props) {
@@ -292,7 +292,7 @@ export default function<T>(props: Props<T>) {
 type Props<T> = {
   items: T[]
   selectedItem: T
-  onChange: Message<T>
+  onChange: Message.OnePayload<T>
 }
 
 type State = {
@@ -582,7 +582,7 @@ function connect({ on }: ConnectProps<Props, State>) {
   })
 }
 ```
-You can also reproduce the same behavior imperatively:
+You could also reproduce the same behavior imperatively:
 
 ```ts
 import { Observable } from 'kaiju'
@@ -716,6 +716,54 @@ function connect({ on, state }: ConnectParams<{}, State>) {
 userStore.send(setUserName('Monique'))
 ```
 
+### connectToStore
+
+Similarly to redux, a function is provided to create a new Component/function from an existing Component/function and a selector:  
+
+```ts
+  import { Component, ConnectParams, RenderParams, Message, Store, connectToStore } from 'kaiju'
+
+  const increaseBy = Message<number>('increaseBy')
+
+  const initState = { num: 1 }
+
+  const store = Store(initState, ({ on, state }) => {
+    on(increaseBy, by => ({ num: state().num + by }))
+  })
+
+  type StoreType = typeof store
+
+  type Props = {
+    counter: number // From the store
+    mode: '1' | '2' // From the direct parent
+    opt?: string
+  }
+
+  const BaseComponent = (() => {
+
+    function initState() { return {} }
+
+    function connect({}: ConnectParams<Props, {}>) {}
+
+    function render({ props }: RenderParams<Props, {}>) {
+      renderedProps.push(props)
+      return h('button')
+    }
+
+    return function(props: Props) {
+      return Component<Props, {}>({ name: 'baseComponent', props, initState, connect, render })
+    }
+  })()
+
+  const ConnectedComponent = connectToStore<StoreType>()(
+    BaseComponent,
+    store => ({ counter: store.state().num })
+  )
+
+  const connectedComponent = ConnectedComponent({ mode: '1', store })
+```
+
+It can only connect to a single store as you usually have a global store, or a very local one that can plug into other stores' data.
 
 <a name="api"></a>
 # API
@@ -795,7 +843,7 @@ Note: Any synchronous observables further modifying the state in `connect` will 
 
 ### connect
 
-Mandatory `function({ on, msg, props }: ConnectParams<Props, State>): void`  
+Mandatory `function({ on, msg, props, state }: ConnectParams<Props, State>): void`  
 Connects the component to the app and computes the local state of the component.  
 `connect` is called only once when the component is mounted.  
 
@@ -804,31 +852,6 @@ Connects the component to the app and computes the local state of the component.
 - `on` registers a `Message` or `Observable` that modifies the component local state.
 The Observable will be automatically unsubscribed from when the component is unmounted.  
 Returning the current state or `undefined` in an `on` handler will skip rendering and can be used to do side effects.
-
-Full interface:
-
-```ts
-/**
- * Registers an Observable<Value> and call the handler function every time the observable has a new value.
- * The handler is called with the current component state and the new value of the observable.
- * Returning undefined or the current state in the handler is a no-op.
- */
-<T>(observable: Observable<T>, handler: (value: T) => S|void): void
-
-/**
- * Registers a Message and call the handler function every time the message is sent.
- * The handler is called with the current component state.
- * Returning undefined or the current state in the handler is a no-op.
- */
-(message: NoArgMessage, handler: () => S|void): void
-
-/**
- * Registers a Message and call the handler function every time the message is sent.
- * The handler is called with the current component state and the payload of the message.
- * Returning undefined or the current state in the handler is a no-op.
- */
-<P>(message: Message<P>, handler: (payload: P) => S|void): void
-```
 
 - `msg` is the interface used to send and listen to messages.
 
@@ -1012,6 +1035,16 @@ const incrementBy2 = Message<[number, Event]>('incrementBy')
 incrementBy2.with(33) // Message<Event>
 ```
 
+To store references of messages with a specific number of payloads, use:
+
+```ts
+const msg0: Message.NoPayload
+
+const msg1: Message.OnePayload<string>
+
+const msg2: Message.TwoPayloads<string, number>
+```
+
 
 <a name="api-message-send-store"></a>
 ### Sending a message to a Store instance (usually to update application/domain state)
@@ -1076,7 +1109,7 @@ Use cases
 2) Set part of the payload of a child's callback Message with information only useful to the parent (e.g, which child was this?)
 
 ```ts
-const onClick = Message<[string, MouseEvent]>('onClick')
+const onClick = Message<string, MouseEvent>('onClick')
 
 function render() {
   return h('button', {

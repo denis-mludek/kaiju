@@ -4,7 +4,6 @@ global.requestAnimationFrame = (fn: Function) => setTimeout(fn, 1)
 import * as expect from 'expect'
 import { Component, h, startApp, Render, ConnectParams,
   RenderParams, VNode, Messages, Message, connectToStore, Store } from '..'
-import { incrementCounter } from '../example/src/view/app/store';
 
 
 /** Utils **/
