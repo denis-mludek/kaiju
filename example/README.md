@@ -3,11 +3,9 @@ This example showcases:
 
 - Typesafe routing
 - Enter/Exit animation of views
-- Custom select/popup components
 - How to do ajax without concurrency issues
-
-The example is deployed [here](http://alexgalays.github.io/kaiju/example/public/#/blue/33/green)
-
+- Absolute typescript module imports
+- CSS modules
 
 Installation:  
 

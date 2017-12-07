@@ -1,0 +1,8 @@
+ 
+// Workaround for a CSS module issue: https://github.com/css-modules/css-modules/issues/141#issuecomment-293092109
+.animation(@name, @duration, @ease: ease-out) {
+  animation-name: @name;
+  animation-duration: @duration;
+  animation-timing-function: @ease;
+  animation-fill-mode: both;
+}

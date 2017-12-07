@@ -1,0 +1,30 @@
+@import "../common/style/reset.less";
+@import "../common/style/index.less";
+
+
+html { font-size: 62.5% }
+
+html, body { overflow: hidden }
+
+body {
+  background-color: @bgColor;
+  font-family: @fontPrimary;
+  font-size: @fontSize;
+  color: @darkGrey;
+  margin: 40px;
+}
+
+.screenLayer {
+  overflow-x: hidden;
+  overflow-y: scroll;
+  height: 100vh;
+  width: 100%;
+  position: absolute;
+  -webkit-overflow-scrolling: touch;
+}
+
+.header {
+  background: #AAA;
+  padding: 10px;
+  margin-bottom: 20px;
+}

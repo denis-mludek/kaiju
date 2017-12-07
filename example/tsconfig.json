@@ -1,22 +1,22 @@
 {
   "compilerOptions": {
     "target": "es5",
-    "lib": [ "es5", "es6", "es2015.core", "dom" ],
+    "module": "es6",
+    "moduleResolution": "node",
+    "lib": [ "es5", "es6", "es2015.promise", "dom" ],
     "baseUrl": ".",
-    "paths": { "*": [ "./src/*" ] },
+    "paths": { "*": [ "src/*" ] },
+    "sourceMap": true,
     "strict": true,
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
     "noUnusedLocals": true,
-    "noUnusedParameters": true
-  },
-  "compileOnSave": false,
-  "atom": {
-    "rewriteTsconfig": false
+    "noUnusedParameters": true,
+    "forceConsistentCasingInFileNames": true
   },
   "include": [
-    "src/**/*.*",
-    "typings/**/*.d.ts"
+    "typing/*.d.ts",
+    "src/**/*",
+    "**/test.ts"
   ]
 }

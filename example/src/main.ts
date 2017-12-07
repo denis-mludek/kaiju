@@ -1,25 +1,29 @@
-import classModule from 'snabbdom/modules/class'
-import propsModule from 'snabbdom/modules/props'
-import attrsModule from 'snabbdom/modules/attributes'
-import 'space-lift/all'
-import 'logger'
+import { log } from 'kaiju'
+import { Router } from 'abyssa'
+import 'space-lift/es/all'
 
-import { startApp } from 'util/router'
-import app from 'view/app'
-import notFound from 'view/app/routeNotFound'
-import { RouteNames } from 'route'
+import classModule from 'snabbdom/es/modules/class'
+import propsModule from 'snabbdom/es/modules/props'
+import attrsModule from 'snabbdom/es/modules/attributes'
+
+import { startApp } from 'common/util/router'
+import app from 'app'
+import notFound from 'app/routeNotFound'
+import { Routes } from 'route'
 
 
-const snabbdomModules = [
-  classModule,
-  propsModule,
-  attrsModule
-]
+Router.log = env.isDev
+log.render = env.isDev
+log.message = env.isDev
 
-startApp<RouteNames>({
+
+startApp<Routes>({
   app,
-  elm: document.querySelector('#screenLayer')!,
-  snabbdomModules,
-  urlSync: 'hash',
+  elm: document.body,
+  snabbdomModules: [
+    classModule,
+    propsModule,
+    attrsModule
+  ],
   notFound
 })

@@ -46,8 +46,8 @@
     "babel-commonjs": "cross-env BABEL_ENV=commonjs node node_modules/babel-cli/bin/babel.js src --out-dir commonjs",
     "babel-es": "cross-env BABEL_ENV=es node node_modules/babel-cli/bin/babel.js src --out-dir es",
 
-    "copy-lib-to-example": "cp -rf commonjs/. example/node_modules/kaiju/commonjs",
-    "example-dev": "npm run copy-typings-commonjs && npm run babel-commonjs && npm run copy-lib-to-example",
+    "copy-lib-to-example": "cp -rf es/. example/node_modules/kaiju/es",
+    "example-dev": "npm run copy-typings-es && npm run babel-es && npm run copy-lib-to-example",
 
     "build": "npm run copy-typings-commonjs && npm run copy-typings-es && npm run babel-commonjs && npm run babel-es",
 

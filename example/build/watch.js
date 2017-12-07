@@ -1,42 +1,22 @@
-var path = require('path')
-var webpack = require('webpack')
-var ExtractTextPlugin = require('extract-text-webpack-plugin')
+const path = require('path')
 
-var extractStyl = ExtractTextPlugin.extract({
-  fallbackLoader: 'style-loader',
-  loader: [
-    { loader: 'css-loader', query: { modules: true, localIdentName: '[name]-[local]-[hash:base64:5]' } },
-    { loader: 'stylus-loader' }
-  ]
-})
+const resolve = require('./common/resolve')
+const modules = require('./common/modules')
+const plugins = require('./common/plugins')
+const output = require('./common/output')
+
 
 module.exports = {
-  entry: './src/main.ts',
+  context: path.resolve(__dirname, '..'),
 
-  output: {
-    filename: 'main.js',
-    path: './public/'
-  },
+  entry: ['./src/main.ts'],
 
-  module: {
-    loaders: [
-      { test: /\.ts$/, loader: 'ts-loader', exclude: /node_modules/ },
-      { test: /\.styl$/, loader: extractStyl }
-    ]
-  },
+  output,
+  resolve,
 
-  resolve: {
-    extensions: ['.js', '.ts'],
-    modules: [path.resolve('./src'), path.resolve('./node_modules')]
-  },
+  module: modules({ isProd: false }),
 
-  devtool: 'inline-source-map',
+  plugins: plugins({ filename: 'app.css', isProd: false }),
 
-  plugins: [
-    new ExtractTextPlugin('style.css')
-  ],
-
-  performance: {
-    hints: false
-  }
+  devtool: 'source-map'
 }
