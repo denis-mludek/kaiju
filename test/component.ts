@@ -1044,6 +1044,47 @@ describe('Component', () => {
   })
 
 
+  it('can receive a synchronous message inside connect()', done => {
+
+    const Comp = (() => {
+
+      type State = {
+        refreshed: boolean
+      }
+
+      const refresh = Message('refresh')
+
+      function initState() {
+        return {
+          refreshed: false
+        }
+      }
+
+      function connect({ on, msg, state }: ConnectParams<{}, State>) {
+        on(refresh, () => ({ refreshed: true }))
+        msg.send(refresh())
+      }
+
+      function render({ props }: RenderParams<{}, State>) {
+        return h('div')
+      }
+
+      return function() {
+        return Component<{}, State>({ name: 'Component', props: {}, initState, connect, render })
+      }
+    })()
+
+    const comp = Comp()
+
+    RenderInto(document.body, comp)
+      .then(() => {
+        expect(comp.data.component.store.state().refreshed).toBe(true)
+      })
+      .then(done)
+      .catch(done)
+  })
+
+
   // it('can create partially applied Messages at a fair speed', () => {
   //   const message = Message<[string, number]>('')
 

@@ -108,8 +108,6 @@ export function Store(initialState, registerHandlers, options = empty) {
   // Eagerly activate so that any backing resource is involved now.
   store.state.subscribe(x => x)
 
-  registerHandlers({on, msg, state: store.state})
-
   store.send = function(message) {
     const { _id, _name, payload } = message
     const handler = handlers[_id]
@@ -146,6 +144,8 @@ export function Store(initialState, registerHandlers, options = empty) {
     subscriptions.forEach(fn => fn())
     subscriptions.length = 0
   }
+
+  registerHandlers({ on, msg, state: store.state })
 
   return store
 }
