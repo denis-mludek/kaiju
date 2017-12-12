@@ -63,10 +63,18 @@ interface ComponentOptions<P extends Props, S extends {}> {
   render: (params: RenderParams<P, S>) => Node | Node[]
 }
 
+interface ComponentVNode<State> extends VNode {
+  data: VNodeData & {
+    component: {
+      store: Store<State>
+    }
+  }
+}
+
 /**
  * Creates a VNode that has a Component lifecycle.
  */
-export function Component<P extends Props, S extends {}>(options: ComponentOptions<P, S>): VNode
+export function Component<P extends Props, S extends {}>(options: ComponentOptions<P, S>): ComponentVNode<S>
 
 // Internals
 
