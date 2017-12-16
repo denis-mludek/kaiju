@@ -2255,9 +2255,9 @@ jsprim@^1.2.2:
     json-schema "0.2.3"
     verror "1.10.0"
 
-kaiju@0.27.3:
-  version "0.27.3"
-  resolved "https://registry.yarnpkg.com/kaiju/-/kaiju-0.27.3.tgz#28a4b4ecac7543ad30caaec0c5cd45f441a338e3"
+kaiju@0.28.0:
+  version "0.28.0"
+  resolved "https://registry.yarnpkg.com/kaiju/-/kaiju-0.28.0.tgz#f891d9a3f52a5995ce726574687ed4d94a758723"
 
 kind-of@^3.0.2:
   version "3.2.2"
@@ -3843,9 +3843,9 @@ slide@^1.1.5:
   version "1.1.6"
   resolved "https://registry.yarnpkg.com/slide/-/slide-1.1.6.tgz#56eb027d65b4d2dce6cb2e2d32c4d4afc9e1d707"
 
-snabbdom@AlexGalays/snabbdom#3347d15d51bcab22484ea9b83eb2c40a19f72109:
-  version "0.7.0"
-  resolved "https://codeload.github.com/AlexGalays/snabbdom/tar.gz/3347d15d51bcab22484ea9b83eb2c40a19f72109"
+snabbdom@0.7.1:
+  version "0.7.1"
+  resolved "https://registry.yarnpkg.com/snabbdom/-/snabbdom-0.7.1.tgz#c1e9eddfad2c02ebc2cf66aaefb040419d059597"
 
 sntp@1.x.x:
   version "1.0.9"
