@@ -74,24 +74,21 @@ export function Store(initialState, registerHandlers, options = empty) {
     let state = store.state()
 
     try {
-      // This outer loop is used in case a change in the store.state actually triggers more state changes
+      // This loop is used in case a change in the store.state actually triggers more state changes
       while (queue.length) {
 
-        // This inner loop is here to dequeue as many messages as possible before committing a state change
-        while (queue.length) {
-          const { sourceName, handler, arg } = queue.shift()
-          stack++
+        const { sourceName, handler, arg } = queue.shift()
+        stack++
 
-          if (shouldLog)
-            console.log(
-              `%c${sourceName} %creceived by %c${storeName}`,
-              'color: #B31EA6', 'color: black',
-              'font-weight: bold', 'with', arg
-            )
+        if (shouldLog)
+          console.log(
+            `%c${sourceName} %creceived by %c${storeName}`,
+            'color: #B31EA6', 'color: black',
+            'font-weight: bold', 'with', arg
+          )
 
-          const result = handler.apply(null, arg)
-          if (result !== undefined) state = result
-        }
+        const result = handler.apply(null, arg)
+        if (result !== undefined) state = result
 
         if (state !== store.state() && state !== undefined)
           store.state(state)

@@ -81,6 +81,7 @@ describe('Store', () => {
     const pleaseIncreaseByObservable = Observable<number>().named('pleaseIncreaseBy')
 
     const initState = { num: 10 }
+
     const store = Store(initState, ({on, msg, state}) => {
       on(pleaseIncreaseBy, by => store.send(increaseBy(by)))
       on(pleaseIncreaseByObservable, by => store.send(increaseBy(by)))
@@ -92,6 +93,32 @@ describe('Store', () => {
 
     pleaseIncreaseByObservable(5)
     expect(store.state()).toEqual({ num: 20 })
+  })
+
+
+  it('supports messages sent from within message handlers with properly update state in between', () => {
+
+    const increaseBy = Message<number>('increaseBy')
+    const pleaseIncreaseBy = Message<number>('pleaseIncreaseBy')
+
+    const initState = { num: 10 }
+
+    const store = Store(initState, ({on, msg, state}) => {
+      on(pleaseIncreaseBy, by => {
+        store.send(increaseBy(by))
+        return { num: state().num * 2 }
+      })
+
+      on(increaseBy, by => {
+        // If was first updated by the pleaseIncreaseBy
+        expect(state().num).toBe(20)
+
+        return { num: state().num + by }
+      })
+    })
+
+    store.send(pleaseIncreaseBy(5))
+    expect(store.state()).toEqual({ num: 25 })
   })
 
 
