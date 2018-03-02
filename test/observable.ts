@@ -197,6 +197,49 @@ describe('Observable', () => {
     expect(drop1AfterTheFactValues).toEqual([6, 7])
   })
 
+  it('can take some of its values', () => {
+
+    const sourceValues: number[] = []
+    const take1Values: number[] = []
+    const take2Values: number[] = []
+    const take3Values: number[] = []
+    const take2AfterTheFactValues: number[] = []
+
+    let addToSource: (value: number) => void = undefined!
+    const source = Observable<number>(add => {
+      addToSource = add
+    })
+
+    const take1 = source.take(1)
+    const take2 = source.take(2)
+    const take3 = source.take(3)
+
+    source.subscribe(val => sourceValues.push(val))
+    take1.subscribe(val => take1Values.push(val))
+    take2.subscribe(val => take2Values.push(val))
+    take3.subscribe(val => take3Values.push(val))
+
+    addToSource(1)
+    addToSource(2)
+    addToSource(3)
+    addToSource(4)
+    addToSource(5)
+
+    expect(sourceValues).toEqual([ 1, 2, 3, 4, 5 ])
+    expect(take1Values).toEqual([ 1 ])
+    expect(take2Values).toEqual([ 1, 2 ])
+    expect(take3Values).toEqual([ 1, 2, 3 ])
+
+    const take2AfterTheFact = source.take(2)
+
+    take2AfterTheFact.subscribe(val => take2AfterTheFactValues.push(val))
+
+    addToSource(6)
+    addToSource(7)
+
+    // Should take only the value received at subscription time
+    expect(take2AfterTheFactValues).toEqual([ 5, 6 ])
+  })
 
   it('can filter equal adjacent values with distinct()', () => {
 

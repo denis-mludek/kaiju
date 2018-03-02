@@ -88,6 +88,11 @@ export interface Observable<T> {
   sliding(maxWindowSize: number): Observable<Array<T>>
 
   /**
+   * Take 'count' values.  
+   */
+  take(count: number): Observable<T>
+
+  /**
    * Delays values so that values are produced at most once per every 'time' milliseconds
    */
   throttle(time: number): Observable<T>
