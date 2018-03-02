@@ -13,6 +13,7 @@ import _merge from './merge'
 import _partition from './partition'
 import _pure from './pure'
 import _sliding, { sliding2 } from './sliding'
+import _take from './take'
 import _throttle from './throttle'
 
 
@@ -27,6 +28,7 @@ proto.map = function(fn) { return _map(fn, this) }
 proto.partition = function(predicate) { return _partition(predicate, this) }
 proto.sliding = function(num) { return _sliding(num, this) }
 proto.sliding2 = function() { return sliding2(this) }
+proto.take = function(count) { return _take(count, this) }
 proto.throttle = function(time) { return _throttle(time, this) }
 
 // Enrich the Observable object
