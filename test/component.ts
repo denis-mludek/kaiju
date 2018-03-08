@@ -1043,9 +1043,9 @@ describe('Component', () => {
       .catch(done)
   })
 
-  it('can received a msg from wrapped component', done => {
+  it('can receive messages from components wrapped with connectToStore', done => {
 
-    const event = Message<MouseEvent>('event')
+    const click = Message<MouseEvent>('click')
 
     const initState = {}
 
@@ -1062,22 +1062,22 @@ describe('Component', () => {
       function initState() { return {} }
 
       function connect({on, msg}: ConnectParams<Props, {}>) {
-        on(event, (m: any) => msg.sendToParent(m))
+        on(click, (m: any) => msg.sendToParent(click(m)))
       }
 
       function render() {
         return h('div', {
-          attrs: { 
+          attrs: {
             id: 'target'
           },
           events: {
-            click: event
+            click
           }
         })
       }
     
       return function(props: Props) {
-        return Component<Props, {}>({ name: 'baseComponent', props, log: false, initState, connect, render })
+        return Component<Props, {}>({ name: 'baseComponent', props, initState, connect, render })
       }
     })()
 
@@ -1088,17 +1088,18 @@ describe('Component', () => {
       function initState() { return {}}
 
       function connect({ on }: ConnectParams<Props, {}>) {
-        on(event, evt => {
+        on(click, evt => {
           expect(evt.currentTarget).toExist()
+          done()
         })
       }
 
       function render({ props }: RenderParams<Props, {}>) {
-        return WrappedComponent({store});
+        return WrappedComponent({store})
       }
 
       return function(props: Props) {
-        return Component<Props, {}>({ name: 'parentComponent', props, log: false, initState, connect, render })
+        return Component<Props, {}>({ name: 'parentComponent', props, initState, connect, render })
       }
     })()
 
@@ -1108,8 +1109,7 @@ describe('Component', () => {
       snabbdomModules
     })
 
-    const targetDiv = document.getElementById("target")!
-    //console.log(targetDiv) ==> null
+    const targetDiv = document.body.firstElementChild!.firstElementChild!.firstElementChild!.firstElementChild!
     dispatchMouseEventOn(targetDiv, 'click')
   })
 
