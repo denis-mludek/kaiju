@@ -1,5 +1,6 @@
 import h from 'snabbdom/h'
 import Component from './component'
+import Message from './message'
 import { assign } from './util'
 
 
@@ -10,7 +11,7 @@ export default function connectToStore() {
       return {}
     }
 
-    function connect({ on, props, state }) {
+    function connect({ on, props, state, msg }) {
       const { store } = props()
 
       on(props, unfilteredExternalProps => {
@@ -28,6 +29,7 @@ export default function connectToStore() {
         return assign({}, state(), { mappedProps })
       })
 
+      on(Message.unhandled, m => msg.sendToParent(m))
     }
 
     function render({ state }) {
