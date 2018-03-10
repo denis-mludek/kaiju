@@ -1043,6 +1043,76 @@ describe('Component', () => {
       .catch(done)
   })
 
+  it('can receive messages from components wrapped with connectToStore', done => {
+
+    const click = Message<MouseEvent>('click')
+
+    const initState = {}
+
+    const store = Store(initState, ({ on, state }) => {})
+
+    type StoreType = typeof store
+
+    type Props = {
+      opt?: string
+    }
+
+    const BaseComponent = (() => {
+
+      function initState() { return {} }
+
+      function connect({on, msg}: ConnectParams<Props, {}>) {
+        on(click, (m: any) => msg.sendToParent(click(m)))
+      }
+
+      function render() {
+        return h('div', {
+          attrs: {
+            id: 'target'
+          },
+          events: {
+            click
+          }
+        })
+      }
+    
+      return function(props: Props) {
+        return Component<Props, {}>({ name: 'baseComponent', props, initState, connect, render })
+      }
+    })()
+
+    const WrappedComponent = connectToStore<StoreType>()(BaseComponent, store => ({}))
+
+    const ParentComponent = (() => {
+
+      function initState() { return {}}
+
+      function connect({ on }: ConnectParams<Props, {}>) {
+        on(click, evt => {
+          expect(evt.currentTarget).toExist()
+          done()
+        })
+      }
+
+      function render({ props }: RenderParams<Props, {}>) {
+        return WrappedComponent({store})
+      }
+
+      return function(props: Props) {
+        return Component<Props, {}>({ name: 'parentComponent', props, initState, connect, render })
+      }
+    })()
+
+    startApp({
+      app: ParentComponent({}),
+      elm: document.body,
+      snabbdomModules
+    })
+
+    const targetDiv = document.body.firstElementChild!.firstElementChild!.firstElementChild!.firstElementChild!
+    dispatchMouseEventOn(targetDiv, 'click')
+  })
+
 
   it('can receive a synchronous message inside connect()', done => {
 
