@@ -1,8 +1,8 @@
 .DS_Store
 node_modules
 
-commonjs
-es
+# commonjs
+# es
 
 /test/*.js
 
